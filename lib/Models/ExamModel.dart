@@ -1,4 +1,4 @@
-class ExamDataRaw {
+class ExamItem {
   final String name;
 
   final String examTime;
@@ -7,15 +7,15 @@ class ExamDataRaw {
 
   final String seatNo;
 
-  ExamDataRaw({
+  ExamItem({
     this.name = '',
     this.examTime = '',
     this.room = '',
     this.seatNo = '',
   });
 
-  factory ExamDataRaw.fromJson(Map<String, dynamic> json){
-    return ExamDataRaw(
+  factory ExamItem.fromJson(Map<String, dynamic> json){
+    return ExamItem(
       name: json['name'] ?? '',
       examTime: json['time'] ?? '',
       room: json['location'] ?? '',

@@ -19,8 +19,11 @@ class _SchedulePageState extends State<SchedulePage> {
   int weekNow = 0;
 
   Future<void> fetchData(int weekChange) async {
-    if (weekChange < 0 || weekChange > maxWeek) {
-      return;
+    if (weekChange < 0) {
+      weekChange = maxWeek;
+    }
+    if (weekChange > maxWeek) {
+      weekChange = 0;
     }
     final dataService = DataService();
     final allCourse = await dataService.getCourseByWeek(week: weekChange);
@@ -105,10 +108,21 @@ class _SchedulePageState extends State<SchedulePage> {
     final weekDays = [];
     final a = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     final now = DateTime.now();
-    final w = now.subtract(Duration(days: now.weekday + (weekNow - week) * 7));
+    int weekday = now.weekday;
+    if(weekday == 7)weekday = 0;
+    final w = now.subtract(Duration(days: weekday  + (weekNow - week) * 7));
     for (int i = 0; i < 7; i++) {
       weekDays.add(
-          '${a[i]} ${DateFormat('MM/dd').format(w.add(Duration(days: i)))}');
+        Expanded(
+          child: Center(
+              child: Text(
+                  '${a[i]} ${DateFormat('MM/dd').format(w.add(Duration(days: i)))}',
+                  style: TextStyle(
+                    fontWeight:
+                        i == weekday ? FontWeight.bold : FontWeight.normal,
+                  ))),
+        ),
+      );
     }
     return Container(
       height: 50,
@@ -118,9 +132,7 @@ class _SchedulePageState extends State<SchedulePage> {
       child: Row(
         children: [
           _buildTimeCell(''),
-          ...weekDays.map((day) => Expanded(
-                child: Center(child: Text(day)),
-              )),
+          ...weekDays,
         ],
       ),
     );
@@ -192,21 +204,21 @@ class _SchedulePageState extends State<SchedulePage> {
                   Text(
                     course.courseName,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     course.room,
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 9,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     course.teachers.join(', '),
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 8,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

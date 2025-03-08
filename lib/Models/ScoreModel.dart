@@ -1,3 +1,5 @@
+import 'package:ios_club_app/Models/SemesterModel.dart';
+
 class ScoreModel {
   String name;
   String lessonCode;
@@ -29,4 +31,11 @@ class ScoreModel {
       credit: json['credit'] ?? 0,
     );
   }
+}
+
+class ScoreList {
+  List<ScoreModel> list;
+  SemesterModel semester;
+
+  ScoreList({required this.semester, required this.list});
 }

@@ -22,16 +22,27 @@ class DataService {
 
   Future<Map<String, int>> getWeek() async {
     final time = await getTime();
-    final week = DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
-    final maxWeek =DateTime.parse(time["endTime"]!).difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
-    return {'week':week,'maxWeek':maxWeek};
+    final week =
+        DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/
+                7 +
+            1;
+    final maxWeek = DateTime.parse(time["endTime"]!)
+                .difference(DateTime.parse(time["startTime"]!))
+                .inDays ~/
+            7 +
+        1;
+    return {'week': week, 'maxWeek': maxWeek};
   }
 
   Future<List<CourseModel>> getCourseByWeek({int week = 0}) async {
     final allCourse = await getAllCourse();
-    if(week == 0){
+    if (week == 0) {
       final time = await getTime();
-      week = DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
+      week = DateTime.now()
+                  .difference(DateTime.parse(time["startTime"]!))
+                  .inDays ~/
+              7 +
+          1;
     }
     return allCourse
         .where((course) => course.weekIndexes.contains(week))
@@ -41,7 +52,10 @@ class DataService {
   Future<List<CourseModel>> getCourse() async {
     final allCourse = await getAllCourse();
     final time = await getTime();
-    var a = DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
+    var a =
+        DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/
+                7 +
+            1;
     return allCourse
         .where((course) =>
             course.weekIndexes.contains(a) &&
@@ -49,29 +63,34 @@ class DataService {
         .toList();
   }
 
-  Future<List<ScoreModel>> getScore() async {
+  Future<List<ScoreList>> getScore() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('score_data');
-    final List<ScoreModel> list = [];
+    final String? jsonString = prefs.getString('all_score_data');
+    final s = await getSemester();
+    final List<ScoreList> list = [];
     if (jsonString != null) {
-      final jsonList = jsonDecode(jsonString);
-      jsonList.forEach((json) {
-        list.add(ScoreModel.fromJson(json));
+      final Map<String, dynamic> jsonList = jsonDecode(jsonString);
+      jsonList.forEach((String key, value) {
+        final scoreList = jsonDecode(value);
+        list.add(ScoreList(
+          semester: s.firstWhere((x) => x.semester == key),
+          list: (scoreList as List).map((e) => ScoreModel.fromJson(e)).toList(),
+        ));
       });
     }
 
     return list;
   }
 
-  Future<List<ExamDataRaw>> getExam() async {
+  Future<List<ExamItem>> getExam() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('exam_data');
-    final List<ExamDataRaw> list = [];
+    final List<ExamItem> list = [];
     if (jsonString != null) {
       var jsonList = jsonDecode(jsonString);
       jsonList = jsonList["exams"];
       jsonList.forEach((json) {
-        list.add(ExamDataRaw.fromJson(json));
+        list.add(ExamItem.fromJson(json));
       });
     }
 

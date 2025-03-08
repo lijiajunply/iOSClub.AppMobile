@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ios_club_app/Models/CourseColorManager.dart';
 
 import '../Services/DataService.dart';
 
@@ -22,7 +23,7 @@ class _ExamCardState extends State<ExamCard> {
               title: course.name,
               time: course.examTime,
               location: course.room,
-              color: Colors.blue,
+              color: CourseColorManager.generateSoftColor(course),
               seat: course.seatNo,
             )));
       });
@@ -43,9 +44,7 @@ class _ExamCardState extends State<ExamCard> {
               )),
             ))
         : ListView.builder(
-            // 关键是添加这些属性
-            shrinkWrap: true, // 让 ListView 根据内容自适应高度
-            physics: const NeverScrollableScrollPhysics(), // 禁用 ListView 自身的滚动
+            shrinkWrap: true,
             itemCount: examItems.length,
             itemBuilder: (context, index) {
               final exam = examItems[index];

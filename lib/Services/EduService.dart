@@ -11,17 +11,17 @@ class EduService {
       // 调用API
       final prefs = await SharedPreferences.getInstance();
       var now = DateTime.now().millisecondsSinceEpoch;
-      final last = prefs.getInt('last_fetch_time');
-      if (last != null) {
-        if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 15) {
-          return true;
-        }
-      }
+      // final last = prefs.getInt('last_fetch_time');
+      // if (last != null) {
+      //   if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 15) {
+      //     return true;
+      //   }
+      // }
 
       final loginResult = await login();
-      if (!loginResult) {
-        return false;
-      }
+      // if (!loginResult) {
+      //   return false;
+      // }
       var cookieData = await getCookieData();
       await getSemester(userData: cookieData);
       await getTime();
@@ -85,6 +85,35 @@ class EduService {
     return null;
   }
 
+  Future<void> getThisSemester({UserData? userData}) async {
+    UserData? cookieData = userData ?? await getCookieData();
+    if (cookieData == null) {
+      return;
+    }
+
+    try {
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cookie': cookieData.cookie,
+        'xauat': cookieData.cookie,
+      };
+
+      final response = await http.get(
+          Uri.parse('https://xauatapi.xauat.site/Score/ThisSemester'),
+          headers: finalHeaders);
+
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'this_semester_data', response.body);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+  }
 
   Future<void> getSemester({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
@@ -101,13 +130,13 @@ class EduService {
       };
 
       final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site//Score/Semester'),
+          Uri.parse('https://xauatapi.xauat.site/Score/Semester'),
           headers: finalHeaders);
 
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
-            'semester_data', jsonEncode(jsonDecode(response.body)));
+            'semester_data', response.body);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -161,8 +190,7 @@ class EduService {
     }
   }
 
-  Future<void> getAllScore(
-      {String semester = '281', UserData? userData}) async {
+  Future<void> getAllScore({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
@@ -182,7 +210,7 @@ class EduService {
       for (var item in list) {
         final response = await http.get(
             Uri.parse(
-                'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=$semester'),
+                'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${item.semester}'),
             headers: finalHeaders);
 
         if (response.statusCode == 200) {
