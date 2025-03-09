@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lottie/lottie.dart';
 import 'Pages/HomePage.dart';
+import 'Pages/ProfilePage.dart';
 import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
 
@@ -53,15 +54,22 @@ class _SplashScreenState extends State<SplashScreen>
         height: MediaQuery.of(context).size.height * 1,
         animate: true,
         onLoaded: (composition) async{
-          final dataService = EduService();
-          // 获取并存储数据
-          await dataService.getAllData();
           _controller
             ..duration = composition.duration
-            ..forward().whenComplete(() => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyApp()),
-                ));
+            ..repeat();
+
+          final dataService = EduService();
+          // 获取并存储数据
+          final dataFuture =  dataService.getAllData();
+
+          await Future.wait([
+            dataFuture,
+          ]);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MyApp()),
+          );
         },
       ),
     ));
@@ -118,7 +126,7 @@ class _MyAppState extends State<MyApp> {
     0: '/',
     1: '/Schedule',
     2: '/Score',
-    3: '/Setting',
+    3: '/Profile',
   };
 
   final MaterialApp _app = MaterialApp(
@@ -131,7 +139,7 @@ class _MyAppState extends State<MyApp> {
         '/': (context) => const HomePage(),
         '/Schedule': (context) => const ScheduleListPage(),
         '/Score': (context) => const ScorePage(),
-        '/Setting': (context) => const SettingPage(),
+        '/Profile': (context) => const ProfilePage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

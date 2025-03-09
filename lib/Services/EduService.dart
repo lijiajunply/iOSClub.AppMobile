@@ -38,6 +38,40 @@ class EduService {
     }
   }
 
+  Future<bool> loginFromData(String username, String password) async {
+    if(username.isEmpty || password.isEmpty){
+      return false;
+    }
+
+    try {
+      // 调用API
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+      final prefs = await SharedPreferences.getInstance();
+
+      final String jsonBody =
+      jsonEncode({'username': username, 'password': password});
+
+      final response = await http.post(
+          Uri.parse('https://xauatapi.xauat.site/Login'),
+          body: jsonBody,
+          headers: finalHeaders);
+
+      if (response.statusCode == 200) {
+        await prefs.setString('user_data', response.body);
+        return true;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return false;
+  }
+
   Future<bool> login() async {
     try {
       // 调用API
@@ -46,8 +80,17 @@ class EduService {
         'Content-Type': 'application/json'
       };
       final prefs = await SharedPreferences.getInstance();
-      final String username = prefs.getString('username') ?? '2211030217';
-      final String password = prefs.getString('password') ?? 'LIjiajun123456';
+      final String? username = prefs.getString('username');
+      final String? password = prefs.getString('password');
+
+      if(username == null || password == null){
+        return false;
+      }
+
+      if (username.isEmpty || password.isEmpty) {
+        return false;
+      }
+
       final String jsonBody =
           jsonEncode({'username': username, 'password': password});
 

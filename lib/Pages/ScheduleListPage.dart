@@ -127,7 +127,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   }
 
   Widget _buildWeekHeader(int i) {
-    final a = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    final a = ['日', '一', '二', '三', '四', '五', '六'];
     final weekDays = [];
     if (i == 0) {
       for (int i1 = 0; i1 < 7; i1++) {
@@ -162,7 +162,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         Expanded(
           child: Center(
               child: Text(
-                  '${a[i1]} ${DateFormat('M/d').format(w.add(Duration(days: i1)))}',
+                  '${a[i1]}\n${DateFormat('M/d').format(w.add(Duration(days: i1)))}',
                   style: TextStyle(
                     fontWeight: i1 == weekday && weekNow - i == 0
                         ? FontWeight.bold
@@ -292,6 +292,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
+    final weekdayName = ['日','一', '二', '三', '四', '五', '六', '日'];
 
     var content = Container(
         padding: const EdgeInsets.all(16),
@@ -345,7 +346,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ),
               const SizedBox(width: 4),
               Text(
-                '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${course.weekday} 第${course.startUnit}节~第${course.endUnit}节',
+                '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}节~第${course.endUnit}节',
                 style: TextStyle(
                   fontSize: isTablet ? 17 : 12,
                   overflow: TextOverflow.ellipsis,
