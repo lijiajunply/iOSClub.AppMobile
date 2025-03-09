@@ -1,37 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Models/CourseColorManager.dart';
+import 'package:ios_club_app/Services/EduService.dart';
 
 import '../Models/ScoreModel.dart';
-import '../Services/DataService.dart';
 
-class ScorePage extends StatefulWidget {
+class ScorePage extends StatelessWidget {
   const ScorePage({super.key});
 
   @override
-  State<ScorePage> createState() => _ScorePageState();
+  Widget build(BuildContext context) {
+    final dataService = EduService();
+    return FutureBuilder(
+        future: dataService.getAllScoreFromLocal(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              // 请求失败，显示错误
+              return Text("Error: ${snapshot.error}");
+            } else {
+              // 请求成功，显示数据
+              return ScorefulPage(
+                scoreList: snapshot.data!,
+              );
+            }
+          } else {
+            // 请求未结束，显示loading
+            return const CircularProgressIndicator();
+          }
+        });
+  }
 }
 
-class _ScorePageState extends State<ScorePage> {
-  final List<ScoreList> scoreList = [];
+class ScorefulPage extends StatefulWidget {
+  final List<ScoreList> scoreList;
+
+  const ScorefulPage({super.key, required this.scoreList});
 
   @override
-  initState() {
-    super.initState();
-    final dataService = DataService();
-    dataService.getScore().then((value) {
-      setState(() {
-        scoreList.clear();
-        scoreList.addAll(value);
-      });
-    });
-  }
+  State<ScorefulPage> createState() => _ScorefulPageState();
+}
 
+//await getAllScore(userData: cookieData);
+
+class _ScorefulPageState extends State<ScorefulPage> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-        itemCount: scoreList.length,
+        itemCount: widget.scoreList.length,
         itemBuilder: (context, index) {
-          final score = scoreList[index];
+          final score = widget.scoreList[index];
           final semesterNames = score.semester.name.split('-');
           return Card(
             margin:
@@ -41,11 +58,9 @@ class _ScorePageState extends State<ScorePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(children: [
                   Text(
-                      '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
+                    '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold
-                    ),
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   ...score.list.map((item) => _buildScheduleItem(item))
                 ])),

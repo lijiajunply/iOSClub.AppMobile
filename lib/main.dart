@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:lottie/lottie.dart';
 import 'Pages/HomePage.dart';
-import 'Pages/SchedulePage.dart';
+import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
 
 import 'Pages/ScorePage.dart';
@@ -12,9 +13,6 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final dataService = EduService();
-  // 获取并存储数据
-  await dataService.getAllData();
 
   runApp(MaterialApp(
       title: 'iOS Club App',
@@ -22,7 +20,52 @@ void main() async {
         useMaterial3: true,
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
       ),
-      home: const MyApp()));
+      home: const SplashScreen()));
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: (5)),
+      vsync: this,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Center(
+      child: Lottie.asset(
+        'assets/lottie.json',
+        controller: _controller,
+        height: MediaQuery.of(context).size.height * 1,
+        animate: true,
+        onLoaded: (composition) async{
+          final dataService = EduService();
+          // 获取并存储数据
+          await dataService.getAllData();
+          _controller
+            ..duration = composition.duration
+            ..forward().whenComplete(() => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyApp()),
+                ));
+        },
+      ),
+    ));
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -86,7 +129,7 @@ class _MyAppState extends State<MyApp> {
       ),
       routes: {
         '/': (context) => const HomePage(),
-        '/Schedule': (context) => const SchedulePage(),
+        '/Schedule': (context) => const ScheduleListPage(),
         '/Score': (context) => const ScorePage(),
         '/Setting': (context) => const SettingPage(),
       },

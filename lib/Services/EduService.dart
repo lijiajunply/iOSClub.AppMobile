@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
 
 class EduService {
@@ -11,21 +12,20 @@ class EduService {
       // 调用API
       final prefs = await SharedPreferences.getInstance();
       var now = DateTime.now().millisecondsSinceEpoch;
-      // final last = prefs.getInt('last_fetch_time');
-      // if (last != null) {
-      //   if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 15) {
-      //     return true;
-      //   }
-      // }
+      final last = prefs.getInt('last_fetch_time');
+      if (last != null) {
+        if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 30) {
+          return true;
+        }
+      }
 
       final loginResult = await login();
-      // if (!loginResult) {
-      //   return false;
-      // }
+      if (!loginResult) {
+        return false;
+      }
       var cookieData = await getCookieData();
       await getSemester(userData: cookieData);
       await getTime();
-      await getAllScore(userData: cookieData);
       await getCourse(userData: cookieData);
       await getExam(userData: cookieData);
       await prefs.setInt('last_fetch_time', now);
@@ -224,6 +224,75 @@ class EduService {
         print('Error fetching data: $e');
       }
     }
+  }
+
+  Future<List<ScoreList>> getAllScoreFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('all_score_data');
+    final dateService = DataService();
+    final semesters = await dateService.getSemester();
+
+    if(jsonString != null && jsonString.isNotEmpty){
+      final List<ScoreList> list = [];
+      final Map<String, dynamic> jsonList = jsonDecode(jsonString);
+      jsonList.forEach((String key, value) {
+        final scoreList = jsonDecode(value);
+        list.add(ScoreList(
+          semester: semesters.firstWhere((x) => x.semester == key),
+          list: (scoreList as List).map((e) => ScoreModel.fromJson(e)).toList(),
+        ));
+      });
+
+      return list;
+    }
+
+    UserData? cookieData = await getCookieData();
+    if (cookieData == null) {
+      return [];
+    }
+
+    try {
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cookie': cookieData.cookie,
+        'xauat': cookieData.cookie,
+      };
+
+      final data = DataService();
+      final list = await data.getSemester();
+      final Map<String, String> json = {};
+      for (var item in list) {
+        final response = await http.get(
+            Uri.parse(
+                'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${item.semester}'),
+            headers: finalHeaders);
+
+        if (response.statusCode == 200) {
+          json[item.semester] = response.body;
+        }
+      }
+
+      await prefs.setString('all_score_data', jsonEncode(json));
+
+      final List<ScoreList> scoreReturnList = [];
+      final Map<String, dynamic> jsonList = jsonDecode(jsonEncode(json));
+      jsonList.forEach((String key, value) {
+        final scoreList = jsonDecode(value);
+        scoreReturnList.add(ScoreList(
+          semester: semesters.firstWhere((x) => x.semester == key),
+          list: (scoreList as List).map((e) => ScoreModel.fromJson(e)).toList(),
+        ));
+      });
+
+      return scoreReturnList;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return [];
   }
 
   Future<void> getExam({String semester = '281', UserData? userData}) async {
