@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Models/ScoreModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
@@ -141,5 +142,17 @@ class DataService {
     }
 
     return list;
+  }
+
+  Future<InfoModel> getInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('info_data');
+
+    if (jsonString != null) {
+      final jsonList = jsonDecode(jsonString);
+      return InfoModel.fromJson((jsonList as List<dynamic>)[0]);
+    } else {
+      throw Exception('No data found');
+    }
   }
 }

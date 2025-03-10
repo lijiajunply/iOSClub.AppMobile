@@ -66,14 +66,14 @@ class _SplashScreenState extends State<SplashScreen>
         controller: _controller,
         height: MediaQuery.of(context).size.height * 1,
         animate: true,
-        onLoaded: (composition) async{
+        onLoaded: (composition) async {
           _controller
             ..duration = composition.duration
             ..repeat();
 
           final dataService = EduService();
           // 获取并存储数据
-          final dataFuture =  dataService.getAllData();
+          final dataFuture = dataService.getAllData();
 
           await Future.wait([
             dataFuture,
@@ -147,6 +147,17 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        pageTransitionsTheme: PageTransitionsTheme(
+          builders: {
+            // 为不同平台配置不同的转场动画
+            TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: CustomPageTransitionBuilder(),
+            TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
+            TargetPlatform.linux: CustomPageTransitionBuilder(),
+            // 其他平台也可以添加
+          },
+        ),
       ),
       routes: {
         '/': (context) => const HomePage(),
@@ -214,6 +225,27 @@ class _MyAppState extends State<MyApp> {
                 },
               ),
             ),
+    );
+  }
+}
+
+class CustomPageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+
+    // 或者滑动效果
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(1, 0),
+        end: Offset.zero,
+      ).animate(animation),
+      child: child,
     );
   }
 }

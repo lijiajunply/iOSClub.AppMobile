@@ -25,7 +25,9 @@ class ScorePage extends StatelessWidget {
             }
           } else {
             // 请求未结束，显示loading
-            return const Center(child: CircularProgressIndicator(),);
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
         });
   }
@@ -112,7 +114,8 @@ class _ScoreBuilderState extends State<ScoreBuilder> {
                             size: 16, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text('${item.credit}学分',
-                            style: TextStyle(color: Colors.grey[600])),
+                            style: TextStyle(
+                                color: Colors.grey[600])),
                         const SizedBox(width: 16),
                         Icon(Icons.location_on,
                             size: 16, color: Colors.grey[600]),

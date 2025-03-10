@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ios_club_app/Models/InfoModel.dart';
+import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Widgets/StudyCreditCard.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,8 +21,9 @@ class _ProfilePageState extends State<ProfilePage>
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = true;
-  List tabs = ["教务系统账号", "iMember账号"];
+  late bool? _isBoth;
   late final TabController _tabController;
+  late InfoModel _info;
 
   @override
   void initState() {
@@ -31,14 +36,24 @@ class _ProfilePageState extends State<ProfilePage>
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username');
     final password = prefs.getString('password');
+    final iosName = prefs.getString('iosName');
 
-    setState(() {
+    final dataService = DataService();
+    final a = await dataService.getInfo();
+    setState(()  {
       _isLoggedIn = username != null &&
           password != null &&
           username.isNotEmpty &&
           password.isNotEmpty;
       _username = username ?? '';
       _isLoading = false;
+      _info = a;
+      if (iosName == null || iosName.isNotEmpty) {
+        _isBoth = false;
+      } else {
+        _username = iosName;
+        if (_isLoggedIn) _isBoth = true;
+      }
     });
   }
 
@@ -121,8 +136,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
 
     return Scaffold(
-      body: _isLoggedIn ? _buildProfileContent() : _buildLoginForm(),
-    );
+        body: _isLoggedIn ? _buildProfileContent() : _buildLoginForm());
   }
 
   Widget _buildLoginForm() {
@@ -148,8 +162,12 @@ class _ProfilePageState extends State<ProfilePage>
                 TabBar(
                   controller: _tabController,
                   tabs: const [
-                    Tab(text: '教务系统',),
-                    Tab(text: 'iMember',),
+                    Tab(
+                      text: '教务系统',
+                    ),
+                    Tab(
+                      text: 'iMember',
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -176,7 +194,9 @@ class _ProfilePageState extends State<ProfilePage>
                     fillColor: Colors.grey[100],
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(_obscureText
+                          ? Icons.visibility_off
+                          : Icons.visibility),
                       onPressed: () {
                         setState(() {
                           _obscureText = !_obscureText;
@@ -222,55 +242,64 @@ class _ProfilePageState extends State<ProfilePage>
       child: Column(
         children: [
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 32.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+            decoration: const BoxDecoration(
+              color: Color.fromRGBO(247, 247, 247, 0.6),
             ),
-            child: Column(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 60,
-                    color: Colors.grey,
-                  ),
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.white,
+                      backgroundImage: AssetImage('assets/icon.png'),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _username,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        //const SizedBox(height: 8),
+                        Text(
+                          _isBoth == null
+                              ? 'iMember'
+                              : _isBoth!
+                                  ? 'iMember & 教务系统账号'
+                                  : '教务系统账号',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  _username,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.exit_to_app),
+                  onPressed: _logout,
+                  label: const Text('退出登录'),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          _buildProfileItem(Icons.settings, '设置'),
-          _buildProfileItem(Icons.help_outline, '帮助与反馈'),
-          _buildProfileItem(Icons.info_outline, '关于我们'),
-          _buildProfileItem(Icons.exit_to_app, '退出登录'),
-          const SizedBox(height: 24),
+          Padding(
+              padding: const EdgeInsets.all(16),
+              child: StudyCreditCard(data: _info))
         ],
       ),
-    );
-  }
-
-  Widget _buildProfileItem(IconData icon, String title) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () async {
-        if(title == "退出登录"){
-          await _logout();
-        }
-      },
     );
   }
 

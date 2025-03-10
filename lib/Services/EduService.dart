@@ -29,6 +29,7 @@ class EduService {
       await getTime();
       await getCourse(userData: cookieData);
       await getExam(userData: cookieData);
+      await getInfoCompletion(userData: cookieData);
       await prefs.setInt('last_fetch_time', now);
       return true;
     } catch (e) {
@@ -258,21 +259,30 @@ class EduService {
   Future<List<ScoreList>> getAllScoreFromLocal() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('all_score_data');
+    var now = DateTime.now().millisecondsSinceEpoch;
+
     final dateService = DataService();
     final semesters = await dateService.getSemester();
 
-    if (jsonString != null && jsonString.isNotEmpty) {
-      final List<ScoreList> list = [];
-      final Map<String, dynamic> jsonList = jsonDecode(jsonString);
-      jsonList.forEach((String key, value) {
-        final scoreList = jsonDecode(value);
-        list.add(ScoreList(
-          semester: semesters.firstWhere((x) => x.semester == key),
-          list: (scoreList as List).map((e) => ScoreModel.fromJson(e)).toList(),
-        ));
-      });
+    final last = prefs.getInt('last_Score_time');
+    if (last != null) {
+      if (now - prefs.getInt('last_Score_time')! < 1000 * 60 * 60) {
+        if (jsonString != null && jsonString.isNotEmpty) {
+          final List<ScoreList> list = [];
+          final Map<String, dynamic> jsonList = jsonDecode(jsonString);
+          jsonList.forEach((String key, value) {
+            final scoreList = jsonDecode(value);
+            list.add(ScoreList(
+              semester: semesters.firstWhere((x) => x.semester == key),
+              list: (scoreList as List)
+                  .map((e) => ScoreModel.fromJson(e))
+                  .toList(),
+            ));
+          });
 
-      return list;
+          return list;
+        }
+      }
     }
 
     UserData? cookieData = await getCookieData();
@@ -314,12 +324,14 @@ class EduService {
         ));
       });
 
+      await prefs.setInt('last_Score_time', now);
       return scoreReturnList;
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching data: $e');
       }
     }
+
 
     return [];
   }
@@ -363,6 +375,36 @@ class EduService {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'time_data', jsonEncode(jsonDecode(response.body)));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+  }
+
+  Future<void> getInfoCompletion({UserData? userData}) async {
+    UserData? cookieData = userData ?? await getCookieData();
+    if (cookieData == null) {
+      return;
+    }
+
+    try {
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cookie': cookieData.cookie,
+        'xauat': cookieData.cookie,
+      };
+
+      final response = await http.get(
+          Uri.parse('https://xauatapi.xauat.site/Info/Completion'),
+          headers: finalHeaders);
+      if (response.statusCode == 200) {
+        // 存储到本地
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'info_data', jsonEncode(jsonDecode(response.body)));
       }
     } catch (e) {
       if (kDebugMode) {

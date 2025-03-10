@@ -22,7 +22,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   void jumpToPage(int page) {
     if (page < 0) {
-      page = maxWeek - 1;
+      page = maxWeek;
     } else if (page > maxWeek) {
       page = 0;
     }
