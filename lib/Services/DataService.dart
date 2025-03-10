@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
 import '../Models/ExamModel.dart';
 import '../Models/SemesterModel.dart';
+import 'TimeService.dart';
 
 class DataService {
   Future<List<CourseModel>> getAllCourse() async {
@@ -52,15 +53,31 @@ class DataService {
   Future<List<CourseModel>> getCourse() async {
     final allCourse = await getAllCourse();
     final time = await getTime();
-    var a =
-        DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/
-                7 +
-            1;
-    return allCourse
-        .where((course) =>
-            course.weekIndexes.contains(a) &&
-            course.weekday == DateTime.now().weekday)
-        .toList();
+    final now = DateTime.now();
+    var a = now.difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
+    final filteredCourses = allCourse.where((course) {
+      var endTime = "";
+      if (course.room.substring(0, 2) == "雁塔") {
+        if (now.month >= 5 && now.month <= 10) {
+          endTime = TimeService.YanTaXia[course.endUnit];
+        } else {
+          endTime = TimeService.YanTaDong[course.endUnit];
+        }
+      } else {
+        endTime = TimeService.CanTangTime[course.endUnit];
+      }
+
+      final l = endTime.split(':');
+      var end = DateTime(
+          now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
+      return course.weekIndexes.contains(a) &&
+          course.weekday == now.weekday &&
+          now.isBefore(end);
+    }).toList();
+
+    filteredCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+
+    return filteredCourses;
   }
 
   Future<List<ScoreList>> getScore() async {

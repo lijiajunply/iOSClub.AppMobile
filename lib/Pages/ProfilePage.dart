@@ -9,17 +9,22 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage>
+    with TickerProviderStateMixin {
   bool _isLoggedIn = false;
   String _username = '';
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscureText = true;
   bool _isLoading = true;
+  List tabs = ["教务系统账号", "iMember账号"];
+  late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   Future<void> _checkLoginStatus() async {
@@ -49,15 +54,30 @@ class _ProfilePageState extends State<ProfilePage> {
       _isLoading = true;
     });
 
-    // 模拟网络请求延迟
     final edu = EduService();
-    final result = await edu.loginFromData(
-        _usernameController.text, _passwordController.text);
+    var result = false;
+
+    for (var i = 0; i < 3; i++) {
+      result = await edu.loginFromData(
+        _usernameController.text,
+        _passwordController.text,
+      );
+      if (result) break;
+      await Future.delayed(const Duration(seconds: 1));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('正在重试')),
+      );
+    }
 
     if (!result) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('登录失败，请检查用户名和密码')),
       );
+
+      setState(() {
+        _isLoggedIn = false;
+        _isLoading = false;
+      });
       return;
     }
 
@@ -81,8 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('username');
-    await prefs.remove('password');
+    await prefs.clear();
 
     setState(() {
       _isLoggedIn = false;
@@ -107,47 +126,93 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildLoginForm() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Icon(
-            Icons.account_circle,
-            size: 100,
-            color: Colors.grey,
-          ),
-          const SizedBox(height: 32),
-          TextField(
-            controller: _usernameController,
-            decoration: const InputDecoration(
-              labelText: '用户名',
-              prefixIcon: Icon(Icons.person),
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: '密码',
-              prefixIcon: Icon(Icons.lock),
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _login,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('登录', style: TextStyle(fontSize: 16)),
-          ),
-        ],
+    final width = MediaQuery.of(context).size.width;
+    var a = width / 5;
+    if (width > 600) {
+      a = width / 7;
+    }
+    return Scaffold(
+      body: Center(
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: a),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo
+                Image.asset(
+                  'assets/icon.png',
+                  width: 120,
+                  height: 120,
+                ),
+                const SizedBox(height: 16),
+                TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: '教务系统',),
+                    Tab(text: 'iMember',),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 密码输入框
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscureText,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // 登录按钮
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      '登录',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )),
       ),
     );
   }
@@ -189,19 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildProfileItem(Icons.settings, '设置'),
           _buildProfileItem(Icons.help_outline, '帮助与反馈'),
           _buildProfileItem(Icons.info_outline, '关于我们'),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ElevatedButton(
-              onPressed: _logout,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('退出登录', style: TextStyle(fontSize: 16)),
-            ),
-          ),
+          _buildProfileItem(Icons.exit_to_app, '退出登录'),
           const SizedBox(height: 24),
         ],
       ),
@@ -213,8 +266,10 @@ class _ProfilePageState extends State<ProfilePage> {
       leading: Icon(icon),
       title: Text(title),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {
-        // 处理点击事件
+      onTap: () async {
+        if(title == "退出登录"){
+          await _logout();
+        }
       },
     );
   }

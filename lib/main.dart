@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lottie/lottie.dart';
 import 'Pages/HomePage.dart';
@@ -7,7 +8,6 @@ import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
 
 import 'Pages/ScorePage.dart';
-import 'Pages/SettingPage.dart';
 import 'Services/EduService.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -36,6 +36,12 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _controller = AnimationController(
@@ -46,6 +52,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: theme.scaffoldBackgroundColor, // 状态栏背景颜色
+      statusBarIconBrightness: theme.brightness == Brightness.dark
+          ? Brightness.light // 如果是深色主题，图标为亮色
+          : Brightness.dark, // 如果是浅色主题，图标为暗色
+    ));
     return Scaffold(
         body: Center(
       child: Lottie.asset(

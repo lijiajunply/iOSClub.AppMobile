@@ -1,7 +1,8 @@
-import 'dart:convert';
+import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:ios_club_app/Services/DataService.dart';
+import 'package:ios_club_app/Services/LoginService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
@@ -39,28 +40,26 @@ class EduService {
   }
 
   Future<bool> loginFromData(String username, String password) async {
-    if(username.isEmpty || password.isEmpty){
+    if (username.isEmpty || password.isEmpty) {
       return false;
     }
 
     try {
-      // 调用API
-      final Map<String, String> finalHeaders = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
       final prefs = await SharedPreferences.getInstance();
 
-      final String jsonBody =
-      jsonEncode({'username': username, 'password': password});
+      final loginService = LoginService(http.Client(), CodeService());
+      final response = await loginService.loginAsync(username, password);
 
-      final response = await http.post(
-          Uri.parse('https://xauatapi.xauat.site/Login'),
-          body: jsonBody,
-          headers: finalHeaders);
+      if (response["success"] == true) {
+        await prefs.setString('user_data', jsonEncode(response));
 
-      if (response.statusCode == 200) {
-        await prefs.setString('user_data', response.body);
+        var cookieData = await getCookieData();
+        var now = DateTime.now().millisecondsSinceEpoch;
+        await getSemester(userData: cookieData);
+        await getTime();
+        await getCourse(userData: cookieData);
+        await getExam(userData: cookieData);
+        await prefs.setInt('last_fetch_time', now);
         return true;
       }
     } catch (e) {
@@ -74,16 +73,11 @@ class EduService {
 
   Future<bool> login() async {
     try {
-      // 调用API
-      final Map<String, String> finalHeaders = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
       final prefs = await SharedPreferences.getInstance();
       final String? username = prefs.getString('username');
       final String? password = prefs.getString('password');
 
-      if(username == null || password == null){
+      if (username == null || password == null) {
         return false;
       }
 
@@ -91,16 +85,11 @@ class EduService {
         return false;
       }
 
-      final String jsonBody =
-          jsonEncode({'username': username, 'password': password});
+      final loginService = LoginService(http.Client(), CodeService());
+      final response = await loginService.loginAsync(username, password);
 
-      final response = await http.post(
-          Uri.parse('https://xauatapi.xauat.site/Login'),
-          body: jsonBody,
-          headers: finalHeaders);
-
-      if (response.statusCode == 200) {
-        await prefs.setString('user_data', response.body);
+      if (response["success"] == true) {
+        await prefs.setString('user_data', jsonEncode(response));
         return true;
       }
     } catch (e) {
@@ -148,8 +137,7 @@ class EduService {
 
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'this_semester_data', response.body);
+        await prefs.setString('this_semester_data', response.body);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -178,8 +166,7 @@ class EduService {
 
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'semester_data', response.body);
+        await prefs.setString('semester_data', response.body);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -189,7 +176,6 @@ class EduService {
   }
 
   Future<void> getCourse({String semester = '281', UserData? userData}) async {
-
     final data = DataService();
     final time = await data.getTime();
     if (time["startTime"] == null || time["endTime"] == null) {
@@ -275,7 +261,7 @@ class EduService {
     final dateService = DataService();
     final semesters = await dateService.getSemester();
 
-    if(jsonString != null && jsonString.isNotEmpty){
+    if (jsonString != null && jsonString.isNotEmpty) {
       final List<ScoreList> list = [];
       final Map<String, dynamic> jsonList = jsonDecode(jsonString);
       jsonList.forEach((String key, value) {
@@ -370,15 +356,15 @@ class EduService {
 
   Future<void> getTime() async {
     try {
-      final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site/Info/Time'));
+      final response =
+          await http.get(Uri.parse('https://xauatapi.xauat.site/Info/Time'));
       if (response.statusCode == 200) {
         // 存储到本地
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'time_data', jsonEncode(jsonDecode(response.body)));
       }
-    }catch(e){
+    } catch (e) {
       if (kDebugMode) {
         print('Error fetching data: $e');
       }

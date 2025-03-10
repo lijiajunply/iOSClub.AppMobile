@@ -19,30 +19,30 @@ class ScorePage extends StatelessWidget {
               return Text("Error: ${snapshot.error}");
             } else {
               // 请求成功，显示数据
-              return ScorefulPage(
+              return ScoreBuilder(
                 scoreList: snapshot.data!,
               );
             }
           } else {
             // 请求未结束，显示loading
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator(),);
           }
         });
   }
 }
 
-class ScorefulPage extends StatefulWidget {
+class ScoreBuilder extends StatefulWidget {
   final List<ScoreList> scoreList;
 
-  const ScorefulPage({super.key, required this.scoreList});
+  const ScoreBuilder({super.key, required this.scoreList});
 
   @override
-  State<ScorefulPage> createState() => _ScorefulPageState();
+  State<ScoreBuilder> createState() => _ScoreBuilderState();
 }
 
 //await getAllScore(userData: cookieData);
 
-class _ScorefulPageState extends State<ScorefulPage> {
+class _ScoreBuilderState extends State<ScoreBuilder> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(

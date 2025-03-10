@@ -89,7 +89,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                               i == 0
                                   ? '全部课表'
                                   : '第 $i 周 ${i == weekNow ? "(本周)" : ""}',
-                              style: Theme.of(context).textTheme.titleLarge,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
                             ),
                           )),
                           Expanded(
@@ -292,7 +295,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
-    final weekdayName = ['日','一', '二', '三', '四', '五', '六', '日'];
+    final weekdayName = ['日', '一', '二', '三', '四', '五', '六', '日'];
 
     var content = Container(
         padding: const EdgeInsets.all(16),
