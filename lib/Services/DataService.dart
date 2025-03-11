@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Models/ScoreModel.dart';
+import 'package:ios_club_app/Models/TodoItem.dart';
+import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
 import '../Models/ExamModel.dart';
@@ -144,13 +146,67 @@ class DataService {
     return list;
   }
 
-  Future<InfoModel> getInfo() async {
+  Future<List<InfoModel>> getInfoList() async {
+    List<InfoModel> list = [];
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('info_data');
 
     if (jsonString != null) {
       final jsonList = jsonDecode(jsonString);
-      return InfoModel.fromJson((jsonList as List<dynamic>)[0]);
+      for (var i in jsonList) {
+        list.add(InfoModel.fromJson(i));
+      }
+      return list;
+    } else {
+      final edu = EduService();
+      await edu.getInfoCompletion();
+      final String? jsonString = prefs.getString('info_data');
+
+      if (jsonString != null) {
+        final jsonList = jsonDecode(jsonString);
+        for (var i in jsonList) {
+          list.add(InfoModel.fromJson(i));
+        }
+        return list;
+      }
+
+      throw Exception('No data found');
+    }
+  }
+
+  Future<List<TodoItem>> getTodoList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('todo_data');
+    final String? username = prefs.getString('username');
+
+    if (jsonString != null && username != null) {
+      final List<TodoItem> list = [];
+
+      final Map<String, dynamic> jsonList = jsonDecode(jsonString);
+      if (jsonList.containsKey(username)) {
+        final d = jsonList[username];
+        for (var i in d) {
+          list.add(TodoItem.fromJson(i));
+        }
+        return list;
+      } else {
+        return [];
+      }
+    } else {
+      throw Exception('No data found');
+    }
+  }
+
+  Future<void> setTodoList(List<TodoItem> list) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('todo_data');
+    final String? username = prefs.getString('username');
+
+    if (username != null) {
+      final Map<String, dynamic> jsonList = jsonString == null ? {} : jsonDecode(jsonString);
+      jsonList[username] = list;
+      final json = jsonEncode(jsonList);
+      prefs.setString('todo_data', json);
     } else {
       throw Exception('No data found');
     }

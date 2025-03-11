@@ -124,8 +124,8 @@ class _MyAppState extends State<MyApp> {
       label: '课表',
     ),
     NavigationDestination(
-      icon: Icon(Icons.score_outlined),
-      selectedIcon: Icon(Icons.score),
+      icon: Icon(Icons.credit_score_outlined),
+      selectedIcon: Icon(Icons.credit_score),
       label: '成绩',
     ),
     NavigationDestination(

@@ -23,7 +23,7 @@ class _ProfilePageState extends State<ProfilePage>
   bool _isLoading = true;
   late bool? _isBoth;
   late final TabController _tabController;
-  late InfoModel _info;
+  late List<InfoModel> _info;
 
   @override
   void initState() {
@@ -39,8 +39,8 @@ class _ProfilePageState extends State<ProfilePage>
     final iosName = prefs.getString('iosName');
 
     final dataService = DataService();
-    final a = await dataService.getInfo();
-    setState(()  {
+    final a = await dataService.getInfoList();
+    setState(() {
       _isLoggedIn = username != null &&
           password != null &&
           username.isNotEmpty &&
@@ -297,7 +297,12 @@ class _ProfilePageState extends State<ProfilePage>
           const SizedBox(height: 16),
           Padding(
               padding: const EdgeInsets.all(16),
-              child: StudyCreditCard(data: _info))
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _info.length,
+                  itemBuilder: (context, index) =>
+                      StudyCreditCard(data: _info[index])))
         ],
       ),
     );

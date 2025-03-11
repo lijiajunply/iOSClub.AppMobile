@@ -74,42 +74,69 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8),
-                child: isDesktop
-                    ? Row(
-                        children: [
-                          Expanded(
-                              child: TextButton(
-                                  onPressed: () => jumpToPage(
-                                      (pageController.page! - 1).ceil()),
-                                  child: const Text('上一周'))),
-                          Expanded(
-                              child: Center(
-                            child: Text(
-                              i == 0
-                                  ? '全部课表'
-                                  : '第 $i 周 ${i == weekNow ? "(本周)" : ""}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
+                  padding: const EdgeInsets.all(8),
+                  child: isDesktop
+                      ? Row(
+                          children: [
+                            Expanded(
+                                child: TextButton(
+                                    onPressed: () => jumpToPage(
+                                        (pageController.page! - 1).ceil()),
+                                    child: const Text('上一周'))),
+                            Expanded(
+                                child: Center(
+                              child: Text(
+                                i == 0
+                                    ? '全部课表'
+                                    : '第 $i 周 ${i == weekNow ? "(本周)" : ""}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
                               ),
-                            ),
-                          )),
-                          Expanded(
-                              child: TextButton(
-                                  onPressed: () => jumpToPage(
-                                      (pageController.page! + 1).ceil()),
-                                  child: const Text('下一周'))),
-                        ],
-                      )
-                    : Center(
-                        child: Text(
-                        i == 0
-                            ? '全部课表'
-                            : '第 $i 周 ${i == weekNow ? "(本周)" : ""}',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      )),
-              ),
+                            )),
+                            Expanded(
+                                child: TextButton(
+                                    onPressed: () => jumpToPage(
+                                        (pageController.page! + 1).ceil()),
+                                    child: const Text('下一周'))),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            const SizedBox(height: 8),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat('yyyy/M/d')
+                                          .format(DateTime.now()),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    Text(
+                                      i == weekNow
+                                          ? '第$i周'
+                                          : i == 0
+                                              ? '全部课表 当前为第$weekNow周'
+                                              : '第$i周 当前为第$weekNow周',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ]),
+                            )
+                          ],
+                        )),
               _buildWeekHeader(i),
               Expanded(
                 child: SingleChildScrollView(
@@ -141,11 +168,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           ),
         )));
       }
-      return Container(
+      return SizedBox(
         height: 50,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-        ),
         child: Row(
           children: [
             _buildTimeCell(''),
@@ -163,22 +187,28 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     for (int i1 = 0; i1 < 7; i1++) {
       weekDays.add(
         Expanded(
-          child: Center(
-              child: Text(
-                  '${a[i1]}\n${DateFormat('M/d').format(w.add(Duration(days: i1)))}',
-                  style: TextStyle(
-                    fontWeight: i1 == weekday && weekNow - i == 0
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ))),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Text(
+              a[i1],
+              style: TextStyle(
+                fontWeight: i1 == weekday && weekNow - i == 0
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+              ),
+            ),
+            Text(DateFormat('M/d').format(w.add(Duration(days: i1))),
+                style: TextStyle(
+                  fontWeight: i1 == weekday && weekNow - i == 0
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ))
+          ]),
         ),
       );
     }
-    return Container(
+    return SizedBox(
       height: 50,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-      ),
       child: Row(
         children: [
           _buildTimeCell('${w.month}月'),
@@ -295,7 +325,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
-    final weekdayName = ['日', '一', '二', '三', '四', '五', '六', '日'];
+    final weekdayName = ['日', '一', '二', '三', '四', '五', '六'];
 
     var content = Container(
         padding: const EdgeInsets.all(16),
@@ -305,11 +335,12 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             Text(
               course.courseName,
               style: TextStyle(
-                fontSize: isTablet ? 18 : 14,
+                fontSize: isTablet ? 18 : 16,
+                overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox.fromSize(size: const Size(double.infinity, 10)),
+            SizedBox(height: isTablet ? 10 : 18),
             Row(
               children: [
                 const Icon(
@@ -320,13 +351,13 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 Text(
                   course.room,
                   style: TextStyle(
-                    fontSize: isTablet ? 17 : 12,
+                    fontSize: isTablet ? 17 : 15,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            SizedBox.fromSize(size: const Size(double.infinity, 10)),
+            SizedBox(height: isTablet ? 10 : 18),
             Row(children: [
               const Icon(
                 Icons.person,
@@ -336,12 +367,12 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               Text(
                 course.teachers.join(', '),
                 style: TextStyle(
-                  fontSize: isTablet ? 17 : 12,
+                  fontSize: isTablet ? 17 : 15,
                   overflow: TextOverflow.ellipsis,
                 ),
               )
             ]),
-            SizedBox.fromSize(size: const Size(double.infinity, 10)),
+            SizedBox(height: isTablet ? 10 : 18),
             Row(children: [
               const Icon(
                 Icons.calendar_today,
@@ -351,7 +382,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               Text(
                 '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}节~第${course.endUnit}节',
                 style: TextStyle(
-                  fontSize: isTablet ? 17 : 12,
+                  fontSize: isTablet ? 17 : 15,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -375,7 +406,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         context: context,
         constraints: BoxConstraints(maxWidth: a, minWidth: a),
         builder: (BuildContext context) {
-          return content;
+          return Padding(padding: const EdgeInsets.all(10), child: content);
         });
   }
 }

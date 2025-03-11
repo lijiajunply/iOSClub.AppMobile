@@ -45,6 +45,8 @@ class _ExamCardState extends State<ExamCard> {
             ))
         : ListView.builder(
             shrinkWrap: true,
+            // 让 ListView 根据内容自适应高度
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: examItems.length,
             itemBuilder: (context, index) {
               final exam = examItems[index];

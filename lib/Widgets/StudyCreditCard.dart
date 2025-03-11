@@ -30,7 +30,6 @@ class StudyCreditCard extends StatelessWidget {
               title: data.total.name,
               actual: data.total.actual,
               full: data.total.full,
-              isTotal: true,
             ),
 
             const SizedBox(height: 20),
@@ -39,7 +38,7 @@ class StudyCreditCard extends StatelessWidget {
             Text(
               "分项学分",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 10),
@@ -60,25 +59,25 @@ class StudyCreditCard extends StatelessWidget {
     required String title,
     required double actual,
     required double full,
-    bool isTotal = false,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Colors.blue : Colors.black,
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
           Text(
             "${actual.toStringAsFixed(1)} / ${full.toStringAsFixed(1)}",
-            style: TextStyle(
-              color: isTotal ? Colors.blue : Colors.black,
-              fontSize: isTotal ? 18 : 16,
+            style: const TextStyle(
+              fontSize: 16,
             ),
           ),
         ],
