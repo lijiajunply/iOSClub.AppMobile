@@ -5,6 +5,7 @@ import 'package:ios_club_app/Models/TodoItem.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
+import '../Models/CourseTime.dart';
 import '../Models/ExamModel.dart';
 import '../Models/SemesterModel.dart';
 import 'TimeService.dart';
@@ -202,12 +203,58 @@ class DataService {
     final String? username = prefs.getString('username');
 
     if (username != null) {
-      final Map<String, dynamic> jsonList = jsonString == null ? {} : jsonDecode(jsonString);
+      final Map<String, dynamic> jsonList =
+          jsonString == null ? {} : jsonDecode(jsonString);
       jsonList[username] = list;
       final json = jsonEncode(jsonList);
       prefs.setString('todo_data', json);
     } else {
       throw Exception('No data found');
     }
+  }
+
+  Future<List<CourseTime>> getAllTime() async {
+    final allCourse = await getAllCourse();
+    final weekData = await getWeek();
+    var now = DateTime.now();
+
+    final List<CourseTime> timeList = [];
+    final weekCourses = allCourse.where((course) {
+      return course.weekIndexes.contains(weekData["week"]!);
+    }).toList();
+
+    for (var j = now.weekday; j < 7; j++) {
+      final dayCourses = weekCourses.where((course) {
+        return course.weekday == j;
+      }).toList();
+
+      dayCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+
+      for (var courseToday in dayCourses) {
+        var startTime = "";
+        if (courseToday.room.substring(0, 2) == "草堂") {
+          startTime = TimeService.CanTangTime[courseToday.startUnit];
+        } else {
+          final now = DateTime.now();
+          if (now.month >= 5 && now.month <= 10) {
+            startTime = TimeService.YanTaXia[courseToday.startUnit];
+          } else {
+            startTime = TimeService.YanTaDong[courseToday.startUnit];
+          }
+        }
+        var l = startTime.split(':');
+
+        var start = DateTime(
+            now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
+
+        if (start.compareTo(now) <= 0) continue;
+
+        if (timeList.isNotEmpty && timeList.last == start) continue;
+        timeList.add(
+            CourseTime(startTime: start, courseName: courseToday.courseName));
+      }
+      now = DateTime(now.year, now.month, now.day + 1, 0, 0, 0);
+    }
+    return timeList;
   }
 }

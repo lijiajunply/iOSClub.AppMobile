@@ -15,7 +15,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
   final List<ScheduleItem> scheduleItems = [];
 
   @override
-  initState() {
+  initState(){
     super.initState();
     final dataService = DataService();
     dataService.getCourse().then((value) {

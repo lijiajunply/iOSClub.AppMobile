@@ -8,12 +8,16 @@ import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
 
 import 'Pages/ScorePage.dart';
+import 'Services/ClassReminderService.dart';
 import 'Services/EduService.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final reminderService = ClassReminderService();
+  await reminderService.initialize();
 
   runApp(MaterialApp(
       title: 'iOS Club App',
@@ -109,6 +113,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> requestPermissions() async {
     await [
       Permission.storage,
+      Permission.notification
     ].request();
   }
 
