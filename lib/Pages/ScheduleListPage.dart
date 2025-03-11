@@ -102,12 +102,12 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                     child: const Text('下一周'))),
                           ],
                         )
-                      : Column(
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const SizedBox(height: 8),
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
+                                  const EdgeInsets.symmetric(horizontal: 8,vertical: 8),
                               child: Row(children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +134,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   ],
                                 )
                               ]),
-                            )
+                            ),
+                            IconButton(onPressed: (){}, icon: const Icon(Icons.more_vert))
                           ],
                         )),
               _buildWeekHeader(i),

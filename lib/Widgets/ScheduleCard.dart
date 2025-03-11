@@ -57,7 +57,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
               child: Center(
                   child: Text(
                 '今天没有课了',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               )),
             )
           : Column(

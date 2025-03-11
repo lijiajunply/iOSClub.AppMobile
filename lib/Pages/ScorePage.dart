@@ -82,7 +82,8 @@ class _ScoreBuilderState extends State<ScoreBuilder> {
                         ),
                       ]),
                       Column(children: [
-                        const Icon(Icons.do_not_disturb_on_total_silence, size: 32),
+                        const Icon(Icons.do_not_disturb_on_total_silence,
+                            size: 32),
                         Text(
                           ScoreList.getTotalCourse(widget.scoreList).toString(),
                           style: const TextStyle(
@@ -139,6 +140,7 @@ class _ScoreBuilderState extends State<ScoreBuilder> {
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
+                            const SizedBox(height: 16),
                             ...score.list
                                 .map((item) => _buildScheduleItem(item))
                           ])),
@@ -154,78 +156,191 @@ class _ScoreBuilderState extends State<ScoreBuilder> {
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 40,
-            decoration: BoxDecoration(
-              color: CourseColorManager.generateSoftColor(item.name),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
+    return GestureDetector(
+        onTap: () async {
+          await _showModalBottomSheet(item);
+        },
+        child: InkWell(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(
+                  width: 4,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: CourseColorManager.generateSoftColor(item.name),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 16),
                 Expanded(
-                    child: Column(
-                  // 添加居中对齐 ,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  // 添加左对齐
-                  children: [
-                    Text(
-                      item.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis, // 为课程名也添加省略
-                      maxLines: 1, // 限制为单行
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.access_time,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text('${item.credit}学分',
-                            style: TextStyle(color: Colors.grey[600])),
-                        const SizedBox(width: 16),
-                        Icon(Icons.location_on,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text('成绩 ${item.grade}',
-                            style: TextStyle(color: Colors.grey[600])),
-                        const SizedBox(width: 16),
-                        Icon(Icons.location_on,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text('绩点 ${item.gpa}',
-                            style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                  ],
-                )),
-                if (isTablet)
-                  Expanded(
-                    // 用 Expanded 包裹以限制宽度
-                    child: Text(
-                      item.gradeDetail,
-                      style: const TextStyle(
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      maxLines: 1, // 限制为单行
-                    ),
-                  )
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                          child: Column(
+                        // 添加居中对齐 ,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        // 添加左对齐
+                        children: [
+                          Text(
+                            item.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis, // 为课程名也添加省略
+                            maxLines: 1, // 限制为单行
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time,
+                                  size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text('${item.credit}学分',
+                                  style: TextStyle(color: Colors.grey[600])),
+                              const SizedBox(width: 16),
+                              Icon(Icons.location_on,
+                                  size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text('成绩 ${item.grade}',
+                                  style: TextStyle(color: Colors.grey[600])),
+                              const SizedBox(width: 16),
+                              Icon(Icons.grade,
+                                  size: 16, color: Colors.grey[600]),
+                              const SizedBox(width: 4),
+                              Text('绩点 ${item.gpa}',
+                                  style: TextStyle(color: Colors.grey[600])),
+                            ],
+                          ),
+                        ],
+                      )),
+                      if (isTablet)
+                        Expanded(
+                          // 用 Expanded 包裹以限制宽度
+                          child: Text(
+                            item.gradeDetail,
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            maxLines: 1, // 限制为单行
+                          ),
+                        )
+                    ],
+                  ),
+                )
               ],
             ),
-          )
-        ],
-      ),
-    );
+          ),
+        ));
+  }
+
+  Future<void> _showModalBottomSheet(ScoreModel score) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 判断是否为平板布局（宽度大于600）
+    final isTablet = screenWidth > 600;
+
+    var content = Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              score.name,
+              style: const TextStyle(
+                fontSize: 20,
+                overflow: TextOverflow.ellipsis,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: isTablet ? 10 : 18),
+            Row(
+              children: [
+                const Icon(
+                  Icons.access_time,
+                  color: Colors.blue,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '${score.credit}学分',
+                  style: TextStyle(
+                    fontSize: isTablet ? 17 : 15,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: isTablet ? 10 : 18),
+            Row(children: [
+              const Icon(
+                Icons.location_on,
+                color: Colors.redAccent,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '成绩 ${score.grade}',
+                style: TextStyle(
+                  fontSize: isTablet ? 17 : 15,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+            ]),
+            SizedBox(height: isTablet ? 10 : 18),
+            Row(children: [
+              const Icon(
+                Icons.grade,
+                color: Colors.green,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '绩点 ${score.gpa}',
+                style: TextStyle(
+                  fontSize: isTablet ? 17 : 15,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ]),
+            SizedBox(height: isTablet ? 10 : 18),
+            Row(children: [
+              const Icon(
+                Icons.details,
+                color: Colors.green,
+              ),
+              const SizedBox(width: 6),
+              Expanded( // 添加 Expanded
+                child: Text(
+                  score.gradeDetail,
+                  softWrap: true,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis, // 添加省略号
+                  style: TextStyle(
+                    fontSize: isTablet ? 17 : 15,
+                  ),
+                ),
+              ),
+            ]),
+          ],
+        ));
+
+    if (isTablet) {
+      return showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              children: <Widget>[content],
+            );
+          });
+    }
+
+    final a = MediaQuery.of(context).size.width;
+
+    return showModalBottomSheet<void>(
+        context: context,
+        constraints: BoxConstraints(maxWidth: a, minWidth: a),
+        builder: (BuildContext context) {
+          return Padding(padding: const EdgeInsets.all(10), child: content);
+        });
   }
 }

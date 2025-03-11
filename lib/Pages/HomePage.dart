@@ -112,6 +112,7 @@ class HomePageState extends State<HomePage> {
                         decoration: todo.isCompleted
                             ? TextDecoration.lineThrough
                             : TextDecoration.none,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     subtitle: Text('截止日期: ${todo.deadline}'),
@@ -144,7 +145,8 @@ class HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('添加待办',style: TextStyle(fontWeight: FontWeight.bold)),
+          title:
+              const Text('添加待办', style: TextStyle(fontWeight: FontWeight.bold)),
           content: Form(
             key: formKey,
             child: Column(
@@ -152,7 +154,9 @@ class HomePageState extends State<HomePage> {
               children: [
                 TextFormField(
                   controller: titleController,
-                  decoration: const InputDecoration(labelText: '标题'),
+                  decoration: const InputDecoration(
+                      labelText: '标题',
+                      labelStyle: TextStyle(fontWeight: FontWeight.bold)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '标题是必须项';
@@ -165,6 +169,7 @@ class HomePageState extends State<HomePage> {
                   controller: deadlineController,
                   decoration: InputDecoration(
                     labelText: '截止日期',
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.calendar_today),
                       onPressed: () async {
@@ -193,11 +198,13 @@ class HomePageState extends State<HomePage> {
           ),
           actions: [
             TextButton(
-              child: const Text('取消',style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('取消',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text('添加',style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text('添加',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   final todo = TodoItem(

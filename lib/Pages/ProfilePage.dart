@@ -100,10 +100,14 @@ class _ProfilePageState extends State<ProfilePage>
     await prefs.setString('username', _usernameController.text);
     await prefs.setString('password', _passwordController.text);
 
+    final dataService = DataService();
+    final list = await dataService.getInfoList();
+
     setState(() {
       _isLoggedIn = true;
       _username = _usernameController.text;
       _isLoading = false;
+      _info = list;
     });
 
     _usernameController.clear();
@@ -143,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage>
     final width = MediaQuery.of(context).size.width;
     var a = width / 5;
     if (width > 600) {
-      a = width / 7;
+      a = width / 10;
     }
     return Scaffold(
       body: Center(
@@ -289,7 +293,10 @@ class _ProfilePageState extends State<ProfilePage>
                 ElevatedButton.icon(
                   icon: const Icon(Icons.exit_to_app),
                   onPressed: _logout,
-                  label: const Text('退出登录'),
+                  label: const Text(
+                    '退出登录',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),

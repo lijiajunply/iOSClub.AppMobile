@@ -167,10 +167,9 @@ class DataService {
         for (var i in jsonList) {
           list.add(InfoModel.fromJson(i));
         }
-        return list;
       }
 
-      throw Exception('No data found');
+      return list;
     }
   }
 
@@ -193,7 +192,7 @@ class DataService {
         return [];
       }
     } else {
-      throw Exception('No data found');
+      return [];
     }
   }
 
