@@ -181,16 +181,19 @@ class EduService {
     final data = DataService();
     final time = await data.getTime();
     final week = await data.getWeek();
-    if (!isRefresh && (time["startTime"] == null ||
-        time["endTime"] == null ||
-        week["weekNow"] == null)) {
+    if (!isRefresh &&
+        (time["startTime"] == null ||
+            time["endTime"] == null ||
+            week["weekNow"] == null)) {
       return;
     }
 
     final startTime = DateTime.parse(time["startTime"]!);
     final endTime = DateTime.parse(time["endTime"]!);
 
-    if (!isRefresh && (DateTime.now().isBefore(startTime) || DateTime.now().isAfter(endTime))) {
+    if (!isRefresh &&
+        (DateTime.now().isBefore(startTime) ||
+            DateTime.now().isAfter(endTime))) {
       return;
     }
 
@@ -266,7 +269,7 @@ class EduService {
     }
   }
 
-  Future<List<ScoreList>> getAllScoreFromLocal() async {
+  Future<List<ScoreList>> getAllScoreFromLocal({bool isRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('all_score_data');
     var now = DateTime.now().millisecondsSinceEpoch;
@@ -275,7 +278,7 @@ class EduService {
     final semesters = await dateService.getSemester();
 
     final last = prefs.getInt('last_Score_time');
-    if (last != null) {
+    if (last != null && !isRefresh) {
       if (now - prefs.getInt('last_Score_time')! < 1000 * 60 * 60) {
         if (jsonString != null && jsonString.isNotEmpty) {
           final List<ScoreList> list = [];

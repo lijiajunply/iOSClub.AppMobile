@@ -29,7 +29,7 @@ class LinkPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final categoryList = snapshot.data![index];
                       return Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: ScoreBuilder(
                           categoryList: categoryList,
                         ),
@@ -63,8 +63,9 @@ class ScoreBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 6,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Text(

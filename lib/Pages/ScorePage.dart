@@ -5,23 +5,156 @@ import 'package:ios_club_app/Services/EduService.dart';
 import '../Models/ScoreModel.dart';
 import '../Widgets/PageHeaderDelegate.dart';
 
-class ScorePage extends StatelessWidget {
+class ScorePage extends StatefulWidget {
   const ScorePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<ScorePage> createState() => _ScorePageState();
+}
+
+class _ScorePageState extends State<ScorePage> {
+  Future<List<ScoreList>> _future = Future.value([]);
+
+  @override
+  void initState() {
+    super.initState();
     final dataService = EduService();
+    setState(() {
+      _future = dataService.getAllScoreFromLocal();
+    });
+  }
+
+  void refresh() {
+    setState(() {
+      _future = EduService().getAllScoreFromLocal(isRefresh: true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return FutureBuilder(
-        future: dataService.getAllScoreFromLocal(),
+        future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               // 请求失败，显示错误
               return Text("Error: ${snapshot.error}");
             } else {
+              final scoreList = snapshot.data!;
               // 请求成功，显示数据
-              return ScoreBuilder(
-                scoreList: snapshot.data!,
+              return Scaffold(
+                body: CustomScrollView(slivers: [
+                  SliverPersistentHeader(
+                    pinned: true, // 设置为true使其具有粘性
+                    delegate: PageHeaderDelegate(
+                      title: '成绩与绩点',
+                      minHeight: 66,
+                      maxHeight: 80,
+                      icon: const Icon(Icons.refresh),
+                      onPressed: () {
+                        refresh();
+                      },
+                    ),
+                  ),
+                  SliverPadding(
+                      padding: const EdgeInsets.all(24.0),
+                      sliver: SliverToBoxAdapter(
+                          child: Card(
+                        child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(children: [
+                                  const Icon(Icons.credit_score, size: 32),
+                                  Text(
+                                    ScoreList.getTotalGpa(scoreList)
+                                        .toStringAsFixed(2),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const Text(
+                                    'GPA',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                ]),
+                                Column(children: [
+                                  const Icon(
+                                      Icons.do_not_disturb_on_total_silence,
+                                      size: 32),
+                                  Text(
+                                    ScoreList.getTotalCourse(scoreList)
+                                        .toString(),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const Text(
+                                    '通过课程',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                ]),
+                                Column(
+                                  children: [
+                                    const Icon(Icons.equalizer, size: 32),
+                                    Text(
+                                      ScoreList.getTotalCredit(scoreList)
+                                          .toStringAsFixed(1),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const Text(
+                                      '总学分',
+                                      style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            )),
+                      ))),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16.0),
+                    sliver: SliverToBoxAdapter(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: scoreList.length,
+                            itemBuilder: (context, index) {
+                              final score = scoreList[index];
+                              final semesterNames =
+                                  score.semester.name.split('-');
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 16.0, horizontal: 16.0),
+                                elevation: 4,
+                                child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(children: [
+                                      Text(
+                                        '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ...score.list.map(
+                                          (item) => _buildScheduleItem(item))
+                                    ])),
+                              );
+                            })),
+                  ),
+                ]),
               );
             }
           } else {
@@ -31,124 +164,6 @@ class ScorePage extends StatelessWidget {
             );
           }
         });
-  }
-}
-
-class ScoreBuilder extends StatefulWidget {
-  final List<ScoreList> scoreList;
-
-  const ScoreBuilder({super.key, required this.scoreList});
-
-  @override
-  State<ScoreBuilder> createState() => _ScoreBuilderState();
-}
-
-class _ScoreBuilderState extends State<ScoreBuilder> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(slivers: [
-        SliverPersistentHeader(
-          pinned: true, // 设置为true使其具有粘性
-          delegate: PageHeaderDelegate(
-            title: '成绩与绩点',
-            minHeight: 66,
-            maxHeight: 80,
-          ),
-        ),
-        SliverPadding(
-            padding: const EdgeInsets.all(24.0),
-            sliver: SliverToBoxAdapter(
-                child: Card(
-              child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(children: [
-                        const Icon(Icons.credit_score, size: 32),
-                        Text(
-                          ScoreList.getTotalGpa(widget.scoreList)
-                              .toStringAsFixed(2),
-                          style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        const Text(
-                          'GPA',
-                          style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                      ]),
-                      Column(children: [
-                        const Icon(Icons.do_not_disturb_on_total_silence,
-                            size: 32),
-                        Text(
-                          ScoreList.getTotalCourse(widget.scoreList).toString(),
-                          style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        const Text(
-                          '通过课程',
-                          style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                      ]),
-                      Column(
-                        children: [
-                          const Icon(Icons.equalizer, size: 32),
-                          Text(
-                            ScoreList.getTotalCredit(widget.scoreList)
-                                .toStringAsFixed(1),
-                            style: const TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          const Text(
-                            '总学分',
-                            style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                          ),
-                        ],
-                      )
-                    ],
-                  )),
-            ))),
-        SliverPadding(
-          padding: const EdgeInsets.all(16.0),
-          sliver: SliverToBoxAdapter(
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.scoreList.length,
-                  itemBuilder: (context, index) {
-                    final score = widget.scoreList[index];
-                    final semesterNames = score.semester.name.split('-');
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 16.0),
-                      elevation: 4,
-                      child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(children: [
-                            Text(
-                              '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 16),
-                            ...score.list
-                                .map((item) => _buildScheduleItem(item))
-                          ])),
-                    );
-                  })),
-        ),
-      ]),
-    );
   }
 
   Widget _buildScheduleItem(ScoreModel item) {
@@ -309,7 +324,8 @@ class _ScoreBuilderState extends State<ScoreBuilder> {
                 color: Colors.green,
               ),
               const SizedBox(width: 6),
-              Expanded( // 添加 Expanded
+              Expanded(
+                // 添加 Expanded
                 child: Text(
                   score.gradeDetail,
                   softWrap: true,

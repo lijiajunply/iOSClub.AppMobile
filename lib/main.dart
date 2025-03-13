@@ -10,6 +10,7 @@ import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
 
 import 'Pages/ScorePage.dart';
+import 'Pages/AboutPage.dart';
 import 'Services/ClassReminderService.dart';
 import 'Services/EduService.dart';
 
@@ -175,6 +176,7 @@ class _MyAppState extends State<MyApp> {
         '/Profile': (context) => const ProfilePage(),
         '/Link': (context) => const LinkPage(),
         '/Todo' : (context) => const TodoPage(),
+        '/About': (context) => const AboutPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

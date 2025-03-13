@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:convert' show jsonEncode, utf8;
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
@@ -9,7 +9,8 @@ class LoginService {
 
   LoginService(this.httpClient, this.codeService);
 
-  Future<Map<String, dynamic>> loginAsync(String username, String password) async {
+  Future<Map<String, dynamic>> loginAsync(
+      String username, String password) async {
     // 获取 salt
 
     var saltResponse = await httpClient.get(
@@ -47,6 +48,9 @@ class LoginService {
     }
 
     String studentId = await getCode(cookies);
+    if (studentId.isEmpty) {
+      return {'success': false};
+    }
     return {'success': true, 'studentId': studentId, 'cookie': cookies};
   }
 
@@ -104,11 +108,9 @@ class LoginService {
   }
 }
 
-
-
 class CodeService implements ICodeService {
   @override
-  dynamic encode(Map<String, dynamic> loginParams) {
+  dynamic encode(Map<String, dynamic>? loginParams) {
     if (loginParams == null) {
       throw ArgumentError.notNull('loginParams');
     }
@@ -121,7 +123,8 @@ class CodeService implements ICodeService {
     }
 
     // 计算 SHA1
-    String encPassword = calculateSHA1('${loginParams['salt']}-${loginParams['password']}');
+    String encPassword =
+        calculateSHA1('${loginParams['salt']}-${loginParams['password']}');
 
     // 创建返回对象
     var result = {

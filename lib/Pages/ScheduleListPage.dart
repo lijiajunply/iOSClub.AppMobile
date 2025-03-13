@@ -410,4 +410,46 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           return Padding(padding: const EdgeInsets.all(10), child: content);
         });
   }
+
+  Future<void> _showBottomSetting() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 判断是否为平板布局（宽度大于600）
+    final isTablet = screenWidth > 600;
+
+    var content = Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '',
+              style: TextStyle(
+                fontSize: isTablet ? 18 : 16,
+                overflow: TextOverflow.ellipsis,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: isTablet ? 10 : 18),
+          ],
+        ));
+
+    if (isTablet) {
+      return showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              children: <Widget>[content],
+            );
+          });
+    }
+
+    final a = MediaQuery.of(context).size.width;
+
+    return showModalBottomSheet<void>(
+        context: context,
+        constraints: BoxConstraints(maxWidth: a, minWidth: a),
+        builder: (BuildContext context) {
+          return Padding(padding: const EdgeInsets.all(10), child: content);
+        });
+  }
 }

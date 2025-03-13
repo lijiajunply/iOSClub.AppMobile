@@ -348,10 +348,12 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
                           RawMaterialButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/About');
+                              },
                               child: const Column(
                                 children: [
-                                  Icon(Icons.settings, size: 32),
+                                  Icon(Icons.info_outline, size: 32),
                                   Text(
                                     '设置',
                                     style: TextStyle(
