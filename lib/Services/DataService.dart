@@ -232,14 +232,18 @@ class DataService {
 
       for (var courseToday in dayCourses) {
         var startTime = "";
+        var endTime = "";
         if (courseToday.room.substring(0, 2) == "草堂") {
           startTime = TimeService.CanTangTime[courseToday.startUnit];
+          endTime = TimeService.CanTangTime[courseToday.endUnit];
         } else {
           final now = DateTime.now();
           if (now.month >= 5 && now.month <= 10) {
             startTime = TimeService.YanTaXia[courseToday.startUnit];
+            endTime = TimeService.YanTaXia[courseToday.endUnit];
           } else {
             startTime = TimeService.YanTaDong[courseToday.startUnit];
+            endTime = TimeService.YanTaDong[courseToday.endUnit];
           }
         }
         var l = startTime.split(':');
@@ -250,8 +254,15 @@ class DataService {
         if (start.compareTo(now) <= 0) continue;
 
         if (timeList.isNotEmpty && timeList.last == start) continue;
-        timeList.add(
-            CourseTime(startTime: start, courseName: courseToday.courseName));
+
+        l = endTime.split(':');
+        var end = DateTime(
+            now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
+
+        timeList.add(CourseTime(
+            startTime: start,
+            courseName: courseToday.courseName,
+            endTime: end));
       }
       now = DateTime(now.year, now.month, now.day + 1, 0, 0, 0);
     }

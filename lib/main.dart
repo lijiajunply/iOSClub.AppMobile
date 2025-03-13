@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ios_club_app/Pages/TodoPage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lottie/lottie.dart';
 import 'Pages/HomePage.dart';
+import 'Pages/LinkPage.dart';
 import 'Pages/ProfilePage.dart';
 import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
@@ -16,8 +18,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final reminderService = ClassReminderService();
-  await reminderService.initialize();
+  if(!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux){
+    final reminderService = ClassReminderService();
+    await reminderService.initialize();
+  }
 
   runApp(MaterialApp(
       title: 'iOS Club App',
@@ -113,7 +117,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> requestPermissions() async {
     await [
       Permission.storage,
-      Permission.notification
+      Permission.notification,
     ].request();
   }
 
@@ -169,6 +173,8 @@ class _MyAppState extends State<MyApp> {
         '/Schedule': (context) => const ScheduleListPage(),
         '/Score': (context) => const ScorePage(),
         '/Profile': (context) => const ProfilePage(),
+        '/Link': (context) => const LinkPage(),
+        '/Todo' : (context) => const TodoPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Services/DataService.dart';
@@ -303,13 +304,76 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           const SizedBox(height: 16),
           Padding(
-              padding: const EdgeInsets.all(16),
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _info.length,
-                  itemBuilder: (context, index) =>
-                      StudyCreditCard(data: _info[index])))
+              padding: const EdgeInsets.all(24),
+              child: Card(
+                child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RawMaterialButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/Todo');
+                              },
+                              child: const Column(
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.square_list,
+                                    size: 32,
+                                  ),
+                                  Text(
+                                    '待办事务',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                ],
+                              )),
+                          RawMaterialButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/Link');
+                              },
+                              child: const Column(
+                                children: [
+                                  Icon(CupertinoIcons.link_circle, size: 32),
+                                  Text(
+                                    '建大导航',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                ],
+                              )),
+                          RawMaterialButton(
+                              onPressed: () {},
+                              child: const Column(
+                                children: [
+                                  Icon(Icons.settings, size: 32),
+                                  Text(
+                                    '设置',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                ],
+                              )),
+                        ],
+                      )
+                    ])),
+              )),
+          if (_isBoth != null && !_isBoth!)
+            Padding(
+                padding: const EdgeInsets.all(12),
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _info.length,
+                    itemBuilder: (context, index) =>
+                        StudyCreditCard(data: _info[index]))),
         ],
       ),
     );

@@ -27,7 +27,7 @@ class EduService {
       var cookieData = await getCookieData();
       await getSemester(userData: cookieData);
       await getTime();
-      await getCourse(userData: cookieData);
+      await getCourse(userData: cookieData, isRefresh: true);
       await getExam(userData: cookieData);
       await getInfoCompletion(userData: cookieData);
       await prefs.setInt('last_fetch_time', now);
@@ -58,7 +58,7 @@ class EduService {
         var now = DateTime.now().millisecondsSinceEpoch;
         await getSemester(userData: cookieData);
         await getTime();
-        await getCourse(userData: cookieData);
+        await getCourse(userData: cookieData, isRefresh: true);
         await getExam(userData: cookieData);
         await getInfoCompletion(userData: cookieData);
         await prefs.setInt('last_fetch_time', now);
@@ -177,17 +177,26 @@ class EduService {
     }
   }
 
-  Future<void> getCourse({String semester = '281', UserData? userData}) async {
+  Future<void> getCourse({UserData? userData, bool isRefresh = false}) async {
     final data = DataService();
     final time = await data.getTime();
-    if (time["startTime"] == null || time["endTime"] == null) {
+    final week = await data.getWeek();
+    if (!isRefresh && (time["startTime"] == null ||
+        time["endTime"] == null ||
+        week["weekNow"] == null)) {
       return;
     }
 
     final startTime = DateTime.parse(time["startTime"]!);
     final endTime = DateTime.parse(time["endTime"]!);
 
-    if (DateTime.now().isBefore(startTime) || DateTime.now().isAfter(endTime)) {
+    if (!isRefresh && (DateTime.now().isBefore(startTime) || DateTime.now().isAfter(endTime))) {
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('course_data');
+    if (jsonString != null && week["weekNow"]! > 2) {
       return;
     }
 
@@ -210,7 +219,7 @@ class EduService {
           headers: finalHeaders);
       if (response.statusCode == 200) {
         // 存储到本地
-        final prefs = await SharedPreferences.getInstance();
+
         await prefs.setString(
             'course_data', jsonEncode(jsonDecode(response.body)));
       }
@@ -332,7 +341,6 @@ class EduService {
         print('Error fetching data: $e');
       }
     }
-
 
     return [];
   }

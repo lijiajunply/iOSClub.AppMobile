@@ -1,18 +1,19 @@
-import 'dart:async';
+import 'package:background_fetch/background_fetch.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ios_club_app/Models/CourseTime.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 
-class ClassReminderService {
+class ClassReminderService extends WidgetsBindingObserver {
   final FlutterLocalNotificationsPlugin _notifications =
-  FlutterLocalNotificationsPlugin();
-  Timer? _timer;
-
-  // 存储课程时间
+      FlutterLocalNotificationsPlugin();
   late List<CourseTime> _classTimes = [];
+  static const BACKGROUND_FETCH_TASK = "com.example.class-reminder";
 
   Future<void> initialize() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // 初始化通知
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -26,36 +27,77 @@ class ClassReminderService {
 
     await _notifications.initialize(settings);
 
+    // 加载课程数据
     final data = DataService();
     _classTimes = await data.getAllTime();
 
-    // 开始实时检测
-    startMonitoring();
+    // 配置后台任务
+    await _configureBackgroundFetch();
   }
 
-  void startMonitoring() {
-    // 每分钟检查一次
-    _timer?.cancel(); // 确保不会重复启动
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      _checkClassTimes();
-    });
+  Future<void> _configureBackgroundFetch() async {
+    // 配置 BackgroundFetch
+    await BackgroundFetch.configure(
+      BackgroundFetchConfig(
+        minimumFetchInterval: 15,
+        // 最小间隔15分钟
+        stopOnTerminate: false,
+        // 应用终止时继续运行
+        enableHeadless: true,
+        // 支持后台运行
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresStorageNotLow: false,
+        requiresDeviceIdle: false,
+        requiredNetworkType: NetworkType.NONE,
+      ),
+      _onBackgroundFetch, // 后台任务回调
+      _onBackgroundFetchTimeout, // 超时回调
+    );
+
+    // 注册任务
+    await BackgroundFetch.registerHeadlessTask(_backgroundFetchHeadlessTask);
+
+    // 启动后台任务
+    await BackgroundFetch.start();
   }
 
-  void stopMonitoring() {
-    _timer?.cancel();
-    _timer = null;
+  // 后台任务实现
+  void _onBackgroundFetch(String taskId) async {
+    await _checkClassTimes();
+    BackgroundFetch.finish(taskId);
   }
 
-  void _checkClassTimes() {
+  // 超时处理
+  void _onBackgroundFetchTimeout(String taskId) {
+    BackgroundFetch.finish(taskId);
+  }
+
+  // 无界面后台任务入口点
+  static void _backgroundFetchHeadlessTask(HeadlessTask task) async {
+    String taskId = task.taskId;
+    bool isTimeout = task.timeout;
+
+    if (isTimeout) {
+      BackgroundFetch.finish(taskId);
+      return;
+    }
+
+    final service = ClassReminderService();
+    await service.initialize();
+    await service._checkClassTimes();
+
+    BackgroundFetch.finish(taskId);
+  }
+
+  Future<void> _checkClassTimes() async {
     final now = DateTime.now();
 
     for (var classTime in _classTimes) {
       final difference = classTime.difference(now);
 
-      // 如果距离上课还有15分钟（允许30秒误差）
       if (difference.inMinutes == 15 && difference.inSeconds % 60 < 30) {
-        _showNotification(classTime);
-        // 如果是单次课程，可以将其从列表中移除
+        await _showNotification(classTime);
         _classTimes.remove(classTime);
         break;
       }
@@ -81,16 +123,15 @@ class ClassReminderService {
     );
 
     await _notifications.show(
-      DateTime.now().millisecond, // 使用当前时间毫秒数作为唯一ID
+      DateTime.now().millisecond,
       '课程提醒',
       '您的课程：${classTime.courseName}将在15分钟后开始',
       details,
     );
   }
 
-  // 清理资源
   void dispose() {
-    stopMonitoring();
+    BackgroundFetch.stop();
     _classTimes.clear();
   }
 }
