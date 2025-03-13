@@ -30,7 +30,7 @@ class _TodoPageState extends State<TodoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('待办事务',style: TextStyle(fontWeight: FontWeight.bold),),
+          title: const Text('待办事务'),
         ),
         body: ListView.builder(
           // 禁用 ListView 自身的滚动

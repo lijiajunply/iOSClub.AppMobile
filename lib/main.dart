@@ -11,18 +11,12 @@ import 'dart:io';
 
 import 'Pages/ScorePage.dart';
 import 'Pages/AboutPage.dart';
-import 'Services/ClassReminderService.dart';
 import 'Services/EduService.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  if(!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux){
-    final reminderService = ClassReminderService();
-    await reminderService.initialize();
-  }
 
   runApp(MaterialApp(
       title: 'iOS Club App',
@@ -52,6 +46,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
+
     super.initState();
     _controller = AnimationController(
       duration: const Duration(seconds: (5)),
@@ -61,13 +56,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: theme.scaffoldBackgroundColor, // 状态栏背景颜色
-      statusBarIconBrightness: theme.brightness == Brightness.dark
-          ? Brightness.light // 如果是深色主题，图标为亮色
-          : Brightness.dark, // 如果是浅色主题，图标为暗色
-    ));
     return Scaffold(
         body: Center(
       child: Lottie.asset(
@@ -190,6 +178,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: theme.scaffoldBackgroundColor, // 状态栏背景颜色
+      statusBarIconBrightness: theme.brightness == Brightness.dark
+          ? Brightness.light // 如果是深色主题，图标为亮色
+          : Brightness.dark, // 如果是浅色主题，图标为暗色
+    ));
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;

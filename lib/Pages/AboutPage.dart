@@ -7,7 +7,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('关于', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('关于'),
       ),
       body: const Center(
           child: Padding(
@@ -23,7 +23,7 @@ class AboutPage extends StatelessWidget {
                     height: 100,
                   ),
                   SizedBox(
-                    height: 16,
+                    height: 8,
                   ),
                   Center(
                       child: Text(

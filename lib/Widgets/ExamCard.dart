@@ -40,7 +40,7 @@ class _ExamCardState extends State<ExamCard> {
               child: Center(
                   child: Text(
                 '最近没有考试',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20),
               )),
             ))
         : ListView.builder(

@@ -106,8 +106,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8,vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
                               child: Row(children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +127,6 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                               ? '全部课表 当前为第$weekNow周'
                                               : '第$i周 当前为第$weekNow周',
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                       ),
                                     )
@@ -135,7 +134,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                 )
                               ]),
                             ),
-                            IconButton(onPressed: (){}, icon: const Icon(Icons.more_vert))
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.more_vert))
                           ],
                         )),
               _buildWeekHeader(i),
@@ -212,7 +213,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       height: 50,
       child: Row(
         children: [
-          _buildTimeCell('${w.month}月'),
+          _buildTimeCell('${w.month}月',style: const TextStyle(fontWeight: FontWeight.bold)),
           ...weekDays,
         ],
       ),
@@ -292,6 +293,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     style: TextStyle(
                       fontSize: isTablet ? 12 : 10,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white70,
                     ),
                   ),
                   Text(
@@ -299,6 +301,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     style: TextStyle(
                       fontSize: isTablet ? 10 : 9,
                       overflow: TextOverflow.ellipsis,
+                      color: Colors.white70,
                     ),
                   ),
                   Text(
@@ -306,6 +309,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     style: TextStyle(
                       fontSize: isTablet ? 10 : 8,
                       overflow: TextOverflow.ellipsis,
+                      color: Colors.white70,
                     ),
                   ),
                 ],
@@ -315,10 +319,17 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         ));
   }
 
-  Widget _buildTimeCell(String text) {
+  Widget _buildTimeCell(
+    String text, {
+    TextStyle style = const TextStyle(),
+  }) {
     return SizedBox(
       width: 50,
-      child: Center(child: Text(text)),
+      child: Center(
+          child: Text(
+        text,
+        style: style,
+      )),
     );
   }
 

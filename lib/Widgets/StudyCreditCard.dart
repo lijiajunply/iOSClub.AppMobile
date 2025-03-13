@@ -69,8 +69,7 @@ class StudyCreditCard extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                  overflow: TextOverflow.ellipsis,
-                  fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis),
             ),
           ),
           Text(

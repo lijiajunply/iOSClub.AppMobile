@@ -12,7 +12,7 @@ class IconUtil {
     var iconMap = jsonDecode(dateList);
     var a = iconMap['glyphs'] as List<dynamic>;
     var re = a.firstWhere((element) => element['font_class'] == iconName);
-    return Icon(IconData(re['unicode_decimal'], fontFamily: 'IconFont'),
+    return Icon(IconData(re['unicode_decimal'], fontFamily: 'IconFont',matchTextDirection: false,),
         size: 35);
   }
 }

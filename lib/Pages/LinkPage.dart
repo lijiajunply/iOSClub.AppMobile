@@ -13,7 +13,7 @@ class LinkPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title:
-            const Text('建大导航', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('建大导航'),
       ),
       body: FutureBuilder(
           future: ClubService.getLinks(),
@@ -70,7 +70,7 @@ class ScoreBuilder extends StatelessWidget {
           children: [
             Text(
               categoryList.name,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24),
             ),
             GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -99,7 +99,7 @@ class ScoreBuilder extends StatelessWidget {
                               }),
                           Text(
                             linkList.name,
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 12,color: Colors.grey),
                           )
                         ],
                       ),
