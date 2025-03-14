@@ -32,46 +32,48 @@ class _TodoPageState extends State<TodoPage> {
         appBar: AppBar(
           title: const Text('待办事务'),
         ),
-        body: ListView.builder(
-          // 禁用 ListView 自身的滚动
-          itemCount: _todos.length,
-          itemBuilder: (context, index) {
-            final todo = _todos[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                leading: Checkbox(
-                  value: todo.isCompleted,
-                  onChanged: (value) {
-                    setState(() {
-                      todo.isCompleted = value!;
-                    });
-                  },
-                ),
-                title: Text(
-                  todo.title,
-                  style: TextStyle(
-                    decoration: todo.isCompleted
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                    fontWeight: FontWeight.bold,
+        body: Padding(
+            padding: EdgeInsets.all(16),
+            child: ListView.builder(
+              // 禁用 ListView 自身的滚动
+              itemCount: _todos.length,
+              itemBuilder: (context, index) {
+                final todo = _todos[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    leading: Checkbox(
+                      value: todo.isCompleted,
+                      onChanged: (value) {
+                        setState(() {
+                          todo.isCompleted = value!;
+                        });
+                      },
+                    ),
+                    title: Text(
+                      todo.title,
+                      style: TextStyle(
+                        decoration: todo.isCompleted
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text('截止日期: ${todo.deadline}'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () async {
+                        setState(() {
+                          _todos.removeAt(index);
+                        });
+                        final data = DataService();
+                        await data.setTodoList(_todos);
+                      },
+                    ),
                   ),
-                ),
-                subtitle: Text('截止日期: ${todo.deadline}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () async {
-                    setState(() {
-                      _todos.removeAt(index);
-                    });
-                    final data = DataService();
-                    await data.setTodoList(_todos);
-                  },
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            )),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             TodoItem? newItem = await showAddTodoDialog(context);
@@ -86,8 +88,7 @@ class _TodoPageState extends State<TodoPage> {
           },
           tooltip: '添加待办',
           child: const Icon(Icons.add),
-        )
-    );
+        ));
   }
 
   Future<TodoItem?> showAddTodoDialog(BuildContext context) {

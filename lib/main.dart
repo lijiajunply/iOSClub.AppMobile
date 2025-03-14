@@ -9,6 +9,7 @@ import 'Pages/ProfilePage.dart';
 import 'Pages/ScheduleListPage.dart';
 import 'dart:io';
 
+import 'Pages/ScheduleSettingPage.dart';
 import 'Pages/ScorePage.dart';
 import 'Pages/AboutPage.dart';
 import 'Services/EduService.dart';
@@ -46,7 +47,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
-
     super.initState();
     _controller = AnimationController(
       duration: const Duration(seconds: (5)),
@@ -163,8 +163,9 @@ class _MyAppState extends State<MyApp> {
         '/Score': (context) => const ScorePage(),
         '/Profile': (context) => const ProfilePage(),
         '/Link': (context) => const LinkPage(),
-        '/Todo' : (context) => const TodoPage(),
+        '/Todo': (context) => const TodoPage(),
         '/About': (context) => const AboutPage(),
+        '/ScheduleSetting': (context) => const ScheduleSettingPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
@@ -246,7 +247,6 @@ class CustomPageTransitionBuilder extends PageTransitionsBuilder {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-
     // 或者滑动效果
     return SlideTransition(
       position: Tween<Offset>(

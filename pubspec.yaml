@@ -72,6 +72,7 @@ flutter:
     - assets/icon.png
     - assets/person.png
     - assets/iconfont/iconfont.json
+    - assets/iOS_Club_Logo.png
 
   fonts:
     - family: IconFont
