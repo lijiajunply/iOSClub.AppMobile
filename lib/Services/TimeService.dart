@@ -1,4 +1,6 @@
+/// 单数为课程开始时间，双数为课程结束时间，草堂的第一个数据是早自习的
 class TimeService {
+  /// 草堂的时间表
   static List<String> CanTangTime =[
     "8:00",
     "8:30",
@@ -15,6 +17,7 @@ class TimeService {
     "21:05"
   ];
 
+  /// 雁塔冬季的时间表
   static List<String> YanTaDong = [
     "",
     "8:00",
@@ -31,6 +34,7 @@ class TimeService {
     "21:20"
   ];
 
+  /// 雁塔夏季的时间表
   static List<String> YanTaXia = [
     "",
     "8:00",

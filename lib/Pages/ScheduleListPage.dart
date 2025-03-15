@@ -113,7 +113,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      DateFormat('yyyy/M/d')
+                                      DateFormat('yyyy年M月d日')
                                           .format(DateTime.now()),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -135,8 +135,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                               ]),
                             ),
                             IconButton(
-                                onPressed: (){
-                                  Navigator.pushNamed(context, '/ScheduleSetting');
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, '/ScheduleSetting');
                                 },
                                 icon: const Icon(Icons.more_vert))
                           ],
@@ -215,7 +216,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       height: 50,
       child: Row(
         children: [
-          _buildTimeCell('${w.month}月',style: const TextStyle(fontWeight: FontWeight.bold)),
+          _buildTimeCell('${w.month}月',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           ...weekDays,
         ],
       ),
@@ -296,7 +298,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       fontSize: isTablet ? 12 : 10,
                       fontWeight: FontWeight.bold,
                       color: Colors.white70,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    maxLines: 4,
                   ),
                   Text(
                     course.room,
@@ -353,6 +357,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.bold,
               ),
+              maxLines: 2,
             ),
             SizedBox(height: isTablet ? 10 : 18),
             Row(

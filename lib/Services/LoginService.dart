@@ -68,7 +68,13 @@ class LoginService {
     RegExp regex = RegExp(r"/student/for-std/program/info-en/(.*?)'");
     var match = regex.firstMatch(content);
 
-    return match != null ? match.group(1) ?? '' : '';
+    if (match == null) {
+      regex = RegExp(r'value="(.*?)">');
+      var match = regex.allMatches(content);
+      return match.map((x) => x.group(1)).join(',');
+    }
+
+    return match.group(1) ?? '';
   }
 
   String parseCookie(String? cookiesHeader) {

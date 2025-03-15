@@ -48,6 +48,8 @@ class _TodoPageState extends State<TodoPage> {
                         setState(() {
                           todo.isCompleted = value!;
                         });
+                        final data = DataService();
+                        data.setTodoList(_todos);
                       },
                     ),
                     title: Text(

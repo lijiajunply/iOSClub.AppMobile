@@ -54,6 +54,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,9 +78,9 @@ class _SplashScreenState extends State<SplashScreen>
           ]);
 
           Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MyApp()),
-          );
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const MyApp(),));
         },
       ),
     ));
@@ -193,48 +194,48 @@ class _MyAppState extends State<MyApp> {
     return SafeArea(
       child: isTablet
           ? Scaffold(
-              body: Row(
-                children: [
-                  // 左侧导航
-                  NavigationRail(
-                    labelType: NavigationRailLabelType.all,
-                    destinations: _destinations.map((destination) {
-                      return NavigationRailDestination(
-                        icon: destination.icon,
-                        selectedIcon: destination.selectedIcon,
-                        label: Text(destination.label),
-                      );
-                    }).toList(),
-                    onDestinationSelected: (int index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                      navigatorKey.currentState
-                          ?.pushNamed(_routeMap[index] ?? '/');
-                    },
-                    selectedIndex: _currentIndex,
-                  ),
-                  // 垂直分割线
-                  const VerticalDivider(thickness: 1, width: 1),
-                  // 主要内容区域
-                  Expanded(child: _app),
-                ],
-              ),
-            )
-          : Scaffold(
-              body: _app,
-              bottomNavigationBar: NavigationBar(
-                destinations: _destinations,
-                selectedIndex: _currentIndex,
-                onDestinationSelected: (int index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                  navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
-                },
-              ),
+        body: Row(
+          children: [
+            // 左侧导航
+            NavigationRail(
+              labelType: NavigationRailLabelType.all,
+              destinations: _destinations.map((destination) {
+                return NavigationRailDestination(
+                  icon: destination.icon,
+                  selectedIcon: destination.selectedIcon,
+                  label: Text(destination.label),
+                );
+              }).toList(),
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                navigatorKey.currentState
+                    ?.pushNamed(_routeMap[index] ?? '/');
+              },
+              selectedIndex: _currentIndex,
             ),
-    );
+            // 垂直分割线
+            const VerticalDivider(thickness: 1, width: 1),
+            // 主要内容区域
+            Expanded(child: _app),
+          ],
+        ),
+      )
+          : Scaffold(
+        body: _app,
+        bottomNavigationBar: NavigationBar(
+          destinations: _destinations,
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+            navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
+          },
+        ),
+      ),
+    ) ;
   }
 }
 

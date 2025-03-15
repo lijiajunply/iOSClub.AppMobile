@@ -14,7 +14,7 @@ class EduService {
       final prefs = await SharedPreferences.getInstance();
       var now = DateTime.now().millisecondsSinceEpoch;
       final last = prefs.getInt('last_fetch_time');
-      if (last != null) {
+      if (last != null && last != '') {
         if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 30) {
           return true;
         }
@@ -162,8 +162,10 @@ class EduService {
         'xauat': cookieData.cookie,
       };
 
+
+
       final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site/Score/Semester'),
+          Uri.parse('https://xauatapi.xauat.site/Score/Semester?studentId=${cookieData.studentId}'),
           headers: finalHeaders);
 
       if (response.statusCode == 200) {
@@ -348,7 +350,7 @@ class EduService {
     return [];
   }
 
-  Future<void> getExam({String semester = '281', UserData? userData}) async {
+  Future<void> getExam({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
@@ -363,7 +365,7 @@ class EduService {
       };
 
       final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site/Exam'),
+          Uri.parse('https://xauatapi.xauat.site/Exam?studentId=${cookieData.studentId}'),
           headers: finalHeaders);
       if (response.statusCode == 200) {
         // 存储到本地

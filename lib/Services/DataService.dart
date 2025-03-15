@@ -11,7 +11,11 @@ import '../Models/SemesterModel.dart';
 import 'TimeService.dart';
 
 class DataService {
-  Future<List<CourseModel>> getAllCourse() async {
+  Future<List<CourseModel>> getAllCourse({bool isNeedIgnore = true}) async {
+    List<String> ig = [];
+    if (isNeedIgnore) {
+      ig = await getIgnore();
+    }
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('course_data');
     final List<CourseModel> list = [];
@@ -19,7 +23,44 @@ class DataService {
       var jsonList = jsonDecode(jsonString);
       jsonList = jsonList["data"];
       for (var json in jsonList) {
-        list.add(CourseModel.fromJson(json));
+        var a = CourseModel.fromJson(json);
+        if (ig.isNotEmpty && ig.any((x) => x == a.courseName)) continue;
+        list.add(a);
+      }
+    }
+    return list;
+  }
+
+  Future<List<String>> getCourseName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('course_data');
+    final List<String> list = [];
+    if (jsonString != null) {
+      var jsonList = jsonDecode(jsonString);
+      jsonList = jsonList["data"];
+      for (var json in jsonList) {
+        final c = CourseModel.fromJson(json);
+        if (list.any((x) => x == c.courseName)) continue;
+        list.add(c.courseName);
+      }
+    }
+    return list;
+  }
+
+  Future<void> setIgnore(List<String> list) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('ignore_data', jsonEncode({"data": list}));
+  }
+
+  Future<List<String>> getIgnore() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jsonString = prefs.getString('ignore_data');
+    final List<String> list = [];
+    if (jsonString != null) {
+      var jsonList = jsonDecode(jsonString);
+      jsonList = jsonList["data"];
+      for (var json in jsonList) {
+        list.add(json);
       }
     }
     return list;

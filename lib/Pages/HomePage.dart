@@ -104,6 +104,8 @@ class HomePageState extends State<HomePage> {
                         setState(() {
                           todo.isCompleted = value!;
                         });
+                        final data = DataService();
+                        data.setTodoList(_todos);
                       },
                     ),
                     title: Text(
