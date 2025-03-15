@@ -118,7 +118,11 @@ class AboutPage extends StatelessWidget {
 
     return showModalBottomSheet<void>(
         context: context,
-        constraints: BoxConstraints(maxWidth: a, minWidth: a),
+        constraints: BoxConstraints(
+            maxWidth: a,
+            minWidth: a,
+            maxHeight: MediaQuery.of(context).size.height * 0.9),
+        isScrollControlled: true,
         builder: (BuildContext context) {
           return SingleChildScrollView(
               child: Padding(
@@ -135,7 +139,10 @@ class AboutPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     const Text('iOS Club of XAUAT',
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     const Text(
                         '西建大iOS众创空间俱乐部（别称为西建大iOS Club），是苹果公司和学校共同创办的创新创业类社团。成立于2019年9月。目前是全校较大和较为知名的科技类社团。',

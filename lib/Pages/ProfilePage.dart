@@ -355,7 +355,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 children: [
                                   Icon(Icons.info_outline, size: 32),
                                   Text(
-                                    '设置',
+                                    '关于',
                                     style: TextStyle(
                                         fontSize: 9,
                                         fontWeight: FontWeight.bold,
