@@ -198,7 +198,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
   }
 
   void showCalendarGuidanceDialog(BuildContext context) {
-    final httpsUrl = 'https$url';
+    final httpsUrl = 'webcal$url';
 
     showDialog(
       context: context,

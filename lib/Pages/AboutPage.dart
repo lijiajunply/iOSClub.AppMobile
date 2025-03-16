@@ -1,10 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AboutPage extends StatelessWidget {
+import '../Services/GiteeService.dart';
+
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
 
   @override
+  State<StatefulWidget> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  late bool updateIgnored = false;
+  late bool isNeedUpdate = false;
+  late String version = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        updateIgnored = prefs.getBool('update_ignored') ?? false;
+        GiteeService.isNeedUpdate().then((value) {
+          isNeedUpdate = value;
+        });
+        PackageInfo.fromPlatform().then((value) {
+          version = value.version;
+        });
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('关于'),
@@ -34,20 +65,55 @@ class AboutPage extends StatelessWidget {
                   const SizedBox(
                     height: 16,
                   ),
-                  const Card(
+                  Card(
                     child: ListTile(
-                      title: Text(
+                      title: const Text(
                         '版本',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                      trailing: Text('1.1.0',
+                      subtitle: Text(version,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                               color: Colors.grey)),
+                      trailing: isNeedUpdate
+                          ? const Icon(Icons.update)
+                          : Icon(Icons.verified),
+                      onTap: () async {
+                        if (isNeedUpdate) {
+                          final a = await GiteeService.getReleases();
+                          GiteeService.updateApp(a.name);
+                        }
+                      },
                     ),
                   ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Card(
+                      child: ListTile(
+                    title: const Text('更新日志',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    subtitle: const Text(
+                      '忽略版本更新',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Colors.grey),
+                    ),
+                    trailing: Switch(
+                      value: updateIgnored,
+                      onChanged: (bool value) async {
+                        setState(() {
+                          updateIgnored = value;
+                        });
+                        final prefs = await SharedPreferences.getInstance();
+                        prefs.setBool('update_ignored', value);
+                      },
+                    ),
+                  )),
                   const SizedBox(
                     height: 8,
                   ),

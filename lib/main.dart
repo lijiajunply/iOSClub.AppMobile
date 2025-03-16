@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/Pages/TodoPage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Pages/HomePage.dart';
 import 'Pages/LinkPage.dart';
 import 'Pages/ProfilePage.dart';
@@ -13,6 +15,7 @@ import 'Pages/ScheduleSettingPage.dart';
 import 'Pages/ScorePage.dart';
 import 'Pages/AboutPage.dart';
 import 'Services/EduService.dart';
+import 'Services/GiteeService.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -54,7 +57,6 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +82,8 @@ class _SplashScreenState extends State<SplashScreen>
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => const MyApp(),));
+                builder: (context) => const MyApp(),
+              ));
         },
       ),
     ));
@@ -102,6 +105,65 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     // 初始化逻辑转移到 WebView 属性中
     requestPermissions();
+
+    if (Platform.isAndroid) {
+      GiteeService.getReleases().then((result) async {
+        final packageInfo = await PackageInfo.fromPlatform();
+        final needUpdate =
+            result.name != '0.0.0' && result.name != packageInfo.version;
+        if (needUpdate) {
+          showUpdateDialog(result);
+        }
+      });
+    }
+  }
+
+  void showUpdateDialog(ReleaseModel model) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('有新版本了！'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(model.name),
+              const SizedBox(height: 16),
+              Text(model.body),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('忽略本次更新'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.setBool('update_ignored', true);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('忽略所有更新'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await GiteeService.updateApp(model.name);
+                },
+                child: const Text('现在就更新'),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 
   Future<void> requestPermissions() async {
@@ -194,48 +256,48 @@ class _MyAppState extends State<MyApp> {
     return SafeArea(
       child: isTablet
           ? Scaffold(
-        body: Row(
-          children: [
-            // 左侧导航
-            NavigationRail(
-              labelType: NavigationRailLabelType.all,
-              destinations: _destinations.map((destination) {
-                return NavigationRailDestination(
-                  icon: destination.icon,
-                  selectedIcon: destination.selectedIcon,
-                  label: Text(destination.label),
-                );
-              }).toList(),
-              onDestinationSelected: (int index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-                navigatorKey.currentState
-                    ?.pushNamed(_routeMap[index] ?? '/');
-              },
-              selectedIndex: _currentIndex,
-            ),
-            // 垂直分割线
-            const VerticalDivider(thickness: 1, width: 1),
-            // 主要内容区域
-            Expanded(child: _app),
-          ],
-        ),
-      )
+              body: Row(
+                children: [
+                  // 左侧导航
+                  NavigationRail(
+                    labelType: NavigationRailLabelType.all,
+                    destinations: _destinations.map((destination) {
+                      return NavigationRailDestination(
+                        icon: destination.icon,
+                        selectedIcon: destination.selectedIcon,
+                        label: Text(destination.label),
+                      );
+                    }).toList(),
+                    onDestinationSelected: (int index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                      navigatorKey.currentState
+                          ?.pushNamed(_routeMap[index] ?? '/');
+                    },
+                    selectedIndex: _currentIndex,
+                  ),
+                  // 垂直分割线
+                  const VerticalDivider(thickness: 1, width: 1),
+                  // 主要内容区域
+                  Expanded(child: _app),
+                ],
+              ),
+            )
           : Scaffold(
-        body: _app,
-        bottomNavigationBar: NavigationBar(
-          destinations: _destinations,
-          selectedIndex: _currentIndex,
-          onDestinationSelected: (int index) {
-            setState(() {
-              _currentIndex = index;
-            });
-            navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
-          },
-        ),
-      ),
-    ) ;
+              body: _app,
+              bottomNavigationBar: NavigationBar(
+                destinations: _destinations,
+                selectedIndex: _currentIndex,
+                onDestinationSelected: (int index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                  navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
+                },
+              ),
+            ),
+    );
   }
 }
 
