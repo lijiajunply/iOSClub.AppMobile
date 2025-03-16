@@ -18,7 +18,6 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
@@ -35,147 +34,144 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('关于'),
+        title: const Text('设置/关于'),
       ),
-      body: Center(
-          child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 16,
+      body: SingleChildScrollView(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 16,
+              ),
+              const Image(
+                image: AssetImage('assets/icon.png'),
+                width: 100,
+                height: 100,
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              const Center(
+                  child: Text(
+                'iOS Club App',
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+              )),
+              const SizedBox(
+                height: 16,
+              ),
+              Card(
+                child: ListTile(
+                  title: const Text(
+                    '版本',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  const Image(
-                    image: AssetImage('assets/icon.png'),
-                    width: 100,
-                    height: 100,
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  const Center(
-                      child: Text(
-                    'iOS Club App',
-                    style: TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.bold),
-                  )),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Card(
-                    child: ListTile(
-                      title: const Text(
-                        '版本',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      subtitle: Text(version,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color: Colors.grey)),
-                      trailing: isNeedUpdate
-                          ? const Icon(Icons.update)
-                          : Icon(Icons.verified),
-                      onTap: () async {
-                        if (isNeedUpdate) {
-                          final a = await GiteeService.getReleases();
-                          GiteeService.updateApp(a.name);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Card(
-                      child: ListTile(
-                    title: const Text('更新日志',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    subtitle: const Text(
-                      '忽略版本更新',
+                  subtitle: Text(version,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
-                          color: Colors.grey),
-                    ),
-                    trailing: Switch(
-                      value: updateIgnored,
-                      onChanged: (bool value) async {
-                        setState(() {
-                          updateIgnored = value;
-                        });
-                        final prefs = await SharedPreferences.getInstance();
-                        prefs.setBool('update_ignored', value);
-                      },
-                    ),
-                  )),
-                  const SizedBox(
-                    height: 8,
+                          color: Colors.grey)),
+                  trailing: isNeedUpdate
+                      ? const Icon(Icons.update)
+                      : Icon(Icons.verified),
+                  onTap: () async {
+                    if (isNeedUpdate) {
+                      final a = await GiteeService.getReleases();
+                      GiteeService.updateApp(a.name);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Card(
+                  child: ListTile(
+                title: const Text('更新日志',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                subtitle: const Text(
+                  '忽略版本更新',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey),
+                ),
+                trailing: Switch(
+                  value: updateIgnored,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      updateIgnored = value;
+                    });
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setBool('update_ignored', value);
+                  },
+                ),
+              )),
+              const SizedBox(
+                height: 8,
+              ),
+              const Card(
+                child: ListTile(
+                  title: Text('制作团队',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: Text(
+                    'LuckyFish & 西建大iOS Club',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey),
                   ),
-                  const Card(
-                    child: ListTile(
-                      title: Text('制作团队',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      subtitle: Text(
-                        'LuckyFish & 西建大iOS Club',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Colors.grey),
-                      ),
-                      trailing: Icon(Icons.people_rounded),
-                    ),
+                  trailing: Icon(Icons.people_rounded),
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              const Card(
+                child: ListTile(
+                  title: Text('开源协议',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: Text(
+                    'MIT License',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.grey),
                   ),
-                  const SizedBox(
-                    height: 8,
+                  trailing: Icon(Icons.abc),
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Card(
+                child: ListTile(
+                  title: Text('关于社团',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  trailing: Icon(Icons.apple),
+                  subtitle: Text(
+                    'iOS Club of XAUAT',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
                   ),
-                  const Card(
-                    child: ListTile(
-                      title: Text('开源协议',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      subtitle: Text(
-                        'MIT License',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Colors.grey),
-                      ),
-                      trailing: Icon(Icons.abc),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Card(
-                    child: ListTile(
-                      title: Text('关于社团',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      trailing: Icon(Icons.apple),
-                      subtitle: Text(
-                        'iOS Club of XAUAT',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        _showClubDescription(context);
-                      },
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                ],
-              ))),
+                  onTap: () {
+                    _showClubDescription(context);
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+            ],
+          )),
     );
   }
 
