@@ -9,7 +9,7 @@ class GiteeService {
     final prefs = await SharedPreferences.getInstance();
     final bool? updateIgnored = prefs.getBool('update_ignored');
 
-    if(updateIgnored == null || updateIgnored == false){
+    if(updateIgnored! == true){
       return ReleaseModel(name: '0.0.0', body: '0.0.0');
     }
 
