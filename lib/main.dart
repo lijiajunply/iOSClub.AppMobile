@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:ios_club_app/Pages/TodoPage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,13 +15,22 @@ import 'dart:io';
 import 'Pages/ScheduleSettingPage.dart';
 import 'Pages/ScorePage.dart';
 import 'Pages/AboutPage.dart';
+import 'Services/DataService.dart';
 import 'Services/EduService.dart';
 import 'Services/GiteeService.dart';
+import 'Services/TimeService.dart';
+import 'Services/WidgetService.dart';
+import 'Widgets/ScheduleCard.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化 HomeWidget
+
+
+  // 注册小组件回调
 
   runApp(MaterialApp(
       title: 'iOS Club App',
@@ -29,6 +39,43 @@ void main() async {
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
       ),
       home: const SplashScreen()));
+}
+
+Future<void> backgroundCallback(Uri? uri) async {
+  if (uri?.host == 'updatetimetable') {
+    // 这里可以获取课程数据并更新小组件
+    // 示例数据
+    final dataService = DataService();
+    final value = await dataService.getCourse();
+
+    List<ScheduleItem> courses = [];
+    courses.clear();
+    courses.addAll((value.map((course) {
+      var startTime = "";
+      var endTime = "";
+      if (course.room.substring(0, 2) == "草堂") {
+        startTime = TimeService.CanTangTime[course.startUnit];
+        endTime = TimeService.CanTangTime[course.endUnit];
+      } else {
+        final now = DateTime.now();
+        if (now.month >= 5 && now.month <= 10) {
+          startTime = TimeService.YanTaXia[course.startUnit];
+          endTime = TimeService.YanTaXia[course.endUnit];
+        } else {
+          startTime = TimeService.YanTaDong[course.startUnit];
+          endTime = TimeService.YanTaDong[course.endUnit];
+        }
+      }
+      return ScheduleItem(
+        title: course.courseName,
+        time:
+            '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
+        location: course.room,
+      );
+    })));
+
+    await WidgetService.updateTodayCourses(courses);
+  }
 }
 
 class SplashScreen extends StatefulWidget {
@@ -74,6 +121,8 @@ class _SplashScreenState extends State<SplashScreen>
           final dataService = EduService();
           // 获取并存储数据
           final dataFuture = dataService.getAllData();
+          HomeWidget.setAppGroupId('com.example.ios_club_app');
+          HomeWidget.registerInteractivityCallback(backgroundCallback);
 
           await Future.wait([
             dataFuture,

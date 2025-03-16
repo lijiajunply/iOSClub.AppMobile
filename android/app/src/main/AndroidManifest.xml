@@ -43,6 +43,21 @@
                 <action android:name="com.transistorsoft.backgroundfetch.ACTION_HEADLESS_JOB_SERVICE" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".TodayCoursesWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_courses_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".TodayCoursesWidgetProvider$CourseWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
