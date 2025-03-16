@@ -77,7 +77,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
                 if (Platform.isAndroid) {
                   final intent = AndroidIntent(
                     action: 'android.intent.action.VIEW',
-                    data: 'https$url',
+                    data: 'webcal$url',
                     type: 'text/calendar',
                   );
                   var result = await intent.canResolveActivity();

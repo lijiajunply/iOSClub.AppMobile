@@ -27,15 +27,9 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化 HomeWidget
-
-
-  // 注册小组件回调
-
   runApp(MaterialApp(
       title: 'iOS Club App',
       theme: ThemeData(
-        useMaterial3: true,
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
       ),
       home: const SplashScreen()));
