@@ -22,10 +22,14 @@ class _AboutPageState extends State<AboutPage> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         updateIgnored = prefs.getBool('update_ignored') ?? false;
-        GiteeService.isNeedUpdate().then((value) {
-          isNeedUpdate = value;
+      });
+      GiteeService.getReleases().then((value) {
+        setState(() {
+          isNeedUpdate = value.name != version;
         });
-        PackageInfo.fromPlatform().then((value) {
+      });
+      PackageInfo.fromPlatform().then((value) {
+        setState(() {
           version = value.version;
         });
       });
@@ -74,12 +78,41 @@ class _AboutPageState extends State<AboutPage> {
                           fontSize: 12,
                           color: Colors.grey)),
                   trailing: isNeedUpdate
-                      ? const Icon(Icons.update)
+                      ? Badge(
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.update),
+                        )
                       : Icon(Icons.verified),
-                  onTap: () async {
+                  onTap: () {
                     if (isNeedUpdate) {
-                      final a = await GiteeService.getReleases();
-                      GiteeService.updateApp(a.name);
+                      showDialog(
+                          context: context,
+                          builder: (b) {
+                            return AlertDialog(
+                              title: const Text('是否更新新版本'),
+                              actions: [
+                                TextButton(
+                                  child: const Text('是的'),
+                                  onPressed: () async {
+                                    Navigator.of(b).pop();
+                                    final a = await GiteeService.getReleases();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('正在下载更新...可以继续使用')),
+                                    );
+
+                                    GiteeService.updateApp(a.name);
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text('不要'),
+                                  onPressed: () {
+                                    Navigator.of(b).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          });
                     }
                   },
                 ),

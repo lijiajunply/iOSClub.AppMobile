@@ -29,6 +29,7 @@ void main() async {
 
   runApp(MaterialApp(
       title: 'iOS Club App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
       ),
@@ -179,7 +180,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         actions: [
-          Row(
+          Wrap(
             children: [
               TextButton(
                 onPressed: () {
@@ -198,6 +199,9 @@ class _MyAppState extends State<MyApp> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('正在下载更新...可以继续使用')),
+                  );
                   await GiteeService.updateApp(model.name);
                 },
                 child: const Text('现在就更新'),
@@ -213,6 +217,8 @@ class _MyAppState extends State<MyApp> {
     await [
       Permission.storage,
       Permission.notification,
+      Permission.backgroundRefresh,
+      Permission.requestInstallPackages,
     ].request();
   }
 

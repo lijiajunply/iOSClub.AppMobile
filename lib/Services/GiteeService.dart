@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,7 +13,7 @@ class GiteeService {
     final prefs = await SharedPreferences.getInstance();
     final bool? updateIgnored = prefs.getBool('update_ignored');
 
-    if(updateIgnored! == true){
+    if (updateIgnored != null && updateIgnored == true) {
       return ReleaseModel(name: '0.0.0', body: '0.0.0');
     }
 
@@ -44,7 +48,42 @@ class GiteeService {
           'https://gitee.com/luckyfishisdashen/iOSClub.AppMobile/releases/download/$name/app-release.apk');
 
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
+        final Map<String, String> finalHeaders = {
+          'Content-Type': 'application/vnd.android.package-archive',
+        };
+
+        final response = await http.get(uri, headers: finalHeaders);
+
+        if (response.statusCode == 200) {
+          // 获取应用缓存目录
+          final directory = await getTemporaryDirectory();
+          final filePath = '${directory.path}/app-release.apk';
+
+          // 保存文件到本地
+          final file = File(filePath);
+          if(file.existsSync()){
+            await file.delete();
+          }else{
+            await file.create();
+          }
+          await file.writeAsBytes(response.bodyBytes);
+
+          try{
+            await OpenFile.open(filePath);
+          }
+          catch (e) {
+            if (kDebugMode) {
+              print('无法打开APK: $e');
+            }
+          }
+
+          if (kDebugMode) {
+            print('APK下载成功: $filePath');
+          }
+          // 可在此处添加安装APK的逻辑
+        } else {
+          throw '下载失败，状态码: ${response.statusCode}';
+        }
       } else {
         throw '无法下载';
       }
