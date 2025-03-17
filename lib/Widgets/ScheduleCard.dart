@@ -17,8 +17,8 @@ class _ScheduleCardState extends State<ScheduleCard> {
   @override
   initState(){
     super.initState();
-    final dataService = DataService();
-    dataService.getCourse().then((value) {
+
+    DataService.getCourse().then((value) {
       setState(() {
         scheduleItems.addAll(value.map((course) {
           var startTime = "";

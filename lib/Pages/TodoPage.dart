@@ -18,8 +18,7 @@ class _TodoPageState extends State<TodoPage> {
   void initState() {
     super.initState();
 
-    final data = DataService();
-    data.getTodoList().then((value) {
+    DataService.getTodoList().then((value) {
       setState(() {
         _todos = value;
       });
@@ -48,8 +47,8 @@ class _TodoPageState extends State<TodoPage> {
                         setState(() {
                           todo.isCompleted = value!;
                         });
-                        final data = DataService();
-                        data.setTodoList(_todos);
+
+                        DataService.setTodoList(_todos);
                       },
                     ),
                     title: Text(
@@ -68,8 +67,8 @@ class _TodoPageState extends State<TodoPage> {
                         setState(() {
                           _todos.removeAt(index);
                         });
-                        final data = DataService();
-                        await data.setTodoList(_todos);
+
+                        await DataService.setTodoList(_todos);
                       },
                     ),
                   ),
@@ -84,8 +83,8 @@ class _TodoPageState extends State<TodoPage> {
               setState(() {
                 _todos.add(newItem);
               });
-              final data = DataService();
-              await data.setTodoList(_todos);
+
+              await DataService.setTodoList(_todos);
             }
           },
           tooltip: '添加待办',

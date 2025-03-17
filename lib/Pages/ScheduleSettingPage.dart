@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +37,10 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
       });
     });
 
-    final data = DataService();
-    data.getIgnore().then((value) {
+    DataService.getIgnore().then((value) {
       setState(() {
         ignoreList = value;
-        data.getCourseName().then((value) {
+        DataService.getCourseName().then((value) {
           totalList = value;
           for (var i in totalList) {
             _ignores.add(CourseIgnore(
@@ -180,7 +179,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
                         } else {
                           ignoreList.remove(todo.title);
                         }
-                        DataService().setIgnore(ignoreList);
+                        DataService.setIgnore(ignoreList);
                       },
                     ),
                     title: Text(

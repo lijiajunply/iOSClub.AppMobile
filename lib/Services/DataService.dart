@@ -11,7 +11,7 @@ import '../Models/SemesterModel.dart';
 import 'TimeService.dart';
 
 class DataService {
-  Future<List<CourseModel>> getAllCourse({bool isNeedIgnore = true}) async {
+  static Future<List<CourseModel>> getAllCourse({bool isNeedIgnore = true}) async {
     List<String> ig = [];
     if (isNeedIgnore) {
       ig = await getIgnore();
@@ -31,7 +31,7 @@ class DataService {
     return list;
   }
 
-  Future<List<String>> getCourseName() async {
+  static Future<List<String>> getCourseName() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('course_data');
     final List<String> list = [];
@@ -47,12 +47,12 @@ class DataService {
     return list;
   }
 
-  Future<void> setIgnore(List<String> list) async {
+  static Future<void> setIgnore(List<String> list) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('ignore_data', jsonEncode({"data": list}));
   }
 
-  Future<List<String>> getIgnore() async {
+  static Future<List<String>> getIgnore() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('ignore_data');
     final List<String> list = [];
@@ -66,7 +66,7 @@ class DataService {
     return list;
   }
 
-  Future<Map<String, int>> getWeek() async {
+  static Future<Map<String, int>> getWeek() async {
     final time = await getTime();
     final week =
         DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/
@@ -80,7 +80,7 @@ class DataService {
     return {'week': week, 'maxWeek': maxWeek};
   }
 
-  Future<List<CourseModel>> getCourseByWeek({int week = 0}) async {
+  static Future<List<CourseModel>> getCourseByWeek({int week = 0}) async {
     final allCourse = await getAllCourse();
     if (week == 0) {
       final time = await getTime();
@@ -95,7 +95,7 @@ class DataService {
         .toList();
   }
 
-  Future<List<CourseModel>> getCourse() async {
+  static Future<List<CourseModel>> getCourse() async {
     final allCourse = await getAllCourse();
     final time = await getTime();
     final now = DateTime.now();
@@ -125,7 +125,7 @@ class DataService {
     return filteredCourses;
   }
 
-  Future<List<ScoreList>> getScore() async {
+  static Future<List<ScoreList>> getScore() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('all_score_data');
     final s = await getSemester();
@@ -144,7 +144,7 @@ class DataService {
     return list;
   }
 
-  Future<List<ExamItem>> getExam() async {
+  static Future<List<ExamItem>> getExam() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('exam_data');
     final List<ExamItem> list = [];
@@ -159,7 +159,7 @@ class DataService {
     return list;
   }
 
-  Future<List<SemesterModel>> getSemester() async {
+  static Future<List<SemesterModel>> getSemester() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('semester_data');
     final List<SemesterModel> list = [];
@@ -174,7 +174,7 @@ class DataService {
     return list;
   }
 
-  Future<Map<String, String>> getTime() async {
+  static Future<Map<String, String>> getTime() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('time_data');
     final Map<String, String> list = {};
@@ -188,7 +188,7 @@ class DataService {
     return list;
   }
 
-  Future<List<InfoModel>> getInfoList() async {
+  static Future<List<InfoModel>> getInfoList() async {
     List<InfoModel> list = [];
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('info_data');
@@ -200,8 +200,7 @@ class DataService {
       }
       return list;
     } else {
-      final edu = EduService();
-      await edu.getInfoCompletion();
+      await EduService.getInfoCompletion();
       final String? jsonString = prefs.getString('info_data');
 
       if (jsonString != null) {
@@ -215,7 +214,7 @@ class DataService {
     }
   }
 
-  Future<List<TodoItem>> getTodoList() async {
+  static Future<List<TodoItem>> getTodoList() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('todo_data');
     final String? username = prefs.getString('username');
@@ -238,7 +237,7 @@ class DataService {
     }
   }
 
-  Future<void> setTodoList(List<TodoItem> list) async {
+  static Future<void> setTodoList(List<TodoItem> list) async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('todo_data');
     final String? username = prefs.getString('username');
@@ -254,7 +253,7 @@ class DataService {
     }
   }
 
-  Future<List<CourseTime>> getAllTime() async {
+  static Future<List<CourseTime>> getAllTime() async {
     final allCourse = await getAllCourse();
     final weekData = await getWeek();
     var now = DateTime.now();

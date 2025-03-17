@@ -38,10 +38,8 @@ void main() async {
 
 Future<void> backgroundCallback(Uri? uri) async {
   if (uri?.host == 'updatetimetable') {
-    // 这里可以获取课程数据并更新小组件
-    // 示例数据
-    final dataService = DataService();
-    final value = await dataService.getCourse();
+
+    final value = await DataService.getCourse();
 
     List<ScheduleItem> courses = [];
     courses.clear();
@@ -113,9 +111,8 @@ class _SplashScreenState extends State<SplashScreen>
             ..duration = composition.duration
             ..repeat();
 
-          final dataService = EduService();
           // 获取并存储数据
-          final dataFuture = dataService.getAllData();
+          final dataFuture = EduService.getAllData();
           HomeWidget.setAppGroupId('com.example.ios_club_app');
           HomeWidget.registerInteractivityCallback(backgroundCallback);
 

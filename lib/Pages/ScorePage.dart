@@ -18,15 +18,14 @@ class _ScorePageState extends State<ScorePage> {
   @override
   void initState() {
     super.initState();
-    final dataService = EduService();
     setState(() {
-      _future = dataService.getAllScoreFromLocal();
+      _future = EduService.getAllScoreFromLocal();
     });
   }
 
   void refresh() {
     setState(() {
-      _future = EduService().getAllScoreFromLocal(isRefresh: true);
+      _future = EduService.getAllScoreFromLocal(isRefresh: true);
     });
   }
 

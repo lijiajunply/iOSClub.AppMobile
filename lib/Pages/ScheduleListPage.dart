@@ -38,14 +38,14 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   @override
   void initState() {
     super.initState();
-    final dataService = DataService();
-    dataService.getWeek().then((value) {
+
+    DataService.getWeek().then((value) {
       setState(() {
         weekNow = value['week']!;
         maxWeek = value['maxWeek']!;
         pageController.jumpToPage(weekNow);
       });
-      dataService.getAllCourse().then((value) {
+      DataService.getAllCourse().then((value) {
         setState(() {
           for (var i = 0; i <= maxWeek; i++) {
             if (i == 0) {

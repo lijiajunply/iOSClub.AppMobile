@@ -16,8 +16,8 @@ class _ExamCardState extends State<ExamCard> {
   @override
   initState() {
     super.initState();
-    final dataService = DataService();
-    dataService.getExam().then((value) {
+
+    DataService.getExam().then((value) {
       setState(() {
         examItems.addAll(value.map((course) => ExamItem(
               title: course.name,

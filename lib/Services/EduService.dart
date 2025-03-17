@@ -8,7 +8,7 @@ import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
 
 class EduService {
-  Future<bool> getAllData() async {
+  static Future<bool> getAllData() async {
     try {
       // 调用API
       final prefs = await SharedPreferences.getInstance();
@@ -40,7 +40,7 @@ class EduService {
     }
   }
 
-  Future<bool> loginFromData(String username, String password) async {
+  static Future<bool> loginFromData(String username, String password) async {
     if (username.isEmpty || password.isEmpty) {
       return false;
     }
@@ -73,7 +73,7 @@ class EduService {
     return false;
   }
 
-  Future<bool> login() async {
+  static Future<bool> login() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? username = prefs.getString('username');
@@ -103,7 +103,7 @@ class EduService {
     return false;
   }
 
-  Future<UserData?> getCookieData() async {
+  static Future<UserData?> getCookieData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? jsonString = prefs.getString('user_data');
@@ -119,7 +119,7 @@ class EduService {
     return null;
   }
 
-  Future<void> getThisSemester({UserData? userData}) async {
+  static Future<void> getThisSemester({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
@@ -148,7 +148,7 @@ class EduService {
     }
   }
 
-  Future<void> getSemester({UserData? userData}) async {
+  static Future<void> getSemester({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
@@ -179,10 +179,9 @@ class EduService {
     }
   }
 
-  Future<void> getCourse({UserData? userData, bool isRefresh = false}) async {
-    final data = DataService();
-    final time = await data.getTime();
-    final week = await data.getWeek();
+  static Future<void> getCourse({UserData? userData, bool isRefresh = false}) async {
+    final time = await DataService.getTime();
+    final week = await DataService.getWeek();
     if (!isRefresh &&
         (time["startTime"] == null ||
             time["endTime"] == null ||
@@ -235,7 +234,7 @@ class EduService {
     }
   }
 
-  Future<void> getAllScore({UserData? userData}) async {
+  static Future<void> getAllScore({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
@@ -249,8 +248,7 @@ class EduService {
         'xauat': cookieData.cookie,
       };
 
-      final data = DataService();
-      final list = await data.getSemester();
+      final list = await DataService.getSemester();
       final Map<String, String> json = {};
       for (var item in list) {
         final response = await http.get(
@@ -271,13 +269,12 @@ class EduService {
     }
   }
 
-  Future<List<ScoreList>> getAllScoreFromLocal({bool isRefresh = false}) async {
+  static Future<List<ScoreList>> getAllScoreFromLocal({bool isRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('all_score_data');
     var now = DateTime.now().millisecondsSinceEpoch;
 
-    final dateService = DataService();
-    final semesters = await dateService.getSemester();
+    final semesters = await DataService.getSemester();
 
     final last = prefs.getInt('last_Score_time');
     if (last != null && !isRefresh) {
@@ -313,8 +310,7 @@ class EduService {
         'xauat': cookieData.cookie,
       };
 
-      final data = DataService();
-      final list = await data.getSemester();
+      final list = await DataService.getSemester();
       final Map<String, String> json = {};
       for (var item in list) {
         final response = await http.get(
@@ -350,7 +346,7 @@ class EduService {
     return [];
   }
 
-  Future<void> getExam({UserData? userData}) async {
+  static Future<void> getExam({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
@@ -380,7 +376,7 @@ class EduService {
     }
   }
 
-  Future<void> getTime() async {
+  static Future<void> getTime() async {
     try {
       final response =
           await http.get(Uri.parse('https://xauatapi.xauat.site/Info/Time'));
@@ -397,7 +393,7 @@ class EduService {
     }
   }
 
-  Future<void> getInfoCompletion({UserData? userData}) async {
+  static Future<void> getInfoCompletion({UserData? userData}) async {
     UserData? cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;

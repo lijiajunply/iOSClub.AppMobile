@@ -39,8 +39,7 @@ class _ProfilePageState extends State<ProfilePage>
     final password = prefs.getString('password');
     final iosName = prefs.getString('iosName');
 
-    final dataService = DataService();
-    final a = await dataService.getInfoList();
+    final a = await DataService.getInfoList();
     setState(() {
       _isLoggedIn = username != null &&
           password != null &&
@@ -70,11 +69,10 @@ class _ProfilePageState extends State<ProfilePage>
       _isLoading = true;
     });
 
-    final edu = EduService();
     var result = false;
 
     for (var i = 0; i < 3; i++) {
-      result = await edu.loginFromData(
+      result = await EduService.loginFromData(
         _usernameController.text,
         _passwordController.text,
       );
@@ -101,8 +99,7 @@ class _ProfilePageState extends State<ProfilePage>
     await prefs.setString('username', _usernameController.text);
     await prefs.setString('password', _passwordController.text);
 
-    final dataService = DataService();
-    final list = await dataService.getInfoList();
+    final list = await DataService.getInfoList();
 
     setState(() {
       _isLoggedIn = true;

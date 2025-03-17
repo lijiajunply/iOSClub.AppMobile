@@ -19,8 +19,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    final data = DataService();
-    data.getTodoList().then((value) {
+    DataService.getTodoList().then((value) {
       setState(() {
         _todos.addAll(value);
       });
@@ -77,8 +76,7 @@ class HomePageState extends State<HomePage> {
                   setState(() {
                     _todos.add(newItem);
                   });
-                  final data = DataService();
-                  await data.setTodoList(_todos);
+                  await DataService.setTodoList(_todos);
                 }
               },
             ),
@@ -104,8 +102,7 @@ class HomePageState extends State<HomePage> {
                         setState(() {
                           todo.isCompleted = value!;
                         });
-                        final data = DataService();
-                        data.setTodoList(_todos);
+                        DataService.setTodoList(_todos);
                       },
                     ),
                     title: Text(
@@ -124,8 +121,7 @@ class HomePageState extends State<HomePage> {
                         setState(() {
                           _todos.removeAt(index);
                         });
-                        final data = DataService();
-                        await data.setTodoList(_todos);
+                        await DataService.setTodoList(_todos);
                       },
                     ),
                   ),
