@@ -42,6 +42,7 @@ class ScoreList {
   double get totalCredit {
     double credit = 0;
     for (var item in list) {
+      if(item.gpa == '' || item.credit == '0')continue;
       final a = double.parse(item.gpa);
       if(a == 0) {
         continue;
@@ -55,6 +56,7 @@ class ScoreList {
     double total = 0;
     double credit = 0;
     for (var item in list) {
+      if(item.gpa == '' || item.credit == '0')continue;
       total += double.parse(item.credit);
       credit += double.parse(item.credit) * double.parse(item.gpa);
     }
@@ -63,6 +65,7 @@ class ScoreList {
 
   int get totalCourse {
     return list.where((x) {
+      if(x.gpa == '' || x.credit == '0') return false;
       final a = double.parse(x.gpa);
       return a != 0;
     }).length;
