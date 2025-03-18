@@ -18,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   bool _isLoggedIn = false;
+  bool _hasLoggedIn = false;
   String _username = '';
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -47,15 +48,25 @@ class _ProfilePageState extends State<ProfilePage>
       _isLoggedIn = username != null &&
           password != null &&
           username.isNotEmpty &&
-          password.isNotEmpty;
+          password.isNotEmpty &&
+          iosName != null &&
+          iosName.isNotEmpty;
+
+      _hasLoggedIn = _isLoggedIn;
       _username = username ?? '';
       _isLoading = false;
       _info = a;
+
       if (iosName == null || iosName.isEmpty) {
         _isBoth = false;
       } else {
         _username = iosName;
-        if (_isLoggedIn) _isBoth = true;
+        if (username != null &&
+            password != null &&
+            username.isNotEmpty &&
+            password.isNotEmpty) {
+          _isBoth = true;
+        }
       }
     });
   }
@@ -75,10 +86,16 @@ class _ProfilePageState extends State<ProfilePage>
     var result = false;
 
     if (_tabController.index == 1) {
-      result = await ClubService.loginMember(
-        _usernameController.text,
-        _passwordController.text,
-      );
+      if (_username != '' && _username != _passwordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('学号和教务系统的学号不一样')),
+        );
+      } else {
+        result = await ClubService.loginMember(
+          _usernameController.text,
+          _passwordController.text,
+        );
+      }
     } else {
       for (var i = 0; i < 3; i++) {
         result = await EduService.loginFromData(
@@ -121,10 +138,14 @@ class _ProfilePageState extends State<ProfilePage>
     }
 
     setState(() {
-      if (_isBoth == null) {
-        _isBoth = _tabController.index != 1 ? _isLoggedIn : _isBoth;
+      if (_hasLoggedIn) {
+        if (_isBoth == null) {
+          _isBoth = _tabController.index != 1 ? _hasLoggedIn : _isBoth;
+        } else {
+          _isBoth = _tabController.index != 1;
+        }
       } else {
-        _isBoth = _tabController.index != 1;
+        _isBoth = _tabController.index != 1 ? false : null;
       }
       _isLoggedIn = true;
       _username = _usernameController.text;
@@ -419,9 +440,9 @@ class _ProfilePageState extends State<ProfilePage>
                                 child: Column(children: [
                                   const Icon(Icons.apple, size: 32),
                                   Text(
-                                    _isBoth != null && !_isBoth!
-                                        ? '登录到iMember'
-                                        : '社团相关',
+                                    _isBoth != null
+                                        ? '登录社团iMember'
+                                        : '登录教务系统',
                                     style: const TextStyle(
                                         fontSize: 9,
                                         fontWeight: FontWeight.bold,
@@ -445,15 +466,14 @@ class _ProfilePageState extends State<ProfilePage>
                           ])
                     ])),
               )),
-          if (_isBoth != null && !_isBoth!)
-            Padding(
-                padding: const EdgeInsets.all(12),
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _info.length,
-                    itemBuilder: (context, index) =>
-                        StudyCreditCard(data: _info[index]))),
+          Padding(
+              padding: const EdgeInsets.all(12),
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _info.length,
+                  itemBuilder: (context, index) =>
+                      StudyCreditCard(data: _info[index]))),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:ios_club_app/Models/BusModel.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/LoginService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -162,10 +163,9 @@ class EduService {
         'xauat': cookieData.cookie,
       };
 
-
-
       final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site/Score/Semester?studentId=${cookieData.studentId}'),
+          Uri.parse(
+              'https://xauatapi.xauat.site/Score/Semester?studentId=${cookieData.studentId}'),
           headers: finalHeaders);
 
       if (response.statusCode == 200) {
@@ -179,7 +179,8 @@ class EduService {
     }
   }
 
-  static Future<void> getCourse({UserData? userData, bool isRefresh = false}) async {
+  static Future<void> getCourse(
+      {UserData? userData, bool isRefresh = false}) async {
     final time = await DataService.getTime();
     final week = await DataService.getWeek();
     if (!isRefresh &&
@@ -269,7 +270,8 @@ class EduService {
     }
   }
 
-  static Future<List<ScoreList>> getAllScoreFromLocal({bool isRefresh = false}) async {
+  static Future<List<ScoreList>> getAllScoreFromLocal(
+      {bool isRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('all_score_data');
     var now = DateTime.now().millisecondsSinceEpoch;
@@ -361,7 +363,8 @@ class EduService {
       };
 
       final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site/Exam?studentId=${cookieData.studentId}'),
+          Uri.parse(
+              'https://xauatapi.xauat.site/Exam?studentId=${cookieData.studentId}'),
           headers: finalHeaders);
       if (response.statusCode == 200) {
         // 存储到本地
@@ -421,5 +424,35 @@ class EduService {
         print('Error fetching data: $e');
       }
     }
+  }
+
+  static Future<BusModel> getBus({String? dayDate}) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (prefs.getString('bus_data') != null) {
+      final busData = jsonDecode(prefs.getString('bus_data')!);
+      return BusModel.fromJson(busData);
+    }
+    try {
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await http.get(
+          Uri.parse('https://xauatapi.xauat.site/Bus${dayDate ?? ''}'),
+          headers: finalHeaders);
+      if (response.statusCode == 200) {
+        await prefs.setString(
+            'bus_data', jsonEncode(jsonDecode(response.body)));
+        return BusModel.fromJson(jsonDecode(response.body));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return BusModel(records: [], total: 0);
   }
 }
