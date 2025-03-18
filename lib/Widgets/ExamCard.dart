@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Models/CourseColorManager.dart';
+import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 
 import '../Services/DataService.dart';
 

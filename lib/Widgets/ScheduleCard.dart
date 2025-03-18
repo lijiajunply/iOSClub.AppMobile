@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Models/CourseColorManager.dart';
+import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 import 'package:ios_club_app/Services/TimeService.dart';
 
+import '../PageModels/ScheduleItem.dart';
 import '../Services/DataService.dart';
 
 class ScheduleCard extends StatefulWidget {
@@ -123,16 +124,4 @@ class _ScheduleCardState extends State<ScheduleCard> {
       ),
     );
   }
-}
-
-class ScheduleItem {
-  final String title;
-  final String time;
-  final String location;
-
-  ScheduleItem({
-    required this.title,
-    required this.time,
-    required this.location,
-  });
 }

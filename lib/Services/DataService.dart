@@ -5,7 +5,7 @@ import 'package:ios_club_app/Models/TodoItem.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
-import '../Models/CourseTime.dart';
+import '../PageModels/CourseTime.dart';
 import '../Models/ExamModel.dart';
 import '../Models/SemesterModel.dart';
 import 'TimeService.dart';

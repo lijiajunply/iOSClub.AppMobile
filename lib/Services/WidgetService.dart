@@ -1,9 +1,8 @@
-// lib/services/widget_service.dart
 import 'dart:convert';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 
-import '../Widgets/ScheduleCard.dart';
+import '../PageModels/ScheduleItem.dart';
 
 class WidgetService {
   static const String appWidgetProviderClass = 'TodayCoursesWidgetProvider';

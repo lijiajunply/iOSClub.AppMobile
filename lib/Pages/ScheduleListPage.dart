@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../Models/CourseColorManager.dart';
+import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
 import '../Services/DataService.dart';
 

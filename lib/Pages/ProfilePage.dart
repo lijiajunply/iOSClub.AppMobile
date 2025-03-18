@@ -5,6 +5,7 @@ import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Services/ClubService.dart';
 import '../Widgets/StudyCreditCard.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -22,6 +23,8 @@ class _ProfilePageState extends State<ProfilePage>
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = true;
+
+  /// null为 iMember 的登录状态，true为 都登录状态，false为教务系统登录状态
   late bool? _isBoth;
   late final TabController _tabController;
   late List<InfoModel> _info;
@@ -37,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage>
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username');
     final password = prefs.getString('password');
-    final iosName = prefs.getString('iosName');
+    final iosName = prefs.getString('club_name');
 
     final a = await DataService.getInfoList();
     setState(() {
@@ -48,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage>
       _username = username ?? '';
       _isLoading = false;
       _info = a;
-      if (iosName == null || iosName.isNotEmpty) {
+      if (iosName == null || iosName.isEmpty) {
         _isBoth = false;
       } else {
         _username = iosName;
@@ -71,16 +74,23 @@ class _ProfilePageState extends State<ProfilePage>
 
     var result = false;
 
-    for (var i = 0; i < 3; i++) {
-      result = await EduService.loginFromData(
+    if (_tabController.index == 1) {
+      result = await ClubService.loginMember(
         _usernameController.text,
         _passwordController.text,
       );
-      if (result) break;
-      await Future.delayed(const Duration(seconds: 1));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('正在重试')),
-      );
+    } else {
+      for (var i = 0; i < 3; i++) {
+        result = await EduService.loginFromData(
+          _usernameController.text,
+          _passwordController.text,
+        );
+        if (result) break;
+        await Future.delayed(const Duration(seconds: 1));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('正在重试')),
+        );
+      }
     }
 
     if (!result) {
@@ -96,12 +106,26 @@ class _ProfilePageState extends State<ProfilePage>
     }
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', _usernameController.text);
-    await prefs.setString('password', _passwordController.text);
+    if (_tabController.index == 1) {
+      await prefs.setString('club_name', _usernameController.text);
+      await prefs.setString('club_id', _passwordController.text);
+    } else {
+      await prefs.setString('username', _usernameController.text);
+      await prefs.setString('password', _passwordController.text);
+    }
 
-    final list = await DataService.getInfoList();
+    var list = List<InfoModel>.empty(growable: true);
+
+    if (_tabController.index != 1) {
+      list = await DataService.getInfoList();
+    }
 
     setState(() {
+      if (_isBoth == null) {
+        _isBoth = _tabController.index != 1 ? _isLoggedIn : _isBoth;
+      } else {
+        _isBoth = _tabController.index != 1;
+      }
       _isLoggedIn = true;
       _username = _usernameController.text;
       _isLoading = false;
@@ -165,9 +189,11 @@ class _ProfilePageState extends State<ProfilePage>
                   controller: _tabController,
                   tabs: const [
                     Tab(
+                      icon: Icon(Icons.school),
                       text: '教务系统',
                     ),
                     Tab(
+                      icon: Icon(Icons.apple),
                       text: 'iMember',
                     ),
                   ],
@@ -361,7 +387,62 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
                         ],
-                      )
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RawMaterialButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/SchoolBus');
+                                },
+                                child: const Column(children: [
+                                  Icon(Icons.directions_bus_rounded, size: 32),
+                                  Text(
+                                    '校车',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  )
+                                ])),
+                            RawMaterialButton(
+                                onPressed: () {
+                                  if (_isBoth != null && !_isBoth!) {
+                                    setState(() {
+                                      _isLoggedIn = false;
+                                    });
+                                  } else {
+                                    Navigator.pushNamed(context, '/iMember');
+                                  }
+                                },
+                                child: Column(children: [
+                                  const Icon(Icons.apple, size: 32),
+                                  Text(
+                                    _isBoth != null && !_isBoth!
+                                        ? '登录到iMember'
+                                        : '社团相关',
+                                    style: const TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  )
+                                ])),
+                            RawMaterialButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/SchoolBus');
+                                },
+                                child: const Column(children: [
+                                  Icon(Icons.apps, size: 32),
+                                  Text(
+                                    '其他',
+                                    style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  )
+                                ])),
+                          ])
                     ])),
               )),
           if (_isBoth != null && !_isBoth!)
