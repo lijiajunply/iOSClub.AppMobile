@@ -11,7 +11,6 @@ class WidgetService {
   static Future<void> updateTodayCourses(List<ScheduleItem> todayCourses) async {
     final now = DateTime.now();
 
-
     // 更新小组件
     await HomeWidget.saveWidgetData<String>('title', '今日课表');
     await HomeWidget.saveWidgetData<String>(

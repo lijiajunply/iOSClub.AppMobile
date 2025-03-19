@@ -109,7 +109,8 @@ class _ProfilePageState extends State<ProfilePage>
 
     // 登录社团账号
     if (_isOnlyLoginMember || _isLoginMember) {
-      if ((_nameController.text.isEmpty && _isOnlyLoginMember) && (_isLoginMember && _usernameController.text.isEmpty)) {
+      if ((_nameController.text.isEmpty && _isOnlyLoginMember) &&
+          (_isLoginMember && _usernameController.text.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('登录社团账号时姓名不能为空')),
         );
@@ -165,11 +166,18 @@ class _ProfilePageState extends State<ProfilePage>
       _isLoggedIn = true;
       _username = _usernameController.text;
       _isLoading = false;
-      _info = list;
+      _isBoth = _isOnlyLoginMember || _isLoginMember;
+      if (!_isOnlyLoginMember) {
+        _info = list;
+      }
     });
 
     _usernameController.clear();
     _passwordController.clear();
+
+    if(_isLoginMember){
+      _nameController.clear();
+    }
   }
 
   Future<void> _logout() async {
@@ -202,23 +210,17 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildLoginForm() {
-    final width = MediaQuery.of(context).size.width;
-    var a = width / 5;
-    if (width > 600) {
-      a = width / 10;
-    }
-    return Scaffold(
-      body: Center(
+    return SingleChildScrollView(
         child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: a),
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 72),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo
                 Image.asset(
                   'assets/icon.png',
-                  width: 120,
-                  height: 120,
+                  width: 160,
+                  height: 160,
                 ),
                 const SizedBox(height: 24),
                 TextField(
@@ -330,9 +332,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ],
-            )),
-      ),
-    );
+            )));
   }
 
   Widget _buildProfileContent() {
@@ -340,9 +340,6 @@ class _ProfilePageState extends State<ProfilePage>
       child: Column(
         children: [
           Container(
-            decoration: const BoxDecoration(
-              color: Color.fromRGBO(247, 247, 247, 0.6),
-            ),
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
             child: Row(
@@ -368,7 +365,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         Text(
-                          _isBoth ? 'iMember & 教务系统账号' : '教务系统账号',
+                          _isBoth ? 'iMember账号' : '教务系统账号',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -494,7 +491,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 ])),
                             RawMaterialButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/SchoolBus');
+                                  Navigator.pushNamed(context, '/Other');
                                 },
                                 child: const Column(children: [
                                   Icon(Icons.apps, size: 32),

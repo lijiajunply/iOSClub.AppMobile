@@ -9,9 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Pages/AboutPage.dart';
 import 'Pages/HomePage.dart';
 import 'Pages/LinkPage.dart';
+import 'Pages/OtherPage.dart';
 import 'Pages/ProfilePage.dart';
 import 'Pages/ScheduleListPage.dart';
 import 'Pages/ScheduleSettingPage.dart';
+import 'Pages/SchoolBusPage.dart';
 import 'Pages/ScorePage.dart';
 import 'Pages/TodoPage.dart';
 import 'Services/GiteeService.dart';
@@ -161,6 +163,8 @@ class _MyAppState extends State<MyApp> {
         '/Todo': (context) => const TodoPage(),
         '/About': (context) => const AboutPage(),
         '/ScheduleSetting': (context) => const ScheduleSettingPage(),
+        '/SchoolBus': (context) => const SchoolBusPage(),
+        '/Other': (context) => const OtherPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
