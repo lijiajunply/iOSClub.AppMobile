@@ -4,6 +4,7 @@ import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../Services/ClubService.dart';
 import '../Widgets/StudyCreditCard.dart';
@@ -18,23 +19,23 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   bool _isLoggedIn = false;
-  bool _hasLoggedIn = false;
   String _username = '';
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = true;
+  bool _isLoginMember = false;
+  bool _isOnlyLoginMember = false;
 
-  /// null为 iMember 的登录状态，true为 都登录状态，false为教务系统登录状态
-  late bool? _isBoth;
-  late final TabController _tabController;
+  /// true为 都登录状态，false为教务系统登录状态
+  late bool _isBoth = false;
   late List<InfoModel> _info;
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
-    _tabController = TabController(length: 2, vsync: this);
   }
 
   Future<void> _checkLoginStatus() async {
@@ -52,7 +53,6 @@ class _ProfilePageState extends State<ProfilePage>
           iosName != null &&
           iosName.isNotEmpty;
 
-      _hasLoggedIn = _isLoggedIn;
       _username = username ?? '';
       _isLoading = false;
       _info = a;
@@ -61,12 +61,7 @@ class _ProfilePageState extends State<ProfilePage>
         _isBoth = false;
       } else {
         _username = iosName;
-        if (username != null &&
-            password != null &&
-            username.isNotEmpty &&
-            password.isNotEmpty) {
-          _isBoth = true;
-        }
+        _isBoth = _isLoggedIn;
       }
     });
   }
@@ -85,18 +80,8 @@ class _ProfilePageState extends State<ProfilePage>
 
     var result = false;
 
-    if (_tabController.index == 1) {
-      if (_username != '' && _username != _passwordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('学号和教务系统的学号不一样')),
-        );
-      } else {
-        result = await ClubService.loginMember(
-          _usernameController.text,
-          _passwordController.text,
-        );
-      }
-    } else {
+    // 登录教务系统账号
+    if (!_isOnlyLoginMember) {
       for (var i = 0; i < 3; i++) {
         result = await EduService.loginFromData(
           _usernameController.text,
@@ -108,45 +93,75 @@ class _ProfilePageState extends State<ProfilePage>
           const SnackBar(content: Text('正在重试')),
         );
       }
+
+      if (!result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('登录失败，请检查用户名和密码')),
+        );
+
+        setState(() {
+          _isLoggedIn = false;
+          _isLoading = false;
+        });
+        return;
+      }
+    }
+
+    // 登录社团账号
+    if (_isOnlyLoginMember || _isLoginMember) {
+      if ((_nameController.text.isEmpty && _isOnlyLoginMember) && (_isLoginMember && _usernameController.text.isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('登录社团账号时姓名不能为空')),
+        );
+      } else {
+        if (_isOnlyLoginMember) {
+          result = await ClubService.loginMember(
+            _usernameController.text,
+            _passwordController.text,
+          );
+        } else if (_isLoginMember) {
+          result = await ClubService.loginMember(
+            _nameController.text,
+            _usernameController.text,
+          );
+        }
+      }
     }
 
     if (!result) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('登录失败，请检查用户名和密码')),
+        const SnackBar(content: Text('社团账号登陆失败')),
       );
 
-      setState(() {
-        _isLoggedIn = false;
-        _isLoading = false;
-      });
-      return;
+      if (_isOnlyLoginMember == true) {
+        _isOnlyLoginMember = false;
+      }
+      if (_isLoginMember == true) {
+        _isLoginMember = false;
+      }
     }
 
     final prefs = await SharedPreferences.getInstance();
-    if (_tabController.index == 1) {
-      await prefs.setString('club_name', _usernameController.text);
-      await prefs.setString('club_id', _passwordController.text);
-    } else {
+    if (_isOnlyLoginMember || _isLoginMember) {
+      if (_isOnlyLoginMember) {
+        await prefs.setString('club_name', _usernameController.text);
+        await prefs.setString('club_id', _passwordController.text);
+      } else {
+        await prefs.setString('club_name', _nameController.text);
+        await prefs.setString('club_id', _usernameController.text);
+      }
+    } else if (!_isOnlyLoginMember) {
       await prefs.setString('username', _usernameController.text);
       await prefs.setString('password', _passwordController.text);
     }
 
     var list = List<InfoModel>.empty(growable: true);
 
-    if (_tabController.index != 1) {
+    if (!_isOnlyLoginMember) {
       list = await DataService.getInfoList();
     }
 
     setState(() {
-      if (_hasLoggedIn) {
-        if (_isBoth == null) {
-          _isBoth = _tabController.index != 1 ? _hasLoggedIn : _isBoth;
-        } else {
-          _isBoth = _tabController.index != 1;
-        }
-      } else {
-        _isBoth = _tabController.index != 1 ? false : null;
-      }
       _isLoggedIn = true;
       _username = _usernameController.text;
       _isLoading = false;
@@ -205,20 +220,6 @@ class _ProfilePageState extends State<ProfilePage>
                   width: 120,
                   height: 120,
                 ),
-                const SizedBox(height: 16),
-                TabBar(
-                  controller: _tabController,
-                  tabs: const [
-                    Tab(
-                      icon: Icon(Icons.school),
-                      text: '教务系统',
-                    ),
-                    Tab(
-                      icon: Icon(Icons.apple),
-                      text: 'iMember',
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 24),
                 TextField(
                   controller: _usernameController,
@@ -226,6 +227,7 @@ class _ProfilePageState extends State<ProfilePage>
                     filled: true,
                     fillColor: Colors.grey[100],
                     prefixIcon: const Icon(Icons.person_outline),
+                    hintText: _isOnlyLoginMember ? '姓名' : '学号',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -233,7 +235,6 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 // 密码输入框
                 TextField(
                   controller: _passwordController,
@@ -242,6 +243,7 @@ class _ProfilePageState extends State<ProfilePage>
                     filled: true,
                     fillColor: Colors.grey[100],
                     prefixIcon: const Icon(Icons.lock_outline),
+                    hintText: _isOnlyLoginMember ? '学号' : '教务系统密码',
                     suffixIcon: IconButton(
                       icon: Icon(_obscureText
                           ? Icons.visibility_off
@@ -258,7 +260,54 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                   ),
                 ),
+                if (_isLoginMember) const SizedBox(height: 16),
+                if (_isLoginMember)
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      prefixIcon: const Icon(Icons.person_outline),
+                      hintText: '姓名（登录社团账号时必填）',
+                      //李嘉俊
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
+                if (!_isOnlyLoginMember)
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isLoginMember,
+                              onChanged: (value) {
+                                if (value == null) return;
+                                setState(() {
+                                  _isLoginMember = value;
+                                });
+                              },
+                            ),
+                            const Text('登录社团账号'),
+                          ],
+                        ),
+                        TextButton(
+                            onPressed: () async {
+                              if (await canLaunchUrl(Uri.parse(
+                                  'https://swjw.xauat.edu.cn/security-center//password-reset/identity-check-form'))) {
+                                await launchUrl(
+                                    Uri.parse(
+                                        'https://swjw.xauat.edu.cn/security-center//password-reset/identity-check-form'),
+                                    mode: LaunchMode.externalApplication);
+                              }
+                            },
+                            child: Text('忘记密码?'))
+                      ]),
+                if (!_isOnlyLoginMember) const SizedBox(height: 16),
                 // 登录按钮
                 SizedBox(
                   width: double.infinity,
@@ -318,13 +367,8 @@ class _ProfilePageState extends State<ProfilePage>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        //const SizedBox(height: 8),
                         Text(
-                          _isBoth == null
-                              ? 'iMember'
-                              : _isBoth!
-                                  ? 'iMember & 教务系统账号'
-                                  : '教务系统账号',
+                          _isBoth ? 'iMember & 教务系统账号' : '教务系统账号',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -429,9 +473,10 @@ class _ProfilePageState extends State<ProfilePage>
                                 ])),
                             RawMaterialButton(
                                 onPressed: () {
-                                  if (_isBoth != null && !_isBoth!) {
+                                  if (!_isBoth) {
                                     setState(() {
                                       _isLoggedIn = false;
+                                      _isOnlyLoginMember = true;
                                     });
                                   } else {
                                     Navigator.pushNamed(context, '/iMember');
@@ -440,9 +485,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 child: Column(children: [
                                   const Icon(Icons.apple, size: 32),
                                   Text(
-                                    _isBoth != null
-                                        ? '登录社团iMember'
-                                        : '登录教务系统',
+                                    _isBoth ? '社团详情' : '登录社团iMember',
                                     style: const TextStyle(
                                         fontSize: 9,
                                         fontWeight: FontWeight.bold,

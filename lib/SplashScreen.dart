@@ -5,7 +5,6 @@ import 'package:lottie/lottie.dart';
 import 'App.dart';
 import 'PageModels/ScheduleItem.dart';
 import 'Services/DataService.dart';
-import 'Services/EduService.dart';
 import 'Services/TimeService.dart';
 import 'Services/WidgetService.dart';
 

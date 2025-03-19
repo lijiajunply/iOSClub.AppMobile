@@ -16,7 +16,7 @@ class EduService {
       var now = DateTime.now().millisecondsSinceEpoch;
       final last = prefs.getInt('last_fetch_time');
       if (last != null && last != '') {
-        if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 30) {
+        if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 20) {
           return true;
         }
       }
@@ -201,7 +201,11 @@ class EduService {
 
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('course_data');
-    if (jsonString != null && week["weekNow"]! > 2) {
+    if (jsonString != null &&
+        jsonString.isNotEmpty &&
+        week["weekNow"] != null &&
+        week["weekNow"] is int &&
+        week["weekNow"]! > 2) {
       return;
     }
 
