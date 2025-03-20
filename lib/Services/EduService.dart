@@ -41,6 +41,33 @@ class EduService {
     }
   }
 
+  static Future<bool> refresh() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var now = DateTime.now().millisecondsSinceEpoch;
+
+      final loginResult = await login();
+      if (!loginResult) {
+        return false;
+      }
+
+      var cookieData = await getCookieData();
+      await getSemester(userData: cookieData);
+      await getTime();
+      await getCourse(userData: cookieData, isRefresh: true);
+      await getExam(userData: cookieData);
+      await getInfoCompletion(userData: cookieData);
+      await prefs.setInt('last_fetch_time', now);
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return false;
+  }
+
   static Future<bool> loginFromData(String username, String password) async {
     if (username.isEmpty || password.isEmpty) {
       return false;

@@ -16,6 +16,7 @@ import 'Pages/ScheduleSettingPage.dart';
 import 'Pages/SchoolBusPage.dart';
 import 'Pages/ScorePage.dart';
 import 'Pages/TodoPage.dart';
+import 'Pages/iMemberPage.dart';
 import 'Services/GiteeService.dart';
 import 'main.dart';
 
@@ -165,6 +166,7 @@ class _MyAppState extends State<MyApp> {
         '/ScheduleSetting': (context) => const ScheduleSettingPage(),
         '/SchoolBus': (context) => const SchoolBusPage(),
         '/Other': (context) => const OtherPage(),
+        '/iMember': (context) => const iMemberPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
