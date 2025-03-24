@@ -12,8 +12,7 @@ class LinkPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('建大导航'),
+        title: const Text('建大导航'),
       ),
       body: FutureBuilder(
           future: ClubService.getLinks(),
@@ -54,7 +53,7 @@ class ScoreBuilder extends StatelessWidget {
 
   Future<void> _launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $url';
     }
@@ -99,7 +98,8 @@ class ScoreBuilder extends StatelessWidget {
                               }),
                           Text(
                             linkList.name,
-                            style: const TextStyle(fontSize: 12,color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
                           )
                         ],
                       ),

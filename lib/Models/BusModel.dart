@@ -1,5 +1,5 @@
 class BusModel {
-  final List<BusItem> records;
+  List<BusItem> records;
   final int total;
 
   BusModel({
@@ -19,9 +19,9 @@ class BusModel {
 
   // 转换为JSON方法
   Map<String, dynamic> toJson() => {
-    'records': records.map((item) => item.toJson()).toList(),
-    'total': total,
-  };
+        'records': records.map((item) => item.toJson()).toList(),
+        'total': total,
+      };
 }
 
 class BusItem {
@@ -29,8 +29,9 @@ class BusItem {
   final String description;
   final String departureStation;
   final String arrivalStation;
-  final String runTime;
-  final String arrivalStationTime;
+  String runTime;
+  String arrivalStationTime;
+  String totalTime = '';
 
   BusItem({
     required this.lineName,
@@ -39,7 +40,28 @@ class BusItem {
     required this.arrivalStation,
     required this.runTime,
     required this.arrivalStationTime,
-  });
+  }) {
+    if (runTime.isNotEmpty) {
+      runTime = runTime.substring(0, runTime.lastIndexOf(':'));
+    }
+    if (arrivalStationTime.isNotEmpty) {
+      arrivalStationTime = arrivalStationTime.substring(1);
+      var s = arrivalStationTime.split(':');
+      arrivalStationTime = '${s[0]}小时 ${s[1]}分钟';
+      if (s.length == 2) {
+        int h = int.parse(s[0]);
+        int m = int.parse(s[1]);
+        var runTimeSplit = runTime.split(':');
+        h += int.parse(runTimeSplit[0]);
+        m += int.parse(runTimeSplit[1]);
+        if (m >= 60) {
+          m -= 60;
+          h++;
+        }
+        totalTime = '$h:$m';
+      }
+    }
+  }
 
   // 从JSON构造方法
   factory BusItem.fromJson(Map<String, dynamic> json) {
@@ -55,11 +77,11 @@ class BusItem {
 
   // 转换为JSON方法
   Map<String, dynamic> toJson() => {
-    'lineName': lineName,
-    'description': description,
-    'departureStation': departureStation,
-    'arrivalStation': arrivalStation,
-    'runTime': runTime,
-    'arrivalStationTime': arrivalStationTime,
-  };
+        'lineName': lineName,
+        'description': description,
+        'departureStation': departureStation,
+        'arrivalStation': arrivalStation,
+        'runTime': runTime,
+        'arrivalStationTime': arrivalStationTime,
+      };
 }

@@ -74,6 +74,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/lottie.json
+    - assets/Empty.json
     - assets/icon.png
     - assets/person.png
     - assets/iconfont/iconfont.json

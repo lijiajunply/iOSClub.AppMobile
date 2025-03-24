@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ios_club_app/Services/EduService.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,7 +65,54 @@ class _AboutPageState extends State<AboutPage> {
                     TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
               )),
               const SizedBox(
+                height: 24,
+              ),
+              Padding(
+                padding: EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Text('基本设置',
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold))
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Card(
+                child: ListTile(
+                  title: const Text(
+                    '刷新数据',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  trailing: Icon(Icons.refresh),
+                  onTap: () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('正在刷新数据...')),
+                    );
+                    final re = await EduService.refresh();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('刷新数据${re ? '成功' : '失败'}')),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(
                 height: 16,
+              ),
+              Padding(
+                padding: EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Text('版本',
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold))
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 8,
               ),
               Card(
                 child: ListTile(
@@ -143,6 +191,19 @@ class _AboutPageState extends State<AboutPage> {
                   },
                 ),
               )),
+              const SizedBox(
+                height: 16,
+              ),
+              Padding(
+                padding: EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Text('关于我们',
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold))
+                  ],
+                ),
+              ),
               const SizedBox(
                 height: 8,
               ),
