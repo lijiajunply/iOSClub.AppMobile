@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 
 import '../Services/DataService.dart';
+import 'EmptyWidget.dart';
 
 class ExamCard extends StatefulWidget {
   const ExamCard({super.key});
@@ -37,11 +38,16 @@ class _ExamCardState extends State<ExamCard> {
             elevation: 4,
             child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: Center(
-                  child: Text(
-                '最近没有考试',
-                style: TextStyle(fontSize: 20),
-              )),
+              child: Column(
+                children: [
+                  EmptyWidget(),
+                  Center(
+                      child: Text(
+                        '最近没有考试',
+                        style: TextStyle(fontSize: 20),
+                      ))
+                ],
+              ),
             ))
         : ListView.builder(
             shrinkWrap: true,

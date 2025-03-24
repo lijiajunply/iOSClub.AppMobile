@@ -3,6 +3,7 @@ import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 
 import '../Models/ScoreModel.dart';
+import '../Widgets/EmptyWidget.dart';
 import '../Widgets/PageHeaderDelegate.dart';
 
 class ScorePage extends StatefulWidget {
@@ -40,6 +41,7 @@ class _ScorePageState extends State<ScorePage> {
               return Text("Error: ${snapshot.error}");
             } else {
               final scoreList = snapshot.data!;
+
               // 请求成功，显示数据
               return Scaffold(
                 body: CustomScrollView(slivers: [
@@ -56,7 +58,7 @@ class _ScorePageState extends State<ScorePage> {
                     ),
                   ),
                   SliverPadding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: const EdgeInsets.all(16.0),
                       sliver: SliverToBoxAdapter(
                           child: Card(
                         child: Padding(
@@ -125,33 +127,49 @@ class _ScorePageState extends State<ScorePage> {
                   SliverPadding(
                     padding: const EdgeInsets.all(16.0),
                     sliver: SliverToBoxAdapter(
-                        child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: scoreList.length,
-                            itemBuilder: (context, index) {
-                              final score = scoreList[index];
-                              final semesterNames =
-                                  score.semester.name.split('-');
-                              return Card(
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 16.0, horizontal: 16.0),
+                        child: scoreList.isEmpty
+                            ? Card(
                                 elevation: 4,
                                 child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(children: [
-                                      Text(
-                                        '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      ...score.list.map(
-                                          (item) => _buildScheduleItem(item))
-                                    ])),
-                              );
-                            })),
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Column(
+                                    children: [
+                                      EmptyWidget(),
+                                      Center(
+                                          child: Text(
+                                        '没有成绩，建议刷新或退出重进',
+                                        style: TextStyle(fontSize: 20),
+                                      ))
+                                    ],
+                                  ),
+                                ))
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: scoreList.length,
+                                itemBuilder: (context, index) {
+                                  final score = scoreList[index];
+                                  final semesterNames =
+                                      score.semester.name.split('-');
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 16.0, horizontal: 16.0),
+                                    elevation: 4,
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(children: [
+                                          Text(
+                                            '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          ...score.list.map((item) =>
+                                              _buildScheduleItem(item))
+                                        ])),
+                                  );
+                                })),
                   ),
                 ]),
               );

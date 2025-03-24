@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Widgets/ExamCard.dart';
 import '../Models/TodoItem.dart';
+import '../Widgets/EmptyWidget.dart';
 import '../Widgets/PageHeaderDelegate.dart';
 import '../Widgets/ScheduleCard.dart';
 
@@ -84,50 +85,66 @@ class HomePageState extends State<HomePage> {
           SliverPadding(
             padding: const EdgeInsets.all(16.0),
             sliver: SliverToBoxAdapter(
-                child: ListView.builder(
-              // 关键是添加这些属性
-              shrinkWrap: true,
-              // 让 ListView 根据内容自适应高度
-              physics: const NeverScrollableScrollPhysics(),
-              // 禁用 ListView 自身的滚动
-              itemCount: _todos.length,
-              itemBuilder: (context, index) {
-                final todo = _todos[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: todo.isCompleted,
-                      onChanged: (value) {
-                        setState(() {
-                          todo.isCompleted = value!;
-                        });
-                        DataService.setTodoList(_todos);
-                      },
-                    ),
-                    title: Text(
-                      todo.title,
-                      style: TextStyle(
-                        decoration: todo.isCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text('截止日期: ${todo.deadline}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        setState(() {
-                          _todos.removeAt(index);
-                        });
-                        await DataService.setTodoList(_todos);
-                      },
-                    ),
-                  ),
-                );
-              },
-            )),
+                child: _todos.isEmpty
+                    ? const Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              EmptyWidget(),
+                              Center(
+                                  child: Text(
+                                '当前没有待办事务',
+                                style: TextStyle(fontSize: 20),
+                              ))
+                            ],
+                          ),
+                        ))
+                    : ListView.builder(
+                        // 关键是添加这些属性
+                        shrinkWrap: true,
+                        // 让 ListView 根据内容自适应高度
+                        physics: const NeverScrollableScrollPhysics(),
+                        // 禁用 ListView 自身的滚动
+                        itemCount: _todos.length,
+                        itemBuilder: (context, index) {
+                          final todo = _todos[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            child: ListTile(
+                              leading: Checkbox(
+                                value: todo.isCompleted,
+                                onChanged: (value) {
+                                  setState(() {
+                                    todo.isCompleted = value!;
+                                  });
+                                  DataService.setTodoList(_todos);
+                                },
+                              ),
+                              title: Text(
+                                todo.title,
+                                style: TextStyle(
+                                  decoration: todo.isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text('截止日期: ${todo.deadline}'),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                onPressed: () async {
+                                  setState(() {
+                                    _todos.removeAt(index);
+                                  });
+                                  await DataService.setTodoList(_todos);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      )),
           ),
         ],
       ),

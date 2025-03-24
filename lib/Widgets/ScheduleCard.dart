@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 import 'package:ios_club_app/Services/TimeService.dart';
+import 'package:ios_club_app/Widgets/EmptyWidget.dart';
 
 import '../PageModels/ScheduleItem.dart';
 import '../Services/DataService.dart';
@@ -16,7 +17,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
   final List<ScheduleItem> scheduleItems = [];
 
   @override
-  initState(){
+  initState() {
     super.initState();
 
     DataService.getCourse().then((value) {
@@ -55,11 +56,16 @@ class _ScheduleCardState extends State<ScheduleCard> {
       child: scheduleItems.isEmpty
           ? const Padding(
               padding: EdgeInsets.all(16.0),
-              child: Center(
-                  child: Text(
-                '今天没有课了',
-                style: TextStyle(fontSize: 20),
-              )),
+              child: Column(
+                children: [
+                  EmptyWidget(),
+                  Center(
+                      child: Text(
+                    '今天没有课了',
+                    style: TextStyle(fontSize: 20),
+                  ))
+                ],
+              ),
             )
           : Column(
               children: scheduleItems.map(_buildScheduleItem).toList(),

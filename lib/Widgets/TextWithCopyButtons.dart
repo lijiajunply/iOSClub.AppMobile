@@ -8,12 +8,12 @@ class TextWithCopyButtons extends StatelessWidget {
   final TextStyle? bottomTextStyle;
 
   const TextWithCopyButtons({
-    Key? key,
+    super.key,
     required this.topText,
     required this.bottomText,
     this.topTextStyle,
     this.bottomTextStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

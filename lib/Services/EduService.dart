@@ -1,6 +1,7 @@
 import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/LoginService.dart';
@@ -336,7 +337,7 @@ class EduService {
     }
 
     try {
-      final Map<String, String> finalHeaders = {
+      Map<String, String> finalHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Cookie': cookieData.cookie,
@@ -353,6 +354,25 @@ class EduService {
 
         if (response.statusCode == 200) {
           json[item.semester] = response.body;
+        } else {
+          await login();
+          final a = await getCookieData();
+          if (a == null) {
+            continue;
+          }
+          finalHeaders = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Cookie': a.cookie,
+            'xauat': a.cookie,
+          };
+          final response = await http.get(
+              Uri.parse(
+                  'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${item.semester}'),
+              headers: finalHeaders);
+          if (response.statusCode == 200) {
+            json[item.semester] = response.body;
+          }
         }
       }
 
@@ -458,12 +478,6 @@ class EduService {
   }
 
   static Future<BusModel> getBus({String? dayDate}) async {
-    final prefs = await SharedPreferences.getInstance();
-
-    if (prefs.getString('bus_data') != null) {
-      final busData = jsonDecode(prefs.getString('bus_data')!);
-      return BusModel.fromJson(busData);
-    }
     try {
       final Map<String, String> finalHeaders = {
         'Accept': 'application/json',
@@ -471,12 +485,28 @@ class EduService {
       };
 
       final response = await http.get(
-          Uri.parse('https://xauatapi.xauat.site/Bus${dayDate ?? ''}'),
+          Uri.parse('https://xauatapi.xauat.site/Bus/${dayDate ?? ''}'),
           headers: finalHeaders);
       if (response.statusCode == 200) {
-        await prefs.setString(
-            'bus_data', jsonEncode(jsonDecode(response.body)));
-        return BusModel.fromJson(jsonDecode(response.body));
+        final now = DateTime.now();
+        var result = BusModel.fromJson(jsonDecode(response.body));
+        if (result.records.isNotEmpty &&
+            dayDate == DateFormat('yyyy-MM-dd').format(now)) {
+          result.records = result.records.where((element) {
+            final split = element.runTime.split(':');
+            if (split.length < 2) return false;
+            var time = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              int.parse(split[0]),
+              int.parse(split[1]),
+            );
+            return time.isAfter(now);
+          }).toList();
+        }
+
+        return result;
       }
     } catch (e) {
       if (kDebugMode) {

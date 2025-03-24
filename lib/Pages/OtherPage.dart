@@ -14,8 +14,18 @@ class _OtherPageState extends State<OtherPage> {
       appBar: AppBar(
         title: const Text('其他'),
       ),
-      body: const Center(
-        child: Text('Score Page'),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const Text('其他'),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('返回'),
+            ),
+          ],
+        ),
       ),
     );
   }
