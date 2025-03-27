@@ -31,11 +31,36 @@ class ScoreModel {
       credit: json['credit'] ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'lessonCode': lessonCode,
+      'lessonName': lessonName,
+      'grade': grade,
+      'gpa': gpa,
+      'gradeDetail': gradeDetail,
+      'credit': credit,
+    };
+  }
 }
 
 class ScoreList {
   List<ScoreModel> list;
   SemesterModel semester;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'list': list.map((x) => x.toJson()).toList(),
+      'semester': semester.toJson(),
+    };
+  }
+
+  ScoreList.fromJson(Map<String, dynamic> json)
+      : list = (json['list'] as List)
+            .map((x) => ScoreModel.fromJson(x))
+            .toList(),
+        semester = SemesterModel.fromJson(json['semester']);
 
   ScoreList({required this.semester, required this.list});
 

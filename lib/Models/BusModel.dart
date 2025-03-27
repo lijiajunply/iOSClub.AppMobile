@@ -58,7 +58,7 @@ class BusItem {
           m -= 60;
           h++;
         }
-        totalTime = '$h:$m';
+        totalTime = '$h:${m < 10 ? '0$m' : m}';
       }
     }
   }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ios_club_app/ScreenUtil.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 
 import '../Models/TodoItem.dart';
+import '../Widgets/EmptyWidget.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -33,48 +35,67 @@ class _TodoPageState extends State<TodoPage> {
         ),
         body: Padding(
             padding: EdgeInsets.all(16),
-            child: ListView.builder(
-              // 禁用 ListView 自身的滚动
-              itemCount: _todos.length,
-              itemBuilder: (context, index) {
-                final todo = _todos[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: todo.isCompleted,
-                      onChanged: (value) {
-                        setState(() {
-                          todo.isCompleted = value!;
-                        });
+            child: _todos.isEmpty
+                ? SizedBox(
+                    height: 240.h,
+                    child: Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              EmptyWidget(),
+                              Center(
+                                  child: Text(
+                                    '当前没有待办事务',
+                                    style: TextStyle(fontSize: 20),
+                                  ))
+                            ],
+                          ),
+                        )),
+                  )
+                : ListView.builder(
+                    // 禁用 ListView 自身的滚动
+                    itemCount: _todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = _todos[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: todo.isCompleted,
+                            onChanged: (value) {
+                              setState(() {
+                                todo.isCompleted = value!;
+                              });
 
-                        DataService.setTodoList(_todos);
-                      },
-                    ),
-                    title: Text(
-                      todo.title,
-                      style: TextStyle(
-                        decoration: todo.isCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text('截止日期: ${todo.deadline}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        setState(() {
-                          _todos.removeAt(index);
-                        });
+                              DataService.setTodoList(_todos);
+                            },
+                          ),
+                          title: Text(
+                            todo.title,
+                            style: TextStyle(
+                              decoration: todo.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text('截止日期: ${todo.deadline}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              setState(() {
+                                _todos.removeAt(index);
+                              });
 
-                        await DataService.setTodoList(_todos);
-                      },
-                    ),
-                  ),
-                );
-              },
-            )),
+                              await DataService.setTodoList(_todos);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  )),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             TodoItem? newItem = await showAddTodoDialog(context);

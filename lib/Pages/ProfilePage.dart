@@ -89,15 +89,19 @@ class _ProfilePageState extends State<ProfilePage>
         );
         if (result) break;
         await Future.delayed(const Duration(seconds: 1));
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('正在重试')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('正在重试')),
+          );
+        }
       }
 
       if (!result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('登录失败，请检查用户名和密码')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('登录失败，请检查用户名和密码')),
+          );
+        }
 
         setState(() {
           _isLoggedIn = false;
@@ -110,7 +114,8 @@ class _ProfilePageState extends State<ProfilePage>
     // 登录社团账号
     if (_isOnlyLoginMember || _isLoginMember) {
       if ((_nameController.text.isEmpty && _isOnlyLoginMember) &&
-          (_isLoginMember && _usernameController.text.isEmpty)) {
+          (_isLoginMember && _usernameController.text.isEmpty) &&
+          mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('登录社团账号时姓名不能为空')),
         );
@@ -130,9 +135,11 @@ class _ProfilePageState extends State<ProfilePage>
     }
 
     if (!result) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('社团账号登陆失败')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('社团账号登陆失败')),
+        );
+      }
 
       if (_isOnlyLoginMember == true) {
         _isOnlyLoginMember = false;
@@ -143,17 +150,17 @@ class _ProfilePageState extends State<ProfilePage>
     }
 
     final prefs = await SharedPreferences.getInstance();
-    if (_isOnlyLoginMember || _isLoginMember) {
-      if (_isOnlyLoginMember) {
-        await prefs.setString('club_name', _usernameController.text);
-        await prefs.setString('club_id', _passwordController.text);
-      } else {
-        await prefs.setString('club_name', _nameController.text);
-        await prefs.setString('club_id', _usernameController.text);
-      }
-    } else if (!_isOnlyLoginMember) {
+    if (_isOnlyLoginMember) {
+      await prefs.setString('club_name', _usernameController.text);
+      await prefs.setString('club_id', _passwordController.text);
+    } else {
       await prefs.setString('username', _usernameController.text);
       await prefs.setString('password', _passwordController.text);
+    }
+
+    if (_isLoginMember) {
+      await prefs.setString('club_name', _nameController.text);
+      await prefs.setString('club_id', _usernameController.text);
     }
 
     var list = List<InfoModel>.empty(growable: true);
@@ -175,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage>
     _usernameController.clear();
     _passwordController.clear();
 
-    if(_isLoginMember){
+    if (_isLoginMember) {
       _nameController.clear();
     }
   }

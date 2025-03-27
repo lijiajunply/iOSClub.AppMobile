@@ -27,9 +27,8 @@ class EduService {
         return false;
       }
       var cookieData = await getCookieData();
-      await getSemester(userData: cookieData);
       await getTime();
-      await getCourse(userData: cookieData, isRefresh: true);
+      await getCourse(userData: cookieData);
       await getExam(userData: cookieData);
       await getInfoCompletion(userData: cookieData);
       await prefs.setInt('last_fetch_time', now);
@@ -208,13 +207,15 @@ class EduService {
   }
 
   static Future<void> getCourse(
-      {UserData? userData, bool isRefresh = false}) async {
+      {UserData? userData,
+      bool isRefresh = false,
+      bool isFirst = false}) async {
     final time = await DataService.getTime();
     final week = await DataService.getWeek();
     if (!isRefresh &&
         (time["startTime"] == null ||
             time["endTime"] == null ||
-            week["weekNow"] == null)) {
+            week["week"] == null)) {
       return;
     }
 
@@ -231,9 +232,9 @@ class EduService {
     final String? jsonString = prefs.getString('course_data');
     if (jsonString != null &&
         jsonString.isNotEmpty &&
-        week["weekNow"] != null &&
-        week["weekNow"] is int &&
-        week["weekNow"]! > 2) {
+        week["week"] != null &&
+        week["week"] is int &&
+        week["week"]! > 2) {
       return;
     }
 

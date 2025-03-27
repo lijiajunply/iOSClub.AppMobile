@@ -10,4 +10,11 @@ class SemesterModel {
       name: json['text'],
     );
   }
+
+  toJson() {
+    return {
+      'value': semester,
+      'text': name,
+    };
+  }
 }

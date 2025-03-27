@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
-import 'package:ios_club_app/main.dart';
+import 'package:ios_club_app/ScreenUtil.dart';
 
 import '../Services/EduService.dart';
 import '../Widgets/EmptyWidget.dart';
@@ -29,10 +29,10 @@ class _SchoolBusPageState extends State<SchoolBusPage>
     super.initState();
     _generateWeeklyDates();
     _tabController = TabController(length: 7, vsync: this);
-    _tabController.addListener(() {
+    _tabController.addListener(() async {
       if (_tabController.indexIsChanging) {
         selectedDate = availableDates.keys.elementAt(_tabController.index);
-        _fetchBusData();
+        await _fetchBusData();
       }
     });
     selectedDate = availableDates.isNotEmpty ? availableDates.keys.first : null;
@@ -119,15 +119,21 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                 if (isLoading)
                   Center(
                     child: Card(
-                      child: CircularProgressIndicator(),
+                      margin: EdgeInsets.only(top: 40.h),
+                      child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator()),
                     ),
                   )
                 else if (errorMessage != null)
                   Center(
                     child: Card(
                       margin: EdgeInsets.only(top: 40.h),
-                      child: Text(errorMessage!,
-                          style: TextStyle(color: Colors.redAccent)),
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(errorMessage!,
+                            style: TextStyle(color: Colors.redAccent)),
+                      ),
                     ),
                   )
                 else if (busData.isNotEmpty)

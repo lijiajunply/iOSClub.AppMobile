@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/main.dart';
+import 'package:ios_club_app/ScreenUtil.dart';
 import 'package:lottie/lottie.dart';
 
 class EmptyWidget extends StatefulWidget {

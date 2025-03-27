@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Widgets/ExamCard.dart';
 import '../Models/TodoItem.dart';
+import '../Services/OtherService.dart';
 import '../Widgets/EmptyWidget.dart';
 import '../Widgets/PageHeaderDelegate.dart';
 import '../Widgets/ScheduleCard.dart';
@@ -16,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final List<TodoItem> _todos = [];
+  List<String> _tiles = [];
 
   @override
   void initState() {
@@ -23,6 +26,9 @@ class HomePageState extends State<HomePage> {
     DataService.getTodoList().then((value) {
       setState(() {
         _todos.addAll(value);
+        OtherService.getTiles().then((value) {
+          _tiles = value;
+        });
       });
     });
   }
@@ -38,26 +44,61 @@ class HomePageState extends State<HomePage> {
             delegate: PageHeaderDelegate(
               title: '今日课表',
               minHeight: 66,
-              maxHeight: 80,
+              maxHeight: 76,
             ),
           ),
           const SliverPadding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
             sliver: SliverToBoxAdapter(
               child: ScheduleCard(),
             ),
           ),
+          if(_tiles.isNotEmpty)
+            SliverPersistentHeader(
+              pinned: true, // 设置为true使其具有粘性
+              delegate: PageHeaderDelegate(
+                title: '磁贴',
+                minHeight: 66,
+                maxHeight: 76,
+              ),
+            ),
+          if (_tiles.isNotEmpty)
+            SliverPadding(
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              sliver: SliverToBoxAdapter(
+                child: GridView.custom(
+                  gridDelegate: SliverQuiltedGridDelegate(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16.0,
+                    crossAxisSpacing: 16.0,
+                    pattern: [
+                      // 动态生成模式
+                      for (int i = 0; i < (_tiles.length / 2).floor(); i++)
+                        const QuiltedGridTile(1, 1),
+                      // 如果是奇数个元素，添加一个占满整行的元素
+                      if (_tiles.length % 2 == 1) const QuiltedGridTile(1, 2),
+                    ],
+                  ),
+                  childrenDelegate: SliverChildBuilderDelegate(
+                    (context, index) => buildTile(_tiles[index]),
+                    childCount: _tiles.length,
+                  ),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                ),
+              ),
+            ),
           // 考试列表
           SliverPersistentHeader(
             pinned: true,
             delegate: PageHeaderDelegate(
               title: '近期考试',
               minHeight: 66,
-              maxHeight: 80,
+              maxHeight: 76,
             ),
           ),
           const SliverPadding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
             sliver: SliverToBoxAdapter(
               child: ExamCard(),
             ),
@@ -68,7 +109,7 @@ class HomePageState extends State<HomePage> {
             delegate: PageHeaderDelegate(
               title: '待办事务',
               minHeight: 66,
-              maxHeight: 80,
+              maxHeight: 76,
               icon: const Icon(Icons.add),
               onPressed: () async {
                 TodoItem? newItem = await showAddTodoDialog(context);
@@ -83,7 +124,7 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             sliver: SliverToBoxAdapter(
                 child: _todos.isEmpty
                     ? const Card(
@@ -235,4 +276,56 @@ class HomePageState extends State<HomePage> {
       },
     );
   }
+}
+
+Widget buildTile(String tile) {
+  late Widget? a;
+
+  if (tile == '电费') {
+    a = FutureBuilder(
+        future: OtherService.getTextAfterKeyword(),
+        builder: (
+          context,
+          snapshot,
+        ) {
+          if (snapshot.hasData) {
+            return Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '当前电费',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${snapshot.data ?? '...'} 元',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              snapshot.data! <= 20 ? Colors.redAccent : null),
+                    ),
+                    SizedBox()
+                  ]),
+            );
+          }
+
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        });
+  }
+
+  a ??= Container();
+
+  return Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: a,
+  );
 }

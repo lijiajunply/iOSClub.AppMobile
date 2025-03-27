@@ -20,19 +20,20 @@ import 'Pages/iMemberPage.dart';
 import 'Services/GiteeService.dart';
 import 'main.dart';
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MainApp> createState() => _MainAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MainAppState extends State<MainApp> {
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
+
     // 初始化逻辑转移到 WebView 属性中
     requestPermissions();
 
@@ -78,7 +79,9 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
                   prefs.setBool('update_ignored', true);
-                  Navigator.of(context).pop();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: const Text('忽略所有更新'),
               ),
@@ -141,7 +144,6 @@ class _MyAppState extends State<MyApp> {
   final MaterialApp _app = MaterialApp(
       navigatorKey: navigatorKey,
       theme: ThemeData(
-        useMaterial3: true,
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
@@ -180,56 +182,52 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
 
-    return SafeArea(
-      child: isTablet
-          ? Scaffold(
-              body: Row(
-                children: [
-                  // 左侧导航
-                  NavigationRail(
-                    labelType: NavigationRailLabelType.all,
-                    destinations: _destinations.map((destination) {
-                      return NavigationRailDestination(
-                        icon: destination.icon,
-                        selectedIcon: destination.selectedIcon,
-                        label: Text(destination.label),
-                      );
-                    }).toList(),
-                    onDestinationSelected: (int index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                      navigatorKey.currentState
-                          ?.pushNamed(_routeMap[index] ?? '/');
-                    },
-                    selectedIndex: _currentIndex,
-                  ),
-                  // 垂直分割线
-                  const VerticalDivider(thickness: 1, width: 1),
-                  // 主要内容区域
-                  Expanded(child: _app),
-                ],
-              ),
-            )
-          : Scaffold(
-              body: _app,
-              bottomNavigationBar: NavigationBar(
-                destinations: _destinations,
-                selectedIndex: _currentIndex,
+    return isTablet
+        ? Scaffold(
+            body: SafeArea(
+                child: Row(
+            children: [
+              // 左侧导航
+              NavigationRail(
+                labelType: NavigationRailLabelType.all,
+                destinations: _destinations.map((destination) {
+                  return NavigationRailDestination(
+                    icon: destination.icon,
+                    selectedIcon: destination.selectedIcon,
+                    label: Text(destination.label),
+                  );
+                }).toList(),
                 onDestinationSelected: (int index) {
                   setState(() {
                     _currentIndex = index;
                   });
                   navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
                 },
+                selectedIndex: _currentIndex,
               ),
+              // 垂直分割线
+              const VerticalDivider(thickness: 1, width: 1),
+              // 主要内容区域
+              Expanded(child: _app),
+            ],
+          )))
+        : Scaffold(
+            body: SafeArea(child: _app),
+            bottomNavigationBar: NavigationBar(
+              destinations: _destinations,
+              selectedIndex: _currentIndex,
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
+              },
             ),
-    );
+          );
   }
 }
 
