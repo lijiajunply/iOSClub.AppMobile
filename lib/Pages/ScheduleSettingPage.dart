@@ -21,6 +21,9 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
   List<String> ignoreList = [];
   final List<CourseIgnore> _ignores = [];
   String url = "";
+  final ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeMode get themeMode => _themeMode;
 
   @override
   void initState() {
@@ -84,11 +87,13 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
                     await intent.launch();
                   } else {
                     // 如果没有找到可以处理该 Intent 的应用，则显示错误消息
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('没有找到日历应用，请手动导入'),
-                      ),
-                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('没有找到日历应用，请手动导入'),
+                        ),
+                      );
+                    }
                   }
                   return;
                 }
@@ -118,9 +123,16 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
                     controller: TextEditingController(text: 'webcal$url'),
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[800] // 暗色模式下的背景
+                          : Colors.grey[100], // 亮色模式下的背景,
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.copy),
+                        icon: Icon(Icons.copy,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey[300] // 暗色模式下的图标颜色
+                                    : Colors.grey[700] // 亮色模式下的图标颜色
+                            ),
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: 'webcal$url'));
                           ScaffoldMessenger.of(context).showSnackBar(

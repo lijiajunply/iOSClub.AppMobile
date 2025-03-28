@@ -8,17 +8,26 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
-      .copyWith(statusBarIconBrightness: Brightness.dark // 图标颜色
-          ));
 
   runApp(MaterialApp(
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-      fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        appBarTheme: AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          foregroundColor: Colors.black,
+          elevation: 0,
+        )),
+    darkTheme: ThemeData(
+      brightness: Brightness.dark,
+      useMaterial3: true,
+      appBarTheme: const AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
     ),
-    darkTheme: ThemeData.dark(),
     home: const SplashScreen(),
   ));
 }

@@ -157,6 +157,7 @@ class _MainAppState extends State<MainApp> {
           },
         ),
       ),
+      darkTheme: ThemeData.dark(),
       routes: {
         '/': (context) => const HomePage(),
         '/Schedule': (context) => const ScheduleListPage(),

@@ -234,8 +234,14 @@ class _ProfilePageState extends State<ProfilePage>
                   controller: _usernameController,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[100],
-                    prefixIcon: const Icon(Icons.person_outline),
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[800] // 暗色模式下的背景
+                        : Colors.grey[100],
+                    prefixIcon: Icon(Icons.person_outline,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey[300] // 暗色模式下的图标颜色
+                            : Colors.grey[700] // 亮色模式下的图标颜色
+                        ),
                     hintText: _isOnlyLoginMember ? '姓名' : '学号',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -250,8 +256,14 @@ class _ProfilePageState extends State<ProfilePage>
                   obscureText: _obscureText,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[100],
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[800] // 暗色模式下的背景
+                        : Colors.grey[100],
+                    prefixIcon: Icon(Icons.lock_outline,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey[300] // 暗色模式下的图标颜色
+                            : Colors.grey[700] // 亮色模式下的图标颜色
+                        ),
                     hintText: _isOnlyLoginMember ? '学号' : '教务系统密码',
                     suffixIcon: IconButton(
                       icon: Icon(_obscureText
@@ -275,8 +287,14 @@ class _ProfilePageState extends State<ProfilePage>
                     controller: _nameController,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: Colors.grey[100],
-                      prefixIcon: const Icon(Icons.person_outline),
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[800] // 暗色模式下的背景
+                          : Colors.grey[100],
+                      prefixIcon: Icon(Icons.person_outline,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.grey[300] // 暗色模式下的图标颜色
+                              : Colors.grey[700] // 亮色模式下的图标颜色
+                          ),
                       hintText: '姓名（登录社团账号时必填）',
                       //李嘉俊
                       border: OutlineInputBorder(
