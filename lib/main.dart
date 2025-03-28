@@ -18,6 +18,7 @@ void main() {
     theme: ThemeData(
       fontFamily: Platform.isWindows ? '微软雅黑' : null,
     ),
+    darkTheme: ThemeData.dark(),
     home: const SplashScreen(),
   ));
 }

@@ -144,7 +144,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                             final bus = busData[index];
                             return GestureDetector(
                               child: Card(
-                                margin: EdgeInsets.symmetric(vertical: 8),
+                                margin: EdgeInsets.all(8),
                                 child: Padding(
                                   padding: EdgeInsets.all(16.0),
                                   child: Row(
