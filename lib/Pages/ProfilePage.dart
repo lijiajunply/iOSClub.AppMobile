@@ -49,9 +49,7 @@ class _ProfilePageState extends State<ProfilePage>
       _isLoggedIn = username != null &&
           password != null &&
           username.isNotEmpty &&
-          password.isNotEmpty &&
-          iosName != null &&
-          iosName.isNotEmpty;
+          password.isNotEmpty;
 
       _username = username ?? '';
       _isLoading = false;
@@ -61,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage>
         _isBoth = false;
       } else {
         _username = iosName;
-        _isBoth = _isLoggedIn;
+        _isBoth = true;
       }
     });
   }
