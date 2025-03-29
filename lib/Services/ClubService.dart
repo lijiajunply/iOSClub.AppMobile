@@ -80,4 +80,43 @@ class ClubService {
 
     return false;
   }
+
+  static Future<Map<String, dynamic>> getMemberInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final memberData = prefs.getString('member_data');
+
+    final Map<String, dynamic> data = {};
+
+    if (memberData != null) {
+      data['memberData'] = jsonDecode(memberData);
+    }
+
+    if (prefs.getString('member_jwt') != null) {
+      final jwt = prefs.getString('member_jwt');
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwt'
+      };
+
+      try {
+        final response = await http.get(
+            Uri.parse('https://www.xauat.site/api/Member/GetInfo'),
+            headers: finalHeaders);
+
+        if (response.statusCode == 200) {
+          if (kDebugMode) {
+            print('GetInfo successful');
+          }
+          data['info'] = jsonDecode(response.body);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error fetching data: $e');
+        }
+      }
+    }
+
+    return data;
+  }
 }

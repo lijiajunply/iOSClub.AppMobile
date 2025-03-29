@@ -20,6 +20,7 @@ void main() {
           elevation: 0,
         )),
     darkTheme: ThemeData(
+      fontFamily: Platform.isWindows ? '微软雅黑' : null,
       brightness: Brightness.dark,
       useMaterial3: true,
       appBarTheme: const AppBarTheme(
