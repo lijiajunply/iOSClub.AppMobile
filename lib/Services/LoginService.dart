@@ -2,6 +2,7 @@ import 'dart:convert' show jsonEncode, utf8;
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
 
 class LoginService {
   final http.Client httpClient;
@@ -55,26 +56,41 @@ class LoginService {
   }
 
   Future<String> getCode(String cookies) async {
-    var request = await httpClient.get(
-      Uri.parse('https://swjw.xauat.edu.cn/student/for-std/program/'),
-      headers: {'Cookie': cookies},
-    );
+    final dio = Dio();
 
-    if (request.statusCode != 200) {
+    try {
+      final response = await dio.get(
+        'https://swjw.xauat.edu.cn/student/for-std/student-info/',
+        options: Options(
+          headers: {'Cookie': cookies},
+          followRedirects: true,
+          maxRedirects: 5,
+        ),
+      );
+
+      if (response.statusCode != 200) {
+        return '';
+      }
+
+      // Dio会跟踪重定向并在response.realUri中保存最终URL
+      final finalUrl = response.realUri.path;
+      final result = finalUrl
+          .replaceAll('/student/for-std/student-info/', '')
+          .replaceAll('info/', '');
+
+      if (result.isEmpty) {
+        var content = response.data;
+        var regex = RegExp(r'value="(.*?)">');
+        var match = regex.allMatches(content);
+        return match.map((x) => x.group(1)).join(',');
+      }
+
+      return result;
+    } catch (e) {
       return '';
+    } finally {
+      dio.close();
     }
-
-    String content = request.body;
-    RegExp regex = RegExp(r"/student/for-std/program/info-en/(.*?)'");
-    var match = regex.firstMatch(content);
-
-    if (match == null) {
-      regex = RegExp(r'value="(.*?)">');
-      var match = regex.allMatches(content);
-      return match.map((x) => x.group(1)).join(',');
-    }
-
-    return match.group(1) ?? '';
   }
 
   String parseCookie(String? cookiesHeader) {

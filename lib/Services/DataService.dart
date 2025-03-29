@@ -11,7 +11,8 @@ import '../Models/SemesterModel.dart';
 import 'TimeService.dart';
 
 class DataService {
-  static Future<List<CourseModel>> getAllCourse({bool isNeedIgnore = true}) async {
+  static Future<List<CourseModel>> getAllCourse(
+      {bool isNeedIgnore = true}) async {
     List<String> ig = [];
     if (isNeedIgnore) {
       ig = await getIgnore();
@@ -68,6 +69,9 @@ class DataService {
 
   static Future<Map<String, int>> getWeek() async {
     final time = await getTime();
+    if (time["startTime"] == null) {
+      return {'week': 0, 'maxWeek': 0};
+    }
     final week =
         DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/
                 7 +
@@ -99,6 +103,9 @@ class DataService {
     final allCourse = await getAllCourse();
     final time = await getTime();
     final now = DateTime.now();
+    if (time["startTime"] == null) {
+      return [];
+    }
     var a = now.difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
     final filteredCourses = allCourse.where((course) {
       var endTime = "";

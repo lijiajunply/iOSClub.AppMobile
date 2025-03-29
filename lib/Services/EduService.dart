@@ -115,8 +115,12 @@ class EduService {
         return false;
       }
 
+      final preNow = DateTime.now().millisecondsSinceEpoch;
       final loginService = LoginService(http.Client(), CodeService());
       final response = await loginService.loginAsync(username, password);
+      if(kDebugMode){
+        print('登录用时: ${DateTime.now().millisecondsSinceEpoch - preNow}');
+      }
 
       if (response["success"] == true) {
         await prefs.setString('user_data', jsonEncode(response));
