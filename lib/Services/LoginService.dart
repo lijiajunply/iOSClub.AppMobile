@@ -60,7 +60,7 @@ class LoginService {
 
     try {
       final response = await dio.get(
-        'https://swjw.xauat.edu.cn/student/for-std/student-info/',
+        'https://swjw.xauat.edu.cn/student/for-std/precaution',
         options: Options(
           headers: {'Cookie': cookies},
           followRedirects: true,
@@ -75,10 +75,9 @@ class LoginService {
       // Dio会跟踪重定向并在response.realUri中保存最终URL
       final finalUrl = response.realUri.path;
       final result = finalUrl
-          .replaceAll('/student/for-std/student-info/', '')
-          .replaceAll('info/', '');
+          .replaceAll('/student/precaution/index/', '');
 
-      if (result.isEmpty) {
+      if (result == '/student/for-std/precaution') {
         var content = response.data;
         var regex = RegExp(r'value="(.*?)">');
         var match = regex.allMatches(content);

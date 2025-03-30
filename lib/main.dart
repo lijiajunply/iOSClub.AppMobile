@@ -7,8 +7,6 @@ import 'SplashScreen.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
   runApp(MaterialApp(
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,

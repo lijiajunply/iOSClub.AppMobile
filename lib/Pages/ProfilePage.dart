@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +29,6 @@ class _ProfilePageState extends State<ProfilePage>
 
   /// true为 都登录状态，false为教务系统登录状态
   late bool _isBoth = false;
-  late List<InfoModel> _info;
 
   @override
   void initState() {
@@ -44,7 +42,6 @@ class _ProfilePageState extends State<ProfilePage>
     final password = prefs.getString('password');
     final iosName = prefs.getString('club_name');
 
-    final a = await DataService.getInfoList();
     setState(() {
       _isLoggedIn = username != null &&
           password != null &&
@@ -53,7 +50,6 @@ class _ProfilePageState extends State<ProfilePage>
 
       _username = username ?? '';
       _isLoading = false;
-      _info = a;
 
       if (iosName == null || iosName.isEmpty) {
         _isBoth = false;
@@ -161,20 +157,11 @@ class _ProfilePageState extends State<ProfilePage>
       await prefs.setString('club_id', _usernameController.text);
     }
 
-    var list = List<InfoModel>.empty(growable: true);
-
-    if (!_isOnlyLoginMember) {
-      list = await DataService.getInfoList();
-    }
-
     setState(() {
       _isLoggedIn = true;
       _username = _usernameController.text;
       _isLoading = false;
       _isBoth = _isOnlyLoginMember || _isLoginMember;
-      if (!_isOnlyLoginMember) {
-        _info = list;
-      }
     });
 
     _usernameController.clear();
@@ -529,14 +516,18 @@ class _ProfilePageState extends State<ProfilePage>
                           ])
                     ])),
               )),
-          Padding(
-              padding: const EdgeInsets.all(12),
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _info.length,
-                  itemBuilder: (context, index) =>
-                      StudyCreditCard(data: _info[index]))),
+          FutureBuilder(
+              future: DataService.getInfoList(),
+              builder: (context, snapshot) => Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: snapshot.hasData
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: snapshot.data?.length,
+                          itemBuilder: (context, index) =>
+                              StudyCreditCard(data: snapshot.data![index]))
+                      : const CircularProgressIndicator())),
         ],
       ),
     );

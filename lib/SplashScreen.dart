@@ -54,6 +54,8 @@ class _SplashScreenState extends State<SplashScreen>
             ..duration = composition.duration
             ..repeat();
 
+          WidgetsFlutterBinding.ensureInitialized();
+
           await EduService.getAllData();
 
           if (context.mounted) {

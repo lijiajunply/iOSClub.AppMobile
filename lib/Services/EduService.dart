@@ -30,7 +30,7 @@ class EduService {
       await getTime();
       await getCourse(userData: cookieData);
       await getExam(userData: cookieData);
-      await getInfoCompletion(userData: cookieData);
+      // await getInfoCompletion(userData: cookieData);
       await prefs.setInt('last_fetch_time', now);
       return true;
     } catch (e) {
