@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ios_club_app/Services/EduService.dart';
 
 import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
@@ -19,6 +20,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   late int maxWeek = 0;
   late int weekNow = 0;
   late PageController pageController = PageController();
+  double height = 60.0;
+  int currentPage = 0; // 添加到 State 类中
 
   void jumpToPage(int page) {
     if (page < 0) {
@@ -26,6 +29,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     } else if (page > maxWeek) {
       page = 0;
     }
+    setState(() {
+      currentPage = page;
+    });
     pageController.jumpToPage(page);
   }
 
@@ -44,6 +50,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         weekNow = value['week']!;
         maxWeek = value['maxWeek']!;
         pageController.jumpToPage(weekNow);
+        currentPage = weekNow;
       });
       DataService.getAllCourse().then((value) {
         setState(() {
@@ -66,99 +73,171 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final isDesktop =
         Platform.isMacOS || Platform.isWindows || Platform.isLinux;
     return Scaffold(
-      body: PageView.builder(
-        controller: pageController,
-        itemCount: allCourse.length,
-        itemBuilder: (BuildContext context, int i) {
-          final courses = allCourse[i];
-          return Column(
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: isDesktop
-                      ? Row(
-                          children: [
-                            Expanded(
-                                child: TextButton(
-                                    onPressed: () => jumpToPage(
-                                        (pageController.page! - 1).ceil()),
-                                    child: const Text('上一周'))),
-                            Expanded(
-                                child: Center(
-                              child: Text(
-                                i == 0
-                                    ? '全部课表'
-                                    : '第 $i 周 ${i == weekNow ? "(本周)" : ""}',
+        body: Column(
+      children: [
+        Padding(
+            padding: const EdgeInsets.all(8),
+            child: isDesktop
+                ? Row(
+                    children: [
+                      Expanded(
+                          child: TextButton(
+                              onPressed: () =>
+                                  jumpToPage((currentPage - 1).ceil()),
+                              child: const Text('上一周'))),
+                      Expanded(
+                          child: Center(
+                        child: Text(
+                          currentPage == 0
+                              ? '全部课表'
+                              : '第 $currentPage 周 ${currentPage == weekNow ? "(本周)" : ""}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      )),
+                      Expanded(
+                          child: TextButton(
+                              onPressed: () =>
+                                  jumpToPage((pageController.page! + 1).ceil()),
+                              child: const Text('下一周'))),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        child: Row(children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                DateFormat('yyyy年M月d日').format(DateTime.now()),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
                                 ),
                               ),
-                            )),
-                            Expanded(
-                                child: TextButton(
-                                    onPressed: () => jumpToPage(
-                                        (pageController.page! + 1).ceil()),
-                                    child: const Text('下一周'))),
-                          ],
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 8),
-                              child: Row(children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      DateFormat('yyyy年M月d日')
-                                          .format(DateTime.now()),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
+                              InkWell(
+                                  onTap: () {},
+                                  child: Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        currentPage == weekNow
+                                            ? '第$currentPage周'
+                                            : currentPage == 0
+                                                ? '全部课表 当前为第$weekNow周'
+                                                : '第$currentPage周 当前为第$weekNow周',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
+                                      )))
+                            ],
+                          )
+                        ]),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  allCourse.clear();
+                                  allCourse.add([]);
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('是的，我没有课了'),
+                                        const Icon(Icons.mood,
+                                            color: Colors.black12)
+                                      ],
                                     ),
-                                    Text(
-                                      i == weekNow
-                                          ? '第$i周'
-                                          : i == 0
-                                              ? '全部课表 当前为第$weekNow周'
-                                              : '第$i周 当前为第$weekNow周',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ]),
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/ScheduleSetting');
-                                },
-                                icon: const Icon(Icons.more_vert))
-                          ],
-                        )),
-              _buildWeekHeader(i),
-              Expanded(
-                child: SingleChildScrollView(
-                  // 添加垂直方向的滚动
-                  scrollDirection: Axis.vertical,
-                  child: SizedBox(
-                    // 设置固定高度确保内容可以完整显示
-                    height: 60.0 * 12, // 12节课的总高度
-                    child: _buildScheduleGrid(courses),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.mood)),
+                          IconButton(
+                              onPressed: () async {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('正在进行更新，请稍后'),
+                                  ),
+                                );
+                                await EduService.getCourse(isRefresh: true);
+                                setState(() {
+                                  allCourse.clear();
+                                  DataService.getAllCourse().then((value) {
+                                    setState(() {
+                                      for (var i = 0; i <= maxWeek; i++) {
+                                        if (i == 0) {
+                                          allCourse.add(value);
+                                          continue;
+                                        }
+                                        allCourse.add(value
+                                            .where((course) =>
+                                                course.weekIndexes.contains(i))
+                                            .toList());
+                                      }
+                                    });
+                                  });
+                                });
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('更新完成'),
+                                    ),
+                                  );
+                                }
+                              },
+                              icon: const Icon(Icons.refresh)),
+                          IconButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, '/ScheduleSetting');
+                              },
+                              icon: const Icon(Icons.more_vert))
+                        ],
+                      )
+                    ],
+                  )),
+        Expanded(
+          child: PageView.builder(
+            controller: pageController,
+            onPageChanged: (index) {
+              setState(() {
+                currentPage = index;
+              });
+            },
+            itemCount: allCourse.length,
+            itemBuilder: (BuildContext context, int i) {
+              final courses = allCourse[i];
+              return Column(
+                children: [
+                  _buildWeekHeader(i),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      // 添加垂直方向的滚动
+                      scrollDirection: Axis.vertical,
+                      child: SizedBox(
+                        // 设置固定高度确保内容可以完整显示
+                        height: height * 12, // 12节课的总高度
+                        child: _buildScheduleGrid(courses),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+                ],
+              );
+            },
+          ),
+        )
+      ],
+    ));
   }
 
   Widget _buildWeekHeader(int i) {
@@ -241,7 +320,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       children: List.generate(
         12,
         (index) => SizedBox(
-          height: 60,
+          height: height,
           width: 50,
           child: Center(
               child: Text('${index + 1}',
@@ -279,10 +358,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
     return Positioned(
-        top: (course.startUnit - 1) * 60.0,
+        top: (course.startUnit - 1) * height,
         left: 0,
         right: 0,
-        height: (course.endUnit - course.startUnit + 1) * 60.0,
+        height: (course.endUnit - course.startUnit + 1) * height,
         child: GestureDetector(
           onTap: () async {
             await _showModalBottomSheet(course);

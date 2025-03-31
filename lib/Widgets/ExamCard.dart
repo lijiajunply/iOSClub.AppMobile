@@ -43,9 +43,9 @@ class _ExamCardState extends State<ExamCard> {
                   EmptyWidget(),
                   Center(
                       child: Text(
-                        '最近没有考试',
-                        style: TextStyle(fontSize: 20),
-                      ))
+                    '最近没有考试',
+                    style: TextStyle(fontSize: 20),
+                  ))
                 ],
               ),
             ))

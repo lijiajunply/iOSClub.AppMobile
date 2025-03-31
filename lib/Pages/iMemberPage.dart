@@ -20,13 +20,13 @@ class _MemberPageState extends State<iMemberPage> {
               height: 20,
             ),
             const Text(
-              'iMember',
+              'iMember社团账号',
               style: TextStyle(fontSize: 30),
             ),
             const SizedBox(
               height: 20,
             ),
-            const Text('iMember is a platform where you can buy and sell your')
+            const Text('还在写呢')
           ]),
         ));
   }

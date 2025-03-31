@@ -212,8 +212,7 @@ class EduService {
 
   static Future<void> getCourse(
       {UserData? userData,
-      bool isRefresh = false,
-      bool isFirst = false}) async {
+      bool isRefresh = false}) async {
     final time = await DataService.getTime();
     final week = await DataService.getWeek();
     if (!isRefresh &&

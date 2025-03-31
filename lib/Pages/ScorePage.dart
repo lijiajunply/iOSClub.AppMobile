@@ -23,6 +23,7 @@ class ScorePage extends StatefulWidget {
 class _ScorePageState extends State<ScorePage> {
   late List<ScoreList> scoreList = [];
   bool _isLoading = true;
+  bool _isFool = false;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _ScorePageState extends State<ScorePage> {
     var now = DateTime.now().millisecondsSinceEpoch;
 
     final last = prefs.getInt('last_Score_time');
+    isRefresh = isRefresh && !_isFool;
     if (last != null && !isRefresh) {
       if (now - last < 1000 * 60 * 60) {
         if (jsonString != null && jsonString.isNotEmpty) {
@@ -47,9 +49,11 @@ class _ScorePageState extends State<ScorePage> {
 
           setState(() {
             _isLoading = false;
-            scoreList.addAll(jsonList.map((value) => ScoreList.fromJson(value)));
+            scoreList
+                .addAll(jsonList.map((value) => ScoreList.fromJson(value)));
           });
 
+          _isFool = false;
           return;
         }
       }
@@ -57,6 +61,7 @@ class _ScorePageState extends State<ScorePage> {
 
     UserData? cookieData = await EduService.getCookieData();
     if (cookieData == null) {
+      _isFool = false;
       return;
     }
 
@@ -133,6 +138,8 @@ class _ScorePageState extends State<ScorePage> {
         print('Error fetching data: $e');
       }
     }
+
+    _isFool = false;
   }
 
   @override
@@ -146,15 +153,57 @@ class _ScorePageState extends State<ScorePage> {
       body: CustomScrollView(slivers: [
         SliverPersistentHeader(
           pinned: true, // 设置为true使其具有粘性
-          delegate: PageHeaderDelegate(
-            title: '成绩与绩点',
-            minHeight: 66,
-            maxHeight: 80,
-            icon: const Icon(Icons.refresh),
-            onPressed: () async {
-              refresh(isRefresh: true);
-            },
-          ),
+          delegate: HeaderChildDelegate(
+              minHeight: 66,
+              maxHeight: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '成绩与绩点',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          _isFool = true;
+                          setState(() {
+                            for (var item in scoreList) {
+                              for (var item2 in item.list) {
+                                item2.grade = '100';
+                                item2.gpa = '5';
+                              }
+                            }
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('是的，在下绩点5.0'),
+                                  const Icon(Icons.mood, color: Colors.black12)
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.mood),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          refresh(isRefresh: true);
+                        },
+                        icon: const Icon(Icons.refresh),
+                      ),
+                    ],
+                  )
+                ],
+              )),
         ),
         SliverPadding(
             padding: const EdgeInsets.all(16.0),
