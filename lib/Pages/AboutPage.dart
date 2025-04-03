@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -180,7 +181,7 @@ class _AboutPageState extends State<AboutPage> {
                       fontSize: 12,
                       color: Colors.grey),
                 ),
-                trailing: Switch(
+                trailing: CupertinoSwitch(
                   value: updateIgnored,
                   onChanged: (bool value) async {
                     setState(() {
@@ -213,7 +214,7 @@ class _AboutPageState extends State<AboutPage> {
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   subtitle: Text(
-                    'LuckyFish & 西建大iOS Club',
+                    'LuckyFish & zealous',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,

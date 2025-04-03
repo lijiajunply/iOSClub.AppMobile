@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Services/EduService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
@@ -20,8 +22,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   late int maxWeek = 0;
   late int weekNow = 0;
   late PageController pageController = PageController();
-  double height = 60.0;
+  double height = 55.0;
   int currentPage = 0; // 添加到 State 类中
+  CourseStyle courseStyle = CourseStyle.normal;
+  bool isStyle = false;
 
   void jumpToPage(int page) {
     if (page < 0) {
@@ -63,6 +67,19 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 .where((course) => course.weekIndexes.contains(i))
                 .toList());
           }
+          SharedPreferences.getInstance().then((prefs) {
+            var courseSize = prefs.getDouble('course_size');
+            if (courseSize != null && courseSize != 0) {
+              height = courseSize;
+              if (height == 50) {
+                courseStyle = CourseStyle.small;
+              } else if (height == 55) {
+                courseStyle = CourseStyle.normal;
+              } else {
+                courseStyle = CourseStyle.large;
+              }
+            }
+          });
         });
       });
     });
@@ -118,11 +135,13 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                 DateFormat('yyyy年M月d日').format(DateTime.now()),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: 18,
                                 ),
                               ),
                               InkWell(
-                                  onTap: () {},
+                                  onTap: () {
+                                    jumpToPage(weekNow);
+                                  },
                                   child: Padding(
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Text(
@@ -144,24 +163,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                           IconButton(
                               onPressed: () {
                                 setState(() {
-                                  allCourse.clear();
-                                  allCourse.add([]);
+                                  isStyle = !isStyle;
                                 });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text('是的，我没有课了'),
-                                        const Icon(Icons.mood,
-                                            color: Colors.black12)
-                                      ],
-                                    ),
-                                  ),
-                                );
                               },
-                              icon: const Icon(Icons.mood)),
+                              icon: const Icon(Icons.style)),
                           IconButton(
                               onPressed: () async {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -184,6 +189,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                                 course.weekIndexes.contains(i))
                                             .toList());
                                       }
+                                      jumpToPage(weekNow);
                                     });
                                   });
                                 });
@@ -206,6 +212,66 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       )
                     ],
                   )),
+        AnimatedSlide(
+            duration: const Duration(milliseconds: 300), // 动画持续时间，可以根据需要调整
+            curve: Curves.easeInOut,
+            offset: Offset(0, isStyle ? 0 : -0.1),
+            child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                opacity: isStyle ? 1.0 : 0.0,
+                child: isStyle
+                    ? Padding(
+                        padding: EdgeInsets.all(4),
+                        child: CupertinoSlidingSegmentedControl<CourseStyle>(
+                          groupValue: courseStyle,
+                          // Callback that sets the selected segmented control.
+                          onValueChanged: (CourseStyle? value) async {
+                            if (value != null) {
+                              setState(() {
+                                courseStyle = value;
+                                if (value == CourseStyle.small) {
+                                  height = 50;
+                                } else if (value == CourseStyle.normal) {
+                                  height = 55;
+                                } else if (value == CourseStyle.large) {
+                                  height = 60;
+                                } else if (value == CourseStyle.fool) {
+                                  allCourse.clear();
+                                  allCourse.add([]);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('是的，我没有课了'),
+                                    ),
+                                  );
+                                }
+                              });
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setDouble('course_size', height);
+                            }
+                          },
+                          children: {
+                            CourseStyle.small: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text('较小'),
+                            ),
+                            CourseStyle.normal: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text('默认'),
+                            ),
+                            CourseStyle.large: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text('较大'),
+                            ),
+                            CourseStyle.fool: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text('愚人节'),
+                            ),
+                          },
+                        ),
+                      )
+                    : Container())),
         Expanded(
           child: PageView.builder(
             controller: pageController,
@@ -341,7 +407,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             children: List.generate(
               12,
               (index) => Container(
-                height: 60,
+                height: height,
               ),
             ),
           ),
@@ -362,12 +428,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         left: 0,
         right: 0,
         height: (course.endUnit - course.startUnit + 1) * height,
-        child: GestureDetector(
+        child: InkWell(
           onTap: () async {
             await _showModalBottomSheet(course);
           },
           child: Card(
             margin: const EdgeInsets.all(2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             color: CourseColorManager.generateSoftColor(course.courseName),
             child: Padding(
               padding: EdgeInsets.all(isTablet ? 8 : 4),
@@ -385,12 +454,13 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     maxLines: 4,
                   ),
                   Text(
-                    course.room,
+                    course.room.substring(2),
                     style: TextStyle(
                       fontSize: isTablet ? 10 : 9,
                       overflow: TextOverflow.ellipsis,
                       color: Colors.white70,
                     ),
+                    maxLines: 2,
                   ),
                   Text(
                     course.teachers.join(', '),
@@ -510,4 +580,11 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           return Padding(padding: const EdgeInsets.all(10), child: content);
         });
   }
+}
+
+enum CourseStyle {
+  normal,
+  small,
+  large,
+  fool,
 }

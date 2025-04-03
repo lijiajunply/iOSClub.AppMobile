@@ -8,6 +8,7 @@ class ScoreModel {
   String gpa;
   String gradeDetail;
   String credit;
+  bool isMinor;
 
   ScoreModel({
     this.name = '',
@@ -17,6 +18,7 @@ class ScoreModel {
     this.gpa = '',
     this.gradeDetail = '',
     this.credit = '',
+    this.isMinor = false,
   });
 
   // 如果需要从 JSON 创建对象
@@ -29,6 +31,7 @@ class ScoreModel {
       gpa: json['gpa'] ?? '',
       gradeDetail: json['gradeDetail'] ?? 0,
       credit: json['credit'] ?? 0,
+      isMinor: json['isMinor'] ?? false,
     );
   }
 
@@ -41,6 +44,7 @@ class ScoreModel {
       'gpa': gpa,
       'gradeDetail': gradeDetail,
       'credit': credit,
+      'isMinor': isMinor,
     };
   }
 }
@@ -57,19 +61,19 @@ class ScoreList {
   }
 
   ScoreList.fromJson(Map<String, dynamic> json)
-      : list = (json['list'] as List)
-            .map((x) => ScoreModel.fromJson(x))
-            .toList(),
+      : list =
+            (json['list'] as List).map((x) => ScoreModel.fromJson(x)).toList(),
         semester = SemesterModel.fromJson(json['semester']);
 
   ScoreList({required this.semester, required this.list});
 
+  /// 总学分
   double get totalCredit {
     double credit = 0;
     for (var item in list) {
-      if(item.gpa == '' || item.credit == '0')continue;
+      if (item.gpa == '' || item.credit == '0') continue;
       final a = double.parse(item.gpa);
-      if(a == 0) {
+      if (a == 0) {
         continue;
       }
       credit += double.parse(item.credit);
@@ -77,20 +81,22 @@ class ScoreList {
     return credit;
   }
 
+  /// 总绩点
   double get totalGpa {
     double total = 0;
     double credit = 0;
     for (var item in list) {
-      if(item.gpa == '' || item.credit == '0')continue;
+      if (item.gpa == '' || item.credit == '0' || item.isMinor) continue;
       total += double.parse(item.credit);
       credit += double.parse(item.credit) * double.parse(item.gpa);
     }
     return credit / total;
   }
 
+  /// 总课程数
   int get totalCourse {
     return list.where((x) {
-      if(x.gpa == '' || x.credit == '0') return false;
+      if (x.gpa == '' || x.credit == '0') return false;
       final a = double.parse(x.gpa);
       return a != 0;
     }).length;

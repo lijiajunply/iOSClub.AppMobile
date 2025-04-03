@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -112,7 +113,7 @@ class _OtherPageState extends State<OtherPage> {
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   subtitle: Text('将电费添加到首页磁贴'),
-                  trailing: Switch(
+                  trailing: CupertinoSwitch(
                     onChanged: (bool value) async {
                       setState(() {
                         if (value) {

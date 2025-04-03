@@ -237,7 +237,7 @@ class EduService {
         jsonString.isNotEmpty &&
         week["week"] != null &&
         week["week"] is int &&
-        week["week"]! > 2) {
+        week["week"]! > 2 && !isRefresh) {
       return;
     }
 

@@ -15,19 +15,7 @@ class _MemberPageState extends State<iMemberPage> {
           title: const Text('iMember'),
         ),
         body: SingleChildScrollView(
-          child: Column(children: [
-            const SizedBox(
-              height: 20,
-            ),
-            const Text(
-              'iMember社团账号',
-              style: TextStyle(fontSize: 30),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Text('还在写呢')
-          ]),
+          child: Column(children: []),
         ));
   }
 }
