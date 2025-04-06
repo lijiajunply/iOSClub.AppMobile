@@ -99,15 +99,46 @@ class DataService {
         .toList();
   }
 
-  static Future<List<CourseModel>> getCourse() async {
+  static Future<(bool, List<CourseModel>)> getCourse(
+      {bool isTomorrow = false}) async {
     final allCourse = await getAllCourse();
     final time = await getTime();
-    final now = DateTime.now();
+    var now = DateTime.now();
     if (time["startTime"] == null) {
-      return [];
+      return (false, List<CourseModel>.unmodifiable([]));
     }
-    var a = now.difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
-    final filteredCourses = allCourse.where((course) {
+    var weekNow =
+        now.difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
+    var filteredCourses = allCourse.where((course) {
+      return course.weekIndexes.contains(weekNow) &&
+          course.weekday == now.weekday;
+    }).toList();
+
+    if (filteredCourses.isEmpty) {
+      if (isTomorrow) {
+        filteredCourses = allCourse.where((course) {
+          var weekDay = now.weekday + 1;
+          if (weekDay == 7) {
+            weekNow++;
+          }
+          if (weekDay > 7) {
+            weekDay = 1;
+          }
+          return course.weekIndexes.contains(weekNow) &&
+              course.weekday == weekDay;
+        }).toList();
+        if (filteredCourses.isEmpty) {
+          return (true, filteredCourses);
+        }
+        filteredCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+
+        return (true, filteredCourses);
+      } else {
+        return (false, filteredCourses);
+      }
+    }
+
+    filteredCourses = filteredCourses.where((course) {
       var endTime = "";
       if (course.room.substring(0, 2) == "雁塔") {
         if (now.month >= 5 && now.month <= 10) {
@@ -122,14 +153,13 @@ class DataService {
       final l = endTime.split(':');
       var end = DateTime(
           now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
-      return course.weekIndexes.contains(a) &&
-          course.weekday == now.weekday &&
-          now.isBefore(end);
+
+      return now.isBefore(end);
     }).toList();
 
     filteredCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
 
-    return filteredCourses;
+    return (false, filteredCourses);
   }
 
   static Future<List<ScoreList>> getScore() async {

@@ -17,6 +17,7 @@ class _AboutPageState extends State<AboutPage> {
   late bool updateIgnored = false;
   late bool isNeedUpdate = false;
   late String version = '';
+  late bool isShowTomorrow = false;
 
   @override
   void initState() {
@@ -24,6 +25,7 @@ class _AboutPageState extends State<AboutPage> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         updateIgnored = prefs.getBool('update_ignored') ?? false;
+        isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
       });
       GiteeService.getReleases().then((value) {
         setState(() {
@@ -99,6 +101,32 @@ class _AboutPageState extends State<AboutPage> {
                   },
                 ),
               ),
+              const SizedBox(
+                height: 8,
+              ),
+              Card(
+                  child: ListTile(
+                title: const Text('显示明日课程',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                subtitle: const Text(
+                  '当今日无课时显示明日课程',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey),
+                ),
+                trailing: CupertinoSwitch(
+                  value: isShowTomorrow,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      isShowTomorrow = value;
+                    });
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setBool('is_show_tomorrow', value);
+                  },
+                ),
+              )),
               const SizedBox(
                 height: 16,
               ),

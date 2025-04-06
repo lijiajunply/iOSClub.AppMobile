@@ -378,7 +378,7 @@ class _ScorePageState extends State<ScorePage> {
                         // 添加左对齐
                         children: [
                           Text(
-                            item.name,
+                            '${item.name}${item.isMinor ? ' (辅修)' : ''}',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

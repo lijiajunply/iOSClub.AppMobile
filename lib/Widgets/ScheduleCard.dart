@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 import 'package:ios_club_app/Services/TimeService.dart';
 import 'package:ios_club_app/Widgets/EmptyWidget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../PageModels/ScheduleItem.dart';
 import '../Services/DataService.dart';
@@ -19,32 +20,35 @@ class _ScheduleCardState extends State<ScheduleCard> {
   @override
   initState() {
     super.initState();
-
-    DataService.getCourse().then((value) {
-      setState(() {
-        scheduleItems.addAll(value.map((course) {
-          var startTime = "";
-          var endTime = "";
-          if (course.room.substring(0, 2) == "草堂") {
-            startTime = TimeService.CanTangTime[course.startUnit];
-            endTime = TimeService.CanTangTime[course.endUnit];
-          } else {
-            final now = DateTime.now();
-            if (now.month >= 5 && now.month <= 10) {
-              startTime = TimeService.YanTaXia[course.startUnit];
-              endTime = TimeService.YanTaXia[course.endUnit];
+    SharedPreferences.getInstance().then((prefs) {
+      DataService.getCourse(
+              isTomorrow: prefs.getBool('is_show_tomorrow') ?? false)
+          .then((value) {
+        setState(() {
+          scheduleItems.addAll(value.map((course) {
+            var startTime = "";
+            var endTime = "";
+            if (course.room.substring(0, 2) == "草堂") {
+              startTime = TimeService.CanTangTime[course.startUnit];
+              endTime = TimeService.CanTangTime[course.endUnit];
             } else {
-              startTime = TimeService.YanTaDong[course.startUnit];
-              endTime = TimeService.YanTaDong[course.endUnit];
+              final now = DateTime.now();
+              if (now.month >= 5 && now.month <= 10) {
+                startTime = TimeService.YanTaXia[course.startUnit];
+                endTime = TimeService.YanTaXia[course.endUnit];
+              } else {
+                startTime = TimeService.YanTaDong[course.startUnit];
+                endTime = TimeService.YanTaDong[course.endUnit];
+              }
             }
-          }
-          return ScheduleItem(
-            title: course.courseName,
-            time:
-                '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
-            location: course.room,
-          );
-        }));
+            return ScheduleItem(
+              title: course.courseName,
+              time:
+                  '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
+              location: course.room,
+            );
+          }));
+        });
       });
     });
   }

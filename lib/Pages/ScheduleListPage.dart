@@ -440,37 +440,39 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             color: CourseColorManager.generateSoftColor(course.courseName),
             child: Padding(
               padding: EdgeInsets.all(isTablet ? 8 : 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    course.courseName,
-                    style: TextStyle(
-                      fontSize: isTablet ? 12 : 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white70,
-                      overflow: TextOverflow.ellipsis,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.courseName,
+                      style: TextStyle(
+                        fontSize: isTablet ? 12 : 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      maxLines: 3,
                     ),
-                    maxLines: 4,
-                  ),
-                  Text(
-                    course.room.substring(2),
-                    style: TextStyle(
-                      fontSize: isTablet ? 10 : 9,
-                      overflow: TextOverflow.ellipsis,
-                      color: Colors.white70,
+                    Text(
+                      course.room.substring(2),
+                      style: TextStyle(
+                        fontSize: isTablet ? 10 : 9,
+                        overflow: TextOverflow.ellipsis,
+                        color: Colors.white70,
+                      ),
+                      maxLines: 2,
                     ),
-                    maxLines: 2,
-                  ),
-                  Text(
-                    course.teachers.join(', '),
-                    style: TextStyle(
-                      fontSize: isTablet ? 10 : 8,
-                      overflow: TextOverflow.ellipsis,
-                      color: Colors.white70,
+                    Text(
+                      course.teachers.join(', '),
+                      style: TextStyle(
+                        fontSize: isTablet ? 10 : 8,
+                        overflow: TextOverflow.ellipsis,
+                        color: Colors.white70,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
