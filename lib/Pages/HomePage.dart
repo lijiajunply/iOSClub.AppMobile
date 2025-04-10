@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Widgets/ExamCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Models/CourseModel.dart';
 import '../Models/TodoItem.dart';
 import '../PageModels/CourseColorManager.dart';
 import '../PageModels/ScheduleItem.dart';
@@ -24,6 +25,7 @@ class HomePageState extends State<HomePage> {
   List<String> _tiles = [];
   final List<ScheduleItem> scheduleItems = [];
   bool _isShowingTomorrow = false;
+  bool _isShowTomorrow = false;
 
   @override
   void initState() {
@@ -38,36 +40,41 @@ class HomePageState extends State<HomePage> {
     });
     SharedPreferences.getInstance().then((prefs) {
       DataService.getCourse(
-          isTomorrow: prefs.getBool('is_show_tomorrow') ?? false)
+              isTomorrow: prefs.getBool('is_show_tomorrow') ?? false)
           .then((value) {
         setState(() {
           _isShowingTomorrow = value.$1;
-          scheduleItems.addAll(value.$2.map((course) {
-            var startTime = "";
-            var endTime = "";
-            if (course.room.substring(0, 2) == "草堂") {
-              startTime = TimeService.CanTangTime[course.startUnit];
-              endTime = TimeService.CanTangTime[course.endUnit];
-            } else {
-              final now = DateTime.now();
-              if (now.month >= 5 && now.month <= 10) {
-                startTime = TimeService.YanTaXia[course.startUnit];
-                endTime = TimeService.YanTaXia[course.endUnit];
-              } else {
-                startTime = TimeService.YanTaDong[course.startUnit];
-                endTime = TimeService.YanTaDong[course.endUnit];
-              }
-            }
-            return ScheduleItem(
-              title: course.courseName,
-              time:
-              '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
-              location: course.room,
-            );
-          }));
+          changeScheduleItems(value.$2);
         });
       });
     });
+  }
+
+  void changeScheduleItems(List<CourseModel> a) {
+    scheduleItems.clear();
+    scheduleItems.addAll(a.map((course) {
+      var startTime = "";
+      var endTime = "";
+      if (course.room.substring(0, 2) == "草堂") {
+        startTime = TimeService.CanTangTime[course.startUnit];
+        endTime = TimeService.CanTangTime[course.endUnit];
+      } else {
+        final now = DateTime.now();
+        if (now.month >= 5 && now.month <= 10) {
+          startTime = TimeService.YanTaXia[course.startUnit];
+          endTime = TimeService.YanTaXia[course.endUnit];
+        } else {
+          startTime = TimeService.YanTaDong[course.startUnit];
+          endTime = TimeService.YanTaDong[course.endUnit];
+        }
+      }
+      return ScheduleItem(
+        title: course.courseName,
+        time:
+            '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
+        location: course.room,
+      );
+    }));
   }
 
   @override
@@ -78,8 +85,64 @@ class HomePageState extends State<HomePage> {
           // 课表部分
           SliverPersistentHeader(
             pinned: true, // 设置为true使其具有粘性
-            delegate: PageHeaderDelegate(
-              title: '${_isShowingTomorrow ? '明' : '今'}日课表',
+            delegate: HeaderChildDelegate(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${_isShowingTomorrow ? '明' : '今'}日课表',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.settings),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (alertContext) => StatefulBuilder(
+                                  // 使用 StatefulBuilder 包装 AlertDialog
+                                  builder: (context, setStateDialog) =>
+                                      AlertDialog(
+                                          title: const Text('设置'),
+                                          content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ListTile(
+                                                    title:
+                                                        const Text('显示明天的课表'),
+                                                    trailing: Switch(
+                                                        value: _isShowTomorrow,
+                                                        onChanged:
+                                                            (value) async {
+                                                          setStateDialog(() {
+                                                            _isShowTomorrow =
+                                                                value;
+                                                          });
+                                                          setState(() {
+                                                            SharedPreferences
+                                                                    .getInstance()
+                                                                .then((prefs) {
+                                                              prefs.setBool(
+                                                                  'is_show_tomorrow',
+                                                                  value);
+                                                              DataService.getCourse(
+                                                                      isTomorrow:
+                                                                          value)
+                                                                  .then(
+                                                                      (value) {
+                                                                _isShowingTomorrow =
+                                                                    value.$1;
+                                                                changeScheduleItems(
+                                                                    value.$2);
+                                                              });
+                                                            });
+                                                          });
+                                                        }))
+                                              ]))));
+                        })
+                  ]),
               minHeight: 66,
               maxHeight: 76,
             ),
@@ -91,25 +154,26 @@ class HomePageState extends State<HomePage> {
                 elevation: 4,
                 child: scheduleItems.isEmpty
                     ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      EmptyWidget(),
-                      Center(
-                          child: Text(
-                            '今天没有课了',
-                            style: TextStyle(fontSize: 20),
-                          ))
-                    ],
-                  ),
-                )
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            EmptyWidget(),
+                            Center(
+                                child: Text(
+                              '今天没有课了',
+                              style: TextStyle(fontSize: 20),
+                            ))
+                          ],
+                        ),
+                      )
                     : Column(
-                  children: scheduleItems.map(_buildScheduleItem).toList(),
-                ),
+                        children:
+                            scheduleItems.map(_buildScheduleItem).toList(),
+                      ),
               ),
             ),
           ),
-          if(_tiles.isNotEmpty)
+          if (_tiles.isNotEmpty)
             SliverPersistentHeader(
               pinned: true, // 设置为true使其具有粘性
               delegate: PageHeaderDelegate(

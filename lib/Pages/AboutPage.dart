@@ -128,6 +128,32 @@ class _AboutPageState extends State<AboutPage> {
                 ),
               )),
               const SizedBox(
+                height: 8,
+              ),
+              Card(
+                  child: ListTile(
+                title: const Text('课程通知',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                subtitle: const Text(
+                  '上课前15分钟进行提醒',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.grey),
+                ),
+                trailing: CupertinoSwitch(
+                  value: isShowTomorrow,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      isShowTomorrow = value;
+                    });
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setBool('is_show_tomorrow', value);
+                  },
+                ),
+              )),
+              const SizedBox(
                 height: 16,
               ),
               Padding(

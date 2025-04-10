@@ -83,17 +83,17 @@ class ClubService {
 
   static Future<Map<String, dynamic>> getMemberInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    final memberData = prefs.getString('member_data');
+    final memberDataString = prefs.getString('member_data');
 
     final Map<String, dynamic> data = {};
 
-    if (memberData != null) {
-      data['memberData'] = jsonDecode(memberData);
-    }
+    final memberData = jsonDecode(memberDataString ?? '{}');
+
+    data['memberData'] = memberData;
 
     if (prefs.getString('member_jwt') != null) {
-      final jwt = prefs.getString('member_jwt');
-      final Map<String, String> finalHeaders = {
+      var jwt = prefs.getString('member_jwt');
+      Map<String, String> finalHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwt'
@@ -109,6 +109,23 @@ class ClubService {
             print('GetInfo successful');
           }
           data['info'] = jsonDecode(response.body);
+        }
+        if (response.statusCode == 401) {
+          if (await loginMember(memberData['userName'], memberData['userId'])) {
+            jwt = prefs.getString('member_jwt');
+            finalHeaders['Authorization'] = 'Bearer $jwt';
+
+            final response = await http.get(
+                Uri.parse('https://www.xauat.site/api/Member/GetInfo'),
+                headers: finalHeaders);
+
+            if (response.statusCode == 200) {
+              if (kDebugMode) {
+                print('GetInfo successful');
+              }
+              data['info'] = jsonDecode(response.body);
+            }
+          }
         }
       } catch (e) {
         if (kDebugMode) {

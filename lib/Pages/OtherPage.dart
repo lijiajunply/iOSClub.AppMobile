@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ios_club_app/Pages/WikiPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/OtherService.dart';
@@ -93,7 +94,7 @@ class _OtherPageState extends State<OtherPage> {
                                       isHasData = true;
                                     });
                                   }
-                                  if(context.mounted){
+                                  if (context.mounted) {
                                     Navigator.of(context).pop();
                                   }
                                 },
@@ -119,7 +120,8 @@ class _OtherPageState extends State<OtherPage> {
                         if (value) {
                           _tiles = [..._tiles, '电费'];
                         } else {
-                          _tiles = _tiles.where((tile) => tile != '电费').toList();
+                          _tiles =
+                              _tiles.where((tile) => tile != '电费').toList();
                         }
                       });
 
@@ -129,6 +131,29 @@ class _OtherPageState extends State<OtherPage> {
                   ),
                 ),
               ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Text('前往建大wiki',
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold))
+                ],
+              ),
+            ),
+            Card(
+                child: ListTile(
+              title: Text(
+                '前往建大wiki',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              subtitle: Text('点击前往建大wiki'),
+              trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => WikiPage()));
+              },
+            )),
           ],
         ),
       ),
