@@ -47,7 +47,7 @@ class ClubDetailPage extends StatelessWidget {
             children: [
               Image(
                   image: AssetImage('assets/${memberData['gender']}生.png'),
-                  height: 200),
+                  height: isTablet ? 200 : 120),
               Text(
                 memberData['userName'],
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -72,7 +72,22 @@ class ClubDetailPage extends StatelessWidget {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
-                    Text('您的任务都已经完成了'),
+                    if ((infoData['tasks'] as List<dynamic>).isNotEmpty)
+                      ...infoData['tasks'].map((department) {
+                        return _buildDepartmentItem(
+                            department['title'], department['description']);
+                      }).toList(),
+                    if ((infoData['tasks'] as List<dynamic>).isEmpty)
+                      Column(
+                        children: [
+                          EmptyWidget(),
+                          Center(
+                              child: Text(
+                            '您的任务都已经完成了',
+                            style: TextStyle(fontSize: 20),
+                          ))
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -86,7 +101,22 @@ class ClubDetailPage extends StatelessWidget {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
-                    Text('您的项目都已经完成了'),
+                    if ((infoData['projects'] as List<dynamic>).isNotEmpty)
+                      ...infoData['projects'].map((department) {
+                        return _buildDepartmentItem(
+                            department['title'], department['description']);
+                      }).toList(),
+                    if ((infoData['projects'] as List<dynamic>).isEmpty)
+                      Column(
+                        children: [
+                          EmptyWidget(),
+                          Center(
+                              child: Text(
+                            '您的项目都已经完成了',
+                            style: TextStyle(fontSize: 20),
+                          ))
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -123,21 +153,18 @@ class ClubDetailPage extends StatelessWidget {
                 if (!isTablet) SizedBox(height: 16),
 
                 if (!isTablet)
-                  SizedBox(
-                    width: double.infinity, // 让容器占据所有可用宽度
-                    child: Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Wrap(
-                          alignment: WrapAlignment.center, // 水平居中
-                          crossAxisAlignment: WrapCrossAlignment.center, // 垂直居中
-                          children: task,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                if (role == '社长/副社长/秘书长') SizedBox(height: 16),
+                  ...task.map((item) => Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: Card(
+                              child: Padding(
+                                  padding: EdgeInsets.all(16), child: item),
+                            ),
+                          ),
+                          SizedBox(height: 16)
+                        ],
+                      )),
 
                 if (role == '社长/副社长/秘书长')
                   // 部门卡片
@@ -235,9 +262,9 @@ class ClubDetailPage extends StatelessWidget {
                                   EmptyWidget(),
                                   Center(
                                       child: Text(
-                                        '当前没有资源',
-                                        style: TextStyle(fontSize: 20),
-                                      ))
+                                    '当前没有资源',
+                                    style: TextStyle(fontSize: 20),
+                                  ))
                                 ],
                               ),
                           ],

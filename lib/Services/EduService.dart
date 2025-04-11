@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 import 'package:ios_club_app/Services/LoginService.dart';
+import 'package:ios_club_app/Services/RemindService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
@@ -31,6 +32,7 @@ class EduService {
       await getCourse(userData: cookieData);
       await getExam(userData: cookieData);
       // await getInfoCompletion(userData: cookieData);
+      await NotificationService.remind();
       await prefs.setInt('last_fetch_time', now);
       return true;
     } catch (e) {
@@ -118,7 +120,7 @@ class EduService {
       final preNow = DateTime.now().millisecondsSinceEpoch;
       final loginService = LoginService(http.Client(), CodeService());
       final response = await loginService.loginAsync(username, password);
-      if(kDebugMode){
+      if (kDebugMode) {
         print('登录用时: ${DateTime.now().millisecondsSinceEpoch - preNow}');
       }
 
@@ -211,8 +213,7 @@ class EduService {
   }
 
   static Future<void> getCourse(
-      {UserData? userData,
-      bool isRefresh = false}) async {
+      {UserData? userData, bool isRefresh = false}) async {
     final time = await DataService.getTime();
     final week = await DataService.getWeek();
     if (!isRefresh &&
@@ -237,7 +238,8 @@ class EduService {
         jsonString.isNotEmpty &&
         week["week"] != null &&
         week["week"] is int &&
-        week["week"]! > 2 && !isRefresh) {
+        week["week"]! > 2 &&
+        !isRefresh) {
       return;
     }
 

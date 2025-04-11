@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 
+import 'Services/RemindService.dart';
 import 'SplashScreen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  NotificationService.instance.initialize();
+
   runApp(MaterialApp(
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,

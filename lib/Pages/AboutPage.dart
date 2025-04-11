@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/GiteeService.dart';
+import '../Services/RemindService.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -18,6 +20,7 @@ class _AboutPageState extends State<AboutPage> {
   late bool isNeedUpdate = false;
   late String version = '';
   late bool isShowTomorrow = false;
+  late bool isRemind = false;
 
   @override
   void initState() {
@@ -26,6 +29,7 @@ class _AboutPageState extends State<AboutPage> {
       setState(() {
         updateIgnored = prefs.getBool('update_ignored') ?? false;
         isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
+        isRemind = prefs.getBool('is_remind') ?? false;
       });
       GiteeService.getReleases().then((value) {
         setState(() {
@@ -143,13 +147,45 @@ class _AboutPageState extends State<AboutPage> {
                       color: Colors.grey),
                 ),
                 trailing: CupertinoSwitch(
-                  value: isShowTomorrow,
+                  value: isRemind,
                   onChanged: (bool value) async {
                     setState(() {
-                      isShowTomorrow = value;
+                      isRemind = value;
                     });
                     final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool('is_show_tomorrow', value);
+                    prefs.setBool('is_remind', value);
+                    if (value) {
+                      if (!await Permission.scheduleExactAlarm.isGranted) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                  title: Text('请允许使用闹钟'),
+                                  content: Text('您需要允许使用闹钟才能使用课程通知功能'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('取消'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await openAppSettings();
+                                        Navigator.of(context).pop();
+                                        if (await Permission
+                                            .scheduleExactAlarm.isGranted) {
+                                          await NotificationService.remind();
+                                        }
+                                      },
+                                      child: Text('去设置'),
+                                    )
+                                  ]);
+                            });
+                      } else {
+                        await NotificationService.remind();
+                      }
+                    }
                   },
                 ),
               )),

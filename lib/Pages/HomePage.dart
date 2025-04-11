@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import '../Models/TodoItem.dart';
 import '../PageModels/CourseColorManager.dart';
 import '../PageModels/ScheduleItem.dart';
 import '../Services/OtherService.dart';
+import '../Services/RemindService.dart';
 import '../Services/TimeService.dart';
 import '../Widgets/EmptyWidget.dart';
 import '../Widgets/PageHeaderDelegate.dart';
@@ -26,6 +28,7 @@ class HomePageState extends State<HomePage> {
   final List<ScheduleItem> scheduleItems = [];
   bool _isShowingTomorrow = false;
   bool _isShowTomorrow = false;
+  late bool isRemind = false;
 
   @override
   void initState() {
@@ -68,6 +71,7 @@ class HomePageState extends State<HomePage> {
           endTime = TimeService.YanTaDong[course.endUnit];
         }
       }
+
       return ScheduleItem(
         title: course.courseName,
         time:
@@ -112,7 +116,7 @@ class HomePageState extends State<HomePage> {
                                                 ListTile(
                                                     title:
                                                         const Text('显示明天的课表'),
-                                                    trailing: Switch(
+                                                    trailing: CupertinoSwitch(
                                                         value: _isShowTomorrow,
                                                         onChanged:
                                                             (value) async {
@@ -139,7 +143,28 @@ class HomePageState extends State<HomePage> {
                                                               });
                                                             });
                                                           });
-                                                        }))
+                                                        })),
+                                                ListTile(
+                                                  title: const Text('课程通知'),
+                                                  trailing: CupertinoSwitch(
+                                                    value: isRemind,
+                                                    onChanged:
+                                                        (bool value) async {
+                                                      setStateDialog(() {
+                                                        isRemind = value;
+                                                      });
+                                                      final prefs =
+                                                          await SharedPreferences
+                                                              .getInstance();
+                                                      prefs.setBool(
+                                                          'is_remind', value);
+                                                      if (value) {
+                                                        await NotificationService
+                                                            .set(context);
+                                                      }
+                                                    },
+                                                  ),
+                                                )
                                               ]))));
                         })
                   ]),

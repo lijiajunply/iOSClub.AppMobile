@@ -107,7 +107,7 @@ class _MainAppState extends State<MainApp> {
       Permission.storage,
       Permission.notification,
       Permission.backgroundRefresh,
-      Permission.requestInstallPackages,
+      Permission.requestInstallPackages
     ].request();
   }
 
