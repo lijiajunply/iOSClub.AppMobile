@@ -11,6 +11,7 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._();
 
   static NotificationService get instance => _instance;
+  bool isInit = false;
 
   final FlutterLocalNotificationsPlugin notifications =
       FlutterLocalNotificationsPlugin();
@@ -49,6 +50,8 @@ class NotificationService {
           description: '进行每日课表的课程通知，提前15分钟进行通知',
           importance: Importance.max,
         ));
+
+    isInit = true;
   }
 
   Future<void> scheduleCourseReminder(
@@ -144,6 +147,11 @@ class NotificationService {
   }
 
   static Future<void> remind() async {
+
+    if(!NotificationService.instance.isInit){
+      await NotificationService.instance.initialize();
+    }
+
     final a = await DataService.getCourse();
     final now = DateTime.now();
 

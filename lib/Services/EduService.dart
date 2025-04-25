@@ -11,43 +11,17 @@ import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
 
 class EduService {
-  static Future<bool> getAllData() async {
-    try {
-      // 调用API
-      final prefs = await SharedPreferences.getInstance();
-      var nowTime = DateTime.now();
-      var now = nowTime.millisecondsSinceEpoch;
-      final last = prefs.getInt('last_fetch_time');
+  static Future<void> start() async {
+    final prefs = await SharedPreferences.getInstance();
+    var nowTime = DateTime.now();
 
-      final lastRemind = prefs.getInt('last_remind_time');
-      final isRemind = prefs.getBool('is_remind') ?? false;
-      if (isRemind && ((lastRemind == null || lastRemind == 0) ||
-          nowTime.day != lastRemind)) {
-        await NotificationService.remind();
-        await prefs.setInt('last_remind_time', nowTime.day);
-      }
-
-      if (last != null && last != '') {
-        if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 20) {
-          return true;
-        }
-      }
-
-      final loginResult = await login();
-      if (!loginResult) {
-        return false;
-      }
-      var cookieData = await getCookieData();
-      await getTime();
-      await getCourse(userData: cookieData);
-
-      await prefs.setInt('last_fetch_time', now);
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching data: $e');
-      }
-      return false;
+    final lastRemind = prefs.getInt('last_remind_time');
+    final isRemind = prefs.getBool('is_remind') ?? false;
+    if (isRemind &&
+        ((lastRemind == null || lastRemind == 0) ||
+            nowTime.day != lastRemind)) {
+      await NotificationService.remind();
+      await prefs.setInt('last_remind_time', nowTime.day);
     }
   }
 
@@ -270,9 +244,20 @@ class EduService {
           headers: finalHeaders);
       if (response.statusCode == 200) {
         // 存储到本地
-
         await prefs.setString(
             'course_data', jsonEncode(jsonDecode(response.body)));
+      } else {
+        if (!(await login())) return;
+        var a = await getCookieData();
+        if (a == null) return;
+        final response = await http.get(
+            Uri.parse(
+                'https://xauatapi.xauat.site/Course?studentId=${a.studentId}'),
+            headers: finalHeaders);
+        if (response.statusCode == 200) {
+          await prefs.setString(
+              'course_data', jsonEncode(jsonDecode(response.body)));
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -282,13 +267,13 @@ class EduService {
   }
 
   static Future<void> getAllScore({UserData? userData}) async {
-    UserData? cookieData = userData ?? await getCookieData();
+    var cookieData = userData ?? await getCookieData();
     if (cookieData == null) {
       return;
     }
 
     try {
-      final Map<String, String> finalHeaders = {
+      Map<String, String> finalHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Cookie': cookieData.cookie,
@@ -298,13 +283,29 @@ class EduService {
       final list = await DataService.getSemester();
       final Map<String, String> json = {};
       for (var item in list) {
-        final response = await http.get(
+        var response = await http.get(
             Uri.parse(
                 'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${item.semester}'),
             headers: finalHeaders);
 
         if (response.statusCode == 200) {
           json[item.semester] = response.body;
+        } else {
+          if (!(await login())) return;
+          var a = await getCookieData();
+          if (a == null) {
+            continue;
+          }
+
+          finalHeaders['Cookie'] = finalHeaders['Cookie'] = a.cookie;
+          response = await http.get(
+              Uri.parse(
+                  'https://xauatapi.xauat.site/Score?studentId=${a.studentId}&semester=${item.semester}'),
+              headers: finalHeaders);
+
+          if (response.statusCode == 200) {
+            json[item.semester] = response.body;
+          }
         }
       }
       final prefs = await SharedPreferences.getInstance();
@@ -369,7 +370,7 @@ class EduService {
         if (response.statusCode == 200) {
           json[item.semester] = response.body;
         } else {
-          await login();
+          if (!(await login())) return [];
           final a = await getCookieData();
           if (a == null) {
             continue;
@@ -431,11 +432,25 @@ class EduService {
           Uri.parse(
               'https://xauatapi.xauat.site/Exam?studentId=${cookieData.studentId}'),
           headers: finalHeaders);
+      final prefs = await SharedPreferences.getInstance();
       if (response.statusCode == 200) {
-        // 存储到本地
-        final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'exam_data', jsonEncode(jsonDecode(response.body)));
+      } else {
+        if (!(await login())) return;
+        final a = await getCookieData();
+        if (a == null) {
+          return;
+        }
+        finalHeaders['Cookie'] = finalHeaders['xauat'] = a.cookie;
+        final response = await http.get(
+            Uri.parse(
+                'https://xauatapi.xauat.site/Exam?studentId=${a.studentId}'),
+            headers: finalHeaders);
+        if (response.statusCode == 200) {
+          await prefs.setString(
+              'exam_data', jsonEncode(jsonDecode(response.body)));
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -475,14 +490,29 @@ class EduService {
         'xauat': cookieData.cookie,
       };
 
+      final prefs = await SharedPreferences.getInstance();
       final response = await http.get(
           Uri.parse('https://xauatapi.xauat.site/Info/Completion'),
           headers: finalHeaders);
       if (response.statusCode == 200) {
-        // 存储到本地
-        final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'info_data', jsonEncode(jsonDecode(response.body)));
+      } else {
+        if (!(await login())) return;
+        final a = await getCookieData();
+        if (a == null) {
+          return;
+        }
+
+        finalHeaders['Cookie'] = finalHeaders['xauat'] = a.cookie;
+        final response = await http.get(
+            Uri.parse('https://xauatapi.xauat.site/Info/Completion'),
+            headers: finalHeaders);
+
+        if (response.statusCode == 200) {
+          await prefs.setString(
+              'info_data', jsonEncode(jsonDecode(response.body)));
+        }
       }
     } catch (e) {
       if (kDebugMode) {

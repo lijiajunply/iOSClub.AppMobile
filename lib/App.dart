@@ -1,10 +1,8 @@
-import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Pages/AboutPage.dart';
@@ -43,6 +41,19 @@ class _MainAppState extends State<MainApp> {
         }
       });
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final brightness = Theme.of(context).brightness;
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+          statusBarIconBrightness: brightness == Brightness.light
+              ? Brightness.dark
+              : Brightness.light),
+    );
   }
 
   void showUpdateDialog(ReleaseModel model) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/ScreenUtil.dart';
 import 'package:ios_club_app/Services/DataService.dart';
 
 import '../Models/TodoItem.dart';
@@ -37,7 +36,7 @@ class _TodoPageState extends State<TodoPage> {
             padding: EdgeInsets.all(16),
             child: _todos.isEmpty
                 ? SizedBox(
-                    height: 240.h,
+                    height: 240,
                     child: Card(
                         elevation: 4,
                         child: Padding(

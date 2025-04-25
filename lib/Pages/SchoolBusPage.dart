@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
-import 'package:ios_club_app/ScreenUtil.dart';
 
 import '../Services/EduService.dart';
 import '../Widgets/EmptyWidget.dart';
@@ -119,7 +118,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                 if (isLoading)
                   Center(
                     child: Card(
-                      margin: EdgeInsets.only(top: 40.h),
+                      margin: EdgeInsets.only(top: 40),
                       child: Padding(
                           padding: EdgeInsets.all(16.0),
                           child: CircularProgressIndicator()),
@@ -128,7 +127,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                 else if (errorMessage != null)
                   Center(
                     child: Card(
-                      margin: EdgeInsets.only(top: 40.h),
+                      margin: EdgeInsets.only(top: 40),
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Text(errorMessage!,
@@ -219,7 +218,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                           }))
                 else if (selectedDate != null)
                   Card(
-                      margin: EdgeInsets.only(top: 20.h),
+                      margin: EdgeInsets.only(top: 20),
                       child: Column(
                         children: [
                           EmptyWidget(),

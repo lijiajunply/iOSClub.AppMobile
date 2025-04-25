@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
-import 'Services/RemindService.dart';
-import 'SplashScreen.dart';
-
+import 'App.dart';
+import 'Services/EduService.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await NotificationService.instance.initialize();
+  requestPermissions();
+  EduService.start();
 
   runApp(MaterialApp(
     title: 'iOS Club App',
@@ -32,6 +33,15 @@ void main() async {
         elevation: 0,
       ),
     ),
-    home: const SplashScreen(),
+    home: const MainApp(),
   ));
+}
+
+void requestPermissions() async {
+  await [
+    Permission.storage,
+    Permission.notification,
+    Permission.backgroundRefresh,
+    Permission.requestInstallPackages,
+  ].request();
 }
