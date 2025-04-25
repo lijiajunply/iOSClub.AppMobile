@@ -11,8 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
 import '../Services/data_service.dart';
-import '../Widgets/empty_widget.dart';
-import '../Widgets/page_header_delegate.dart';
+import '../widgets/empty_widget.dart';
+import '../widgets/page_header_delegate.dart';
 
 class ScorePage extends StatefulWidget {
   const ScorePage({super.key});

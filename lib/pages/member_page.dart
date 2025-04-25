@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../Services/club_service.dart';
-import '../Widgets/empty_widget.dart';
+import '../widgets/empty_widget.dart';
 
 class MemberPage extends StatefulWidget {
   const MemberPage({super.key});

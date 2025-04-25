@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 
 import '../Models/TodoItem.dart';
-import '../Widgets/empty_widget.dart';
+import '../widgets/empty_widget.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});

@@ -7,7 +7,7 @@ import 'package:ios_club_app/Services/data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../Widgets/page_header_delegate.dart';
+import '../widgets/page_header_delegate.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
   const ScheduleSettingPage({super.key});

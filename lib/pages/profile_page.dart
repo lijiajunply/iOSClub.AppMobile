@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Services/club_service.dart';
-import '../Widgets/study_credit_card.dart';
+import '../widgets/study_credit_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

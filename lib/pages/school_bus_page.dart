@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
 
 import '../Services/edu_service.dart';
-import '../Widgets/empty_widget.dart';
+import '../widgets/empty_widget.dart';
 
 class SchoolBusPage extends StatefulWidget {
   const SchoolBusPage({super.key});
