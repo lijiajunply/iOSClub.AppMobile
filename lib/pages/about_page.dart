@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/git_service.dart';
@@ -16,34 +15,6 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  late bool updateIgnored = false;
-  late bool isNeedUpdate = false;
-  late String version = '';
-  late bool isShowTomorrow = false;
-  late bool isRemind = false;
-
-  @override
-  void initState() {
-    super.initState();
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        updateIgnored = prefs.getBool('update_ignored') ?? false;
-        isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
-        isRemind = prefs.getBool('is_remind') ?? false;
-      });
-      GiteeService.getReleases().then((value) {
-        setState(() {
-          isNeedUpdate = value.name != version;
-        });
-      });
-      PackageInfo.fromPlatform().then((value) {
-        setState(() {
-          version = value.version;
-        });
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,87 +79,11 @@ class _AboutPageState extends State<AboutPage> {
               const SizedBox(
                 height: 8,
               ),
-              Card(
-                  child: ListTile(
-                title: const Text('显示明日课程',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                subtitle: const Text(
-                  '当今日无课时显示明日课程',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Colors.grey),
-                ),
-                trailing: CupertinoSwitch(
-                  value: isShowTomorrow,
-                  onChanged: (bool value) async {
-                    setState(() {
-                      isShowTomorrow = value;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool('is_show_tomorrow', value);
-                  },
-                ),
-              )),
+              ShowTomorrowSetting(),
               const SizedBox(
                 height: 8,
               ),
-              Card(
-                  child: ListTile(
-                title: const Text('课程通知',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                subtitle: const Text(
-                  '上课前15分钟进行提醒',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Colors.grey),
-                ),
-                trailing: CupertinoSwitch(
-                  value: isRemind,
-                  onChanged: (bool value) async {
-                    setState(() {
-                      isRemind = value;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool('is_remind', value);
-                    if (value) {
-                      if (!await Permission.scheduleExactAlarm.isGranted) {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                  title: Text('请允许使用闹钟'),
-                                  content: Text('您需要允许使用闹钟才能使用课程通知功能'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text('取消'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        await openAppSettings();
-                                        Navigator.of(context).pop();
-                                        if (await Permission
-                                            .scheduleExactAlarm.isGranted) {
-                                          await NotificationService.remind();
-                                        }
-                                      },
-                                      child: Text('去设置'),
-                                    )
-                                  ]);
-                            });
-                      } else {
-                        await NotificationService.remind();
-                      }
-                    }
-                  },
-                ),
-              )),
+              RemindSetting(),
               const SizedBox(
                 height: 16,
               ),
@@ -205,83 +100,7 @@ class _AboutPageState extends State<AboutPage> {
               const SizedBox(
                 height: 8,
               ),
-              Card(
-                child: ListTile(
-                  title: const Text(
-                    '版本',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  subtitle: Text(version,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Colors.grey)),
-                  trailing: isNeedUpdate
-                      ? Badge(
-                          backgroundColor: Colors.red,
-                          child: Icon(Icons.update),
-                        )
-                      : Icon(Icons.verified),
-                  onTap: () {
-                    if (isNeedUpdate) {
-                      showDialog(
-                          context: context,
-                          builder: (b) {
-                            return AlertDialog(
-                              title: const Text('是否更新新版本'),
-                              actions: [
-                                TextButton(
-                                  child: const Text('是的'),
-                                  onPressed: () async {
-                                    Navigator.of(b).pop();
-                                    final a = await GiteeService.getReleases();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text('正在下载更新...可以继续使用')),
-                                    );
-
-                                    GiteeService.updateApp(a.name);
-                                  },
-                                ),
-                                TextButton(
-                                  child: const Text('不要'),
-                                  onPressed: () {
-                                    Navigator.of(b).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          });
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Card(
-                  child: ListTile(
-                title: const Text('更新日志',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                subtitle: const Text(
-                  '忽略版本更新',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Colors.grey),
-                ),
-                trailing: CupertinoSwitch(
-                  value: updateIgnored,
-                  onChanged: (bool value) async {
-                    setState(() {
-                      updateIgnored = value;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool('update_ignored', value);
-                  },
-                ),
-              )),
+              VersionSetting(),
               const SizedBox(
                 height: 16,
               ),
@@ -401,5 +220,210 @@ class _AboutPageState extends State<AboutPage> {
                     const SizedBox(height: 10),
                   ])));
         });
+  }
+}
+
+class ShowTomorrowSetting extends StatefulWidget {
+  const ShowTomorrowSetting({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ShowTomorrowSettingState();
+}
+
+class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
+  late bool isShowTomorrow = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: ListTile(
+      title: const Text('显示明日课程',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      subtitle: const Text(
+        '当今日无课时显示明日课程',
+        style: TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+      ),
+      trailing: CupertinoSwitch(
+        value: isShowTomorrow,
+        onChanged: (bool value) async {
+          setState(() {
+            isShowTomorrow = value;
+          });
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('is_show_tomorrow', value);
+        },
+      ),
+    ));
+  }
+}
+
+class RemindSetting extends StatefulWidget {
+  const RemindSetting({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _RemindSettingState();
+}
+
+class _RemindSettingState extends State<RemindSetting> {
+  late bool isRemind = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        isRemind = prefs.getBool('is_remind') ?? false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: ListTile(
+      title: const Text('课程通知',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      subtitle: const Text(
+        '上课前15分钟进行提醒',
+        style: TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+      ),
+      trailing: CupertinoSwitch(
+        value: isRemind,
+        onChanged: (bool value) async {
+          setState(() {
+            isRemind = value;
+          });
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('is_remind', value);
+          if (value) {
+            await NotificationService.set(context);
+          }
+        },
+      ),
+    ));
+  }
+}
+
+class VersionSetting extends StatefulWidget {
+  const VersionSetting({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _VersionSettingState();
+}
+
+class _VersionSettingState extends State<VersionSetting> {
+  late bool updateIgnored = false;
+  late bool isNeedUpdate = false;
+  late String version = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    PackageInfo.fromPlatform().then((packageInfo) {
+      setState(() {
+        version = packageInfo.version;
+        SharedPreferences.getInstance().then((prefs) {
+          updateIgnored = prefs.getBool('update_ignored') ?? false;
+        });
+        GiteeService.getReleases().then((release) {
+          isNeedUpdate = release.name != version;
+        });
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            title: const Text(
+              '版本',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            subtitle: Text(version,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Colors.grey)),
+            trailing: isNeedUpdate
+                ? Badge(
+                    backgroundColor: Colors.red,
+                    child: Icon(Icons.update),
+                  )
+                : Icon(Icons.verified),
+            onTap: () {
+              if (isNeedUpdate) {
+                showDialog(
+                    context: context,
+                    builder: (b) {
+                      return AlertDialog(
+                        title: const Text('是否更新新版本'),
+                        actions: [
+                          TextButton(
+                            child: const Text('是的'),
+                            onPressed: () async {
+                              Navigator.of(b).pop();
+                              final a = await GiteeService.getReleases();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('正在下载更新...可以继续使用')),
+                              );
+
+                              GiteeService.updateApp(a.name);
+                            },
+                          ),
+                          TextButton(
+                            child: const Text('不要'),
+                            onPressed: () {
+                              Navigator.of(b).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    });
+              }
+            },
+          ),
+          ListTile(
+            title: const Text('更新日志',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            subtitle: const Text(
+              '忽略版本更新',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Colors.grey),
+            ),
+            trailing: CupertinoSwitch(
+              value: updateIgnored,
+              onChanged: (bool value) async {
+                setState(() {
+                  updateIgnored = value;
+                });
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setBool('update_ignored', value);
+              },
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

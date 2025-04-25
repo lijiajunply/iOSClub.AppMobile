@@ -20,7 +20,8 @@ class EduService {
     if (isRemind &&
         ((lastRemind == null || lastRemind == 0) ||
             nowTime.day != lastRemind)) {
-      await NotificationService.remind();
+      final result = await DataService.getCourse();
+      await NotificationService.toList(result.$2);
       await prefs.setInt('last_remind_time', nowTime.day);
     }
   }

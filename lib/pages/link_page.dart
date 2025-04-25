@@ -94,7 +94,7 @@ class ScoreBuilder extends StatelessWidget {
                               builder: (context, snapshot) {
                                 return snapshot.hasData
                                     ? snapshot.data!
-                                    : const Text('');
+                                    : const SizedBox();
                               }),
                           Text(
                             linkList.name,

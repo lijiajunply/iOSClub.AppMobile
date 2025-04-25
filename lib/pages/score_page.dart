@@ -49,7 +49,7 @@ class _ScorePageState extends State<ScorePage> {
       }
     }
 
-    if (_isFool){
+    if (_isFool) {
       final cachedData = await _tryGetCachedData();
       if (cachedData != null) {
         if (mounted) {
@@ -119,7 +119,6 @@ class _ScorePageState extends State<ScorePage> {
 
         if (semesterScores != null) {
           freshScoreList.add(semesterScores);
-          _showProgressSnackbar(semester.name);
         }
       }
 
@@ -165,7 +164,7 @@ class _ScorePageState extends State<ScorePage> {
       final response = await http.get(
         Uri.parse(
           'https://xauatapi.xauat.site/Score?'
-              'studentId=${cookieData.studentId}&semester=${semester.semester}',
+          'studentId=${cookieData.studentId}&semester=${semester.semester}',
         ),
         headers: headers,
       );
@@ -201,7 +200,7 @@ class _ScorePageState extends State<ScorePage> {
     final response = await http.get(
       Uri.parse(
         'https://xauatapi.xauat.site/Score?'
-            'studentId=${cookieData.studentId}&semester=${semester.semester}',
+        'studentId=${cookieData.studentId}&semester=${semester.semester}',
       ),
       headers: _buildHeaders(freshCookieData),
     );
@@ -216,18 +215,11 @@ class _ScorePageState extends State<ScorePage> {
     return null;
   }
 
-  void _showProgressSnackbar(String semesterName) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('正在导入成绩数据：$semesterName')),
-      );
-    }
-  }
-
   Future<void> _cacheFreshData(List<ScoreList> freshData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('all_score_data', jsonEncode(freshData));
-    await prefs.setInt('last_Score_time', DateTime.now().millisecondsSinceEpoch);
+    await prefs.setInt(
+        'last_Score_time', DateTime.now().millisecondsSinceEpoch);
   }
 
   void _handleFoolishMode() {
@@ -330,15 +322,16 @@ class _ScorePageState extends State<ScorePage> {
                   value: ScoreList.getTotalCourse(_scoreList).toString(),
                   label: '通过课程',
                 ),
-                GestureDetector(
+                InkWell(
                   onTap: _showCreditInfoDialog,
                   child: _buildStatItem(
                     icon: Icons.equalizer,
-                    value: ScoreList.getTotalCredit(_scoreList).toStringAsFixed(1),
+                    value: ScoreList.getTotalCredit(_scoreList)
+                        .toStringAsFixed(1),
                     label: '总学分',
                     withInfo: true,
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -391,8 +384,7 @@ class _ScorePageState extends State<ScorePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('说明'),
-        content: const Text(
-            '这里的学分是按照成绩算出来的，只要没有挂科就OK。教务系统给的一般来说要小于等于这个数'),
+        content: const Text('这里的学分是按照成绩算出来的，只要没有挂科就OK。教务系统给的一般来说要小于等于这个数'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -410,12 +402,12 @@ class _ScorePageState extends State<ScorePage> {
         child: _scoreList.isEmpty
             ? _buildEmptyState()
             : ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _scoreList.length,
-          itemBuilder: (context, index) =>
-              _buildSemesterCard(_scoreList[index]),
-        ),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _scoreList.length,
+                itemBuilder: (context, index) =>
+                    _buildSemesterCard(_scoreList[index]),
+              ),
       ),
     );
   }
@@ -582,13 +574,14 @@ class _ScorePageState extends State<ScorePage> {
             ),
           ),
           SizedBox(height: isTablet ? 10 : 18),
-          _buildDetailRow(Icons.access_time, Colors.blue, '${score.credit}学分',
-              isTablet),
+          _buildDetailRow(
+              Icons.access_time, Colors.blue, '${score.credit}学分', isTablet),
+          SizedBox(height: isTablet ? 10 : 18),
+          _buildDetailRow(Icons.location_on, Colors.redAccent,
+              '成绩 ${score.grade}', isTablet),
           SizedBox(height: isTablet ? 10 : 18),
           _buildDetailRow(
-              Icons.location_on, Colors.redAccent, '成绩 ${score.grade}', isTablet),
-          SizedBox(height: isTablet ? 10 : 18),
-          _buildDetailRow(Icons.grade, Colors.green, '绩点 ${score.gpa}', isTablet),
+              Icons.grade, Colors.green, '绩点 ${score.gpa}', isTablet),
           SizedBox(height: isTablet ? 10 : 18),
           _buildDetailRow(
             Icons.details,
@@ -603,12 +596,12 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildDetailRow(
-      IconData icon,
-      Color color,
-      String text,
-      bool isTablet, {
-        bool expanded = false,
-      }) {
+    IconData icon,
+    Color color,
+    String text,
+    bool isTablet, {
+    bool expanded = false,
+  }) {
     final textWidget = Text(
       text,
       style: TextStyle(

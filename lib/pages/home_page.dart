@@ -185,14 +185,14 @@ class HomePageState extends State<HomePage> {
               child: Card(
                 elevation: 4,
                 child: scheduleItems.isEmpty
-                    ? const Padding(
+                    ? Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Column(
                           children: [
                             EmptyWidget(),
                             Center(
                                 child: Text(
-                              '今天没有课了',
+                              '${_isShowingTomorrow ? '明' : '今'}天没有课了',
                               style: TextStyle(fontSize: 20),
                             ))
                           ],

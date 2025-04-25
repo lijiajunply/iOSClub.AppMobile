@@ -15,8 +15,7 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
-    with TickerProviderStateMixin {
+class _ProfilePageState extends State<ProfilePage> {
   bool _isLoggedIn = false;
   String _username = '';
   final TextEditingController _usernameController = TextEditingController();
@@ -203,12 +202,34 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildLoginForm() {
     return SingleChildScrollView(
-        child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 72),
+        child: Column(
+      children: [
+        if (_isOnlyLoginMember)
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isOnlyLoginMember = false;
+                          _isLoggedIn = true;
+                          _passwordController.clear();
+                        });
+                      },
+                      icon: const Icon(Icons.arrow_back)),
+                  const SizedBox(width: 8),
+                  const Text(
+                    '登录社团账号',
+                    style: TextStyle(fontSize: 22),
+                  ),
+                ],
+              )),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo
                 Image.asset(
                   'assets/icon.png',
                   width: 160,
@@ -301,6 +322,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 if (value == null) return;
                                 setState(() {
                                   _isLoginMember = value;
+                                  _passwordController.text = _username;
                                 });
                               },
                             ),
@@ -342,7 +364,9 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                 ),
               ],
-            )));
+            ))
+      ],
+    ));
   }
 
   Widget _buildProfileContent() {

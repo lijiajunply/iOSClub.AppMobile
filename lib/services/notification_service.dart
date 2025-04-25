@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
+import '../Models/CourseModel.dart';
 import 'data_service.dart';
 import 'time_service.dart';
 
@@ -155,6 +156,38 @@ class NotificationService {
     final now = DateTime.now();
 
     for (var course in a.$2) {
+      var startTime = "";
+      if (course.room.substring(0, 2) == "草堂") {
+        startTime = TimeService.CanTangTime[course.startUnit];
+      } else {
+        if (now.month >= 5 && now.month <= 10) {
+          startTime = TimeService.YanTaXia[course.startUnit];
+        } else {
+          startTime = TimeService.YanTaDong[course.startUnit];
+        }
+      }
+
+      final spilt = startTime.split(':');
+
+      if (spilt.length < 2) continue;
+
+      await NotificationService.instance.scheduleCourseReminder(
+          id: course.hashCode,
+          title: '课程提醒',
+          body: '${course.courseName} 将在15分钟后开始',
+          courseTime: DateTime(now.year, now.month, now.day,
+              int.parse(spilt[0]), int.parse(spilt[1])));
+    }
+  }
+
+  static Future<void> toList(List<CourseModel> a) async {
+    if (!NotificationService.instance.isInit) {
+      await NotificationService.instance.initialize();
+    }
+
+    final now = DateTime.now();
+
+    for (var course in a) {
       var startTime = "";
       if (course.room.substring(0, 2) == "草堂") {
         startTime = TimeService.CanTangTime[course.startUnit];
