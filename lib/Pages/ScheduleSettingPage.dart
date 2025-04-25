@@ -16,10 +16,11 @@ class ScheduleSettingPage extends StatefulWidget {
   State<ScheduleSettingPage> createState() => _ScheduleSettingPageState();
 }
 
-class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
+class _ScheduleSettingPageState extends State<ScheduleSettingPage>
+    with AutomaticKeepAliveClientMixin {
   List<String> totalList = [];
   List<String> ignoreList = [];
-  final List<CourseIgnore> _ignores = [];
+  late List<CourseIgnore> _ignores = [];
   String url = "";
   final ThemeMode _themeMode = ThemeMode.system;
 
@@ -28,41 +29,65 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((prefs) {
-      final String? username = prefs.getString('username');
-      final String? password = prefs.getString('password');
-      if (username == null || password == null) {
-        return;
-      }
-      setState(() {
-        url =
-            '://schedule-backend.borry.org/class?school=xauat&username=$username&password=$password';
-      });
-    });
+    _initData();
+  }
 
-    DataService.getIgnore().then((value) {
-      setState(() {
-        ignoreList = value;
-        DataService.getCourseName().then((value) {
-          totalList = value;
-          for (var i in totalList) {
-            _ignores.add(CourseIgnore(
+  Future<void> _initData() async {
+    await _loadCredentials();
+    await _loadCourseData();
+  }
+
+  Future<void> _loadCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString('username');
+      final password = prefs.getString('password');
+
+      if (username != null && password != null) {
+        setState(() {
+          url =
+              '://schedule-backend.borry.org/class?school=xauat&username=$username&password=$password';
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to load credentials: $e');
+    }
+  }
+
+  Future<void> _loadCourseData() async {
+    try {
+      final ignoreList = await DataService.getIgnore();
+      final courseNames = await DataService.getCourseName();
+
+      final ignores = courseNames
+          .map((i) => CourseIgnore(
                 title: i,
                 isCompleted:
-                    ignoreList.isNotEmpty && ignoreList.any((x) => x == i)));
-          }
-        });
+                    ignoreList.isNotEmpty && ignoreList.any((x) => x == i),
+              ))
+          .toList();
+
+      setState(() {
+        this.ignoreList = ignoreList;
+        totalList = courseNames;
+        _ignores = ignores;
       });
-    });
+    } catch (e) {
+      debugPrint('Failed to load course data: $e');
+    }
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
-        appBar: AppBar(
-          title: Text('课程设置'),
-        ),
-        body: CustomScrollView(slivers: [
+      appBar: AppBar(title: const Text('课程设置')),
+      body: CustomScrollView(
+        cacheExtent: 500,
+        slivers: [
           SliverPersistentHeader(
             pinned: true,
             delegate: PageHeaderDelegate(
@@ -129,10 +154,10 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
                       suffixIcon: IconButton(
                         icon: Icon(Icons.copy,
                             color:
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey[300] // 暗色模式下的图标颜色
-                                    : Colors.grey[700] // 亮色模式下的图标颜色
-                            ),
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Colors.grey[300] // 暗色模式下的图标颜色
+                                : Colors.grey[700] // 亮色模式下的图标颜色
+                        ),
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: 'webcal$url'));
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +185,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
             ),
           ),
           SliverPersistentHeader(
-            pinned: true, // 设置为true使其具有粘性
+            pinned: true,
             delegate: PageHeaderDelegate(
               title: '忽略课程',
               minHeight: 66,
@@ -169,43 +194,31 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
           ),
           SliverPadding(
             padding: const EdgeInsets.all(16.0),
-            sliver: SliverToBoxAdapter(
-                child: ListView.builder(
-              // 禁用 ListView 自身的滚动
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: _ignores.length,
-              itemBuilder: (context, index) {
-                final todo = _ignores[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: todo.isCompleted,
-                      onChanged: (value) {
-                        setState(() {
-                          todo.isCompleted = value!;
-                        });
-                        if (value!) {
-                          ignoreList.add(todo.title);
-                        } else {
-                          ignoreList.remove(todo.title);
-                        }
-                        DataService.setIgnore(ignoreList);
-                      },
-                    ),
-                    title: Text(
-                      todo.title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _CourseIgnoreItem(
+                  ignore: _ignores[index],
+                  onChanged: _handleIgnoreChange,
+                ),
+                childCount: _ignores.length,
+              ),
+            ),
           ),
-        ]));
+        ],
+      ),
+    );
+  }
+
+  void _handleIgnoreChange(CourseIgnore ignore, bool value) async {
+    setState(() => ignore.isCompleted = value);
+    await Future.microtask(() {
+      if (value) {
+        ignoreList.add(ignore.title);
+      } else {
+        ignoreList.remove(ignore.title);
+      }
+      return DataService.setIgnore(ignoreList);
+    });
   }
 
   void showCalendarGuidanceDialog(BuildContext context) {
@@ -264,6 +277,33 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage> {
             child: const Text('明白了'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CourseIgnoreItem extends StatelessWidget {
+  final CourseIgnore ignore;
+  final Function(CourseIgnore, bool) onChanged;
+
+  const _CourseIgnoreItem({
+    required this.ignore,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+        leading: Checkbox(
+          value: ignore.isCompleted,
+          onChanged: (v) => onChanged(ignore, v!),
+        ),
+        title: Text(
+          ignore.title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

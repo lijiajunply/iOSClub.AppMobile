@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ios_club_app/Models/SemesterModel.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 import 'package:ios_club_app/Services/EduService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,520 +22,609 @@ class ScorePage extends StatefulWidget {
 }
 
 class _ScorePageState extends State<ScorePage> {
-  late List<ScoreList> scoreList = [];
+  final List<ScoreList> _scoreList = [];
   bool _isLoading = true;
   bool _isFool = false;
+  late final Future<void> _initialLoad;
 
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      refresh();
-    });
+    _initialLoad = refresh();
   }
 
   Future<void> refresh({bool isRefresh = false}) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('all_score_data');
-    var now = DateTime.now().millisecondsSinceEpoch;
-
-    final last = prefs.getInt('last_Score_time');
-    isRefresh = isRefresh && !_isFool;
-    if (last != null && !isRefresh) {
-      if (now - last < 1000 * 60 * 60) {
-        if (jsonString != null && jsonString.isNotEmpty) {
-          scoreList.clear();
-          final List<dynamic> jsonList = jsonDecode(jsonString);
-
+    if (!isRefresh && !_isFool) {
+      final cachedData = await _tryGetCachedData();
+      if (cachedData != null) {
+        if (mounted) {
           setState(() {
+            _scoreList
+              ..clear()
+              ..addAll(cachedData);
             _isLoading = false;
-            scoreList
-                .addAll(jsonList.map((value) => ScoreList.fromJson(value)));
           });
-
-          _isFool = false;
-          return;
         }
+        return;
       }
     }
 
-    UserData? cookieData = await EduService.getCookieData();
-    if (cookieData == null) {
-      _isFool = false;
-      return;
+    if (_isFool){
+      final cachedData = await _tryGetCachedData();
+      if (cachedData != null) {
+        if (mounted) {
+          setState(() {
+            _scoreList
+              ..clear()
+              ..addAll(cachedData);
+            _isLoading = false;
+            _isFool = false;
+          });
+        }
+        return;
+      }
     }
+
+    await _fetchFreshData(isRefresh: isRefresh);
+  }
+
+  Future<List<ScoreList>?> _tryGetCachedData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('all_score_data');
+    final lastFetchTime = prefs.getInt('last_Score_time');
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    if (lastFetchTime != null &&
+        now - lastFetchTime < const Duration(hours: 1).inMilliseconds &&
+        jsonString != null &&
+        jsonString.isNotEmpty) {
+      try {
+        final jsonList = jsonDecode(jsonString) as List<dynamic>;
+        return jsonList.map((value) => ScoreList.fromJson(value)).toList();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error parsing cached data: $e');
+        }
+      }
+    }
+    return null;
+  }
+
+  Future<void> _fetchFreshData({required bool isRefresh}) async {
+    if (!mounted) return;
+
+    setState(() => _isLoading = true);
 
     try {
-      Map<String, String> finalHeaders = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Cookie': cookieData.cookie,
-        'xauat': cookieData.cookie,
-      };
+      final cookieData = await EduService.getCookieData();
+      if (cookieData == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('获取用户凭证失败，请重新登录')),
+          );
+        }
+        return;
+      }
 
-      final list = await DataService.getSemester();
+      final headers = _buildHeaders(cookieData);
+      final semesters = await DataService.getSemester();
 
-      setState(() {
-        _isLoading = true;
-        scoreList.clear();
-      });
+      final freshScoreList = <ScoreList>[];
+      for (final semester in semesters) {
+        final semesterScores = await _fetchSemesterScores(
+          cookieData: cookieData,
+          semester: semester,
+          headers: headers,
+        );
 
-      for (var item in list) {
-        final response = await http.get(
-            Uri.parse(
-                'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${item.semester}'),
-            headers: finalHeaders);
-
-        if (response.statusCode == 200) {
-          final list = jsonDecode(response.body);
-          setState(() {
-            _isLoading = false;
-            scoreList.add(ScoreList(
-              semester: item,
-              list: (list as List).map((e) => ScoreModel.fromJson(e)).toList(),
-            ));
-          });
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('正在导入成绩数据：${item.name}'),
-              ),
-            );
-          }
-        } else {
-          await EduService.login();
-          final a = await EduService.getCookieData();
-          if (a == null) {
-            continue;
-          }
-          finalHeaders = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Cookie': a.cookie,
-            'xauat': a.cookie,
-          };
-          final response = await http.get(
-              Uri.parse(
-                  'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${item.semester}'),
-              headers: finalHeaders);
-          if (response.statusCode == 200) {
-            final list = jsonDecode(response.body);
-            setState(() {
-              scoreList.add(ScoreList(
-                semester: item,
-                list:
-                    (list as List).map((e) => ScoreModel.fromJson(e)).toList(),
-              ));
-            });
-          }
+        if (semesterScores != null) {
+          freshScoreList.add(semesterScores);
+          _showProgressSnackbar(semester.name);
         }
       }
 
-      await prefs.setString('all_score_data', jsonEncode(scoreList));
-      await prefs.setInt('last_Score_time', now);
+      await _cacheFreshData(freshScoreList);
+
+      if (mounted) {
+        setState(() {
+          _scoreList
+            ..clear()
+            ..addAll(freshScoreList);
+          _isLoading = false;
+        });
+      }
     } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('获取数据失败: ${e.toString()}')),
+        );
+      }
       if (kDebugMode) {
         print('Error fetching data: $e');
       }
+    } finally {
+      _isFool = false;
     }
+  }
 
-    _isFool = false;
+  Map<String, String> _buildHeaders(UserData cookieData) {
+    return {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Cookie': cookieData.cookie,
+      'xauat': cookieData.cookie,
+    };
+  }
+
+  Future<ScoreList?> _fetchSemesterScores({
+    required UserData cookieData,
+    required SemesterModel semester,
+    required Map<String, String> headers,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://xauatapi.xauat.site/Score?'
+              'studentId=${cookieData.studentId}&semester=${semester.semester}',
+        ),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final list = jsonDecode(response.body) as List;
+        return ScoreList(
+          semester: semester,
+          list: list.map((e) => ScoreModel.fromJson(e)).toList(),
+        );
+      } else {
+        return await _retryWithFreshLogin(
+          cookieData: cookieData,
+          semester: semester,
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching semester scores: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<ScoreList?> _retryWithFreshLogin({
+    required UserData cookieData,
+    required SemesterModel semester,
+  }) async {
+    await EduService.login();
+    final freshCookieData = await EduService.getCookieData();
+    if (freshCookieData == null) return null;
+
+    final response = await http.get(
+      Uri.parse(
+        'https://xauatapi.xauat.site/Score?'
+            'studentId=${cookieData.studentId}&semester=${semester.semester}',
+      ),
+      headers: _buildHeaders(freshCookieData),
+    );
+
+    if (response.statusCode == 200) {
+      final list = jsonDecode(response.body) as List;
+      return ScoreList(
+        semester: semester,
+        list: list.map((e) => ScoreModel.fromJson(e)).toList(),
+      );
+    }
+    return null;
+  }
+
+  void _showProgressSnackbar(String semesterName) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('正在导入成绩数据：$semesterName')),
+      );
+    }
+  }
+
+  Future<void> _cacheFreshData(List<ScoreList> freshData) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('all_score_data', jsonEncode(freshData));
+    await prefs.setInt('last_Score_time', DateTime.now().millisecondsSinceEpoch);
+  }
+
+  void _handleFoolishMode() {
+    setState(() {
+      _isFool = true;
+      for (final item in _scoreList) {
+        for (final item2 in item.list) {
+          item2.grade = '100';
+          item2.gpa = '5';
+        }
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('是的，在下绩点5.0'),
+            Icon(Icons.mood, color: Colors.black12),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return Scaffold(
-      body: CustomScrollView(slivers: [
-        SliverPersistentHeader(
-          pinned: true, // 设置为true使其具有粘性
-          delegate: HeaderChildDelegate(
-              minHeight: 66,
-              maxHeight: 80,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '成绩与绩点',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          _isFool = true;
-                          setState(() {
-                            for (var item in scoreList) {
-                              for (var item2 in item.list) {
-                                item2.grade = '100';
-                                item2.gpa = '5';
-                              }
-                            }
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('是的，在下绩点5.0'),
-                                  const Icon(Icons.mood, color: Colors.black12)
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.mood),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          refresh(isRefresh: true);
-                        },
-                        icon: const Icon(Icons.refresh),
-                      ),
-                    ],
-                  )
-                ],
-              )),
-        ),
-        SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverToBoxAdapter(
-                child: Card(
-              child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(children: [
-                        const Icon(Icons.credit_score, size: 32),
-                        Text(
-                          ScoreList.getTotalGpa(scoreList).toStringAsFixed(2),
-                          style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        const Text(
-                          'GPA',
-                          style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                      ]),
-                      Column(children: [
-                        const Icon(Icons.do_not_disturb_on_total_silence,
-                            size: 32),
-                        Text(
-                          ScoreList.getTotalCourse(scoreList).toString(),
-                          style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
-                        const Text(
-                          '通过课程',
-                          style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                      ]),
-                      GestureDetector(
-                          onTap: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                      title: const Text('说明'),
-                                      content: const Text(
-                                          '这里的学分是按照成绩算出来的，只要没有挂科就OK。教务系统给的一般来说要小于等于这个数'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('确定'),
-                                        )
-                                      ]);
-                                });
-                          },
-                          child: Column(
-                            children: [
-                              const Icon(Icons.equalizer, size: 32),
-                              Text(
-                                ScoreList.getTotalCredit(scoreList)
-                                    .toStringAsFixed(1),
-                                style: const TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.info_outline,
-                                    size: 9,
-                                    color: Colors.grey,
-                                  ),
-                                  const Text(
-                                    '总学分',
-                                    style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ))
-                    ],
-                  )),
-            ))),
-        SliverPadding(
-          padding: const EdgeInsets.all(16.0),
-          sliver: SliverToBoxAdapter(
-              child: scoreList.isEmpty
-                  ? Card(
-                      elevation: 4,
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            EmptyWidget(),
-                            Center(
-                                child: Text(
-                              '没有成绩，建议刷新或退出重进',
-                              style: TextStyle(fontSize: 20),
-                            ))
-                          ],
-                        ),
-                      ))
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: scoreList.length,
-                      itemBuilder: (context, index) {
-                        final score = scoreList[index];
-                        final semesterNames = score.semester.name.split('-');
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 4),
-                          elevation: 4,
-                          child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(children: [
-                                Text(
-                                  '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 16),
-                                ...score.list
-                                    .map((item) => _buildScheduleItem(item))
-                              ])),
-                        );
-                      })),
-        ),
-      ]),
+    return FutureBuilder(
+      future: _initialLoad,
+      builder: (context, snapshot) {
+        if (_isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              _buildAppBar(),
+              _buildStatsCard(),
+              _buildScoreList(),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildScheduleItem(ScoreModel item) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    // 判断是否为平板布局（宽度大于600）
-    final isTablet = screenWidth > 600;
-
-    return GestureDetector(
-        onTap: () async {
-          await _showModalBottomSheet(item);
-        },
-        child: InkWell(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: CourseColorManager.generateSoftColor(item.name),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                          child: Column(
-                        // 添加居中对齐 ,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        // 添加左对齐
-                        children: [
-                          Text(
-                            '${item.name}${item.isMinor ? ' (辅修)' : ''}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis, // 为课程名也添加省略
-                            maxLines: 1, // 限制为单行
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(Icons.access_time,
-                                  size: 16, color: Colors.grey[600]),
-                              const SizedBox(width: 4),
-                              Text('${item.credit}学分',
-                                  style: TextStyle(color: Colors.grey[600])),
-                              const SizedBox(width: 16),
-                              Icon(Icons.location_on,
-                                  size: 16, color: Colors.grey[600]),
-                              const SizedBox(width: 4),
-                              Text('成绩 ${item.grade}',
-                                  style: TextStyle(color: Colors.grey[600])),
-                              const SizedBox(width: 16),
-                              Icon(Icons.grade,
-                                  size: 16, color: Colors.grey[600]),
-                              const SizedBox(width: 4),
-                              Text('绩点 ${item.gpa}',
-                                  style: TextStyle(color: Colors.grey[600])),
-                            ],
-                          ),
-                        ],
-                      )),
-                      if (isTablet)
-                        Expanded(
-                          // 用 Expanded 包裹以限制宽度
-                          child: Text(
-                            item.gradeDetail,
-                            style: const TextStyle(
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            maxLines: 1, // 限制为单行
-                          ),
-                        )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ));
-  }
-
-  Future<void> _showModalBottomSheet(ScoreModel score) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    // 判断是否为平板布局（宽度大于600）
-    final isTablet = screenWidth > 600;
-
-    var content = Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  SliverPersistentHeader _buildAppBar() {
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: HeaderChildDelegate(
+        minHeight: 66,
+        maxHeight: 80,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              score.name,
-              style: const TextStyle(
-                fontSize: 20,
-                overflow: TextOverflow.ellipsis,
+            const Text(
+              '成绩与绩点',
+              style: TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: isTablet ? 10 : 18),
             Row(
               children: [
-                const Icon(
-                  Icons.access_time,
-                  color: Colors.blue,
+                IconButton(
+                  onPressed: _handleFoolishMode,
+                  icon: const Icon(Icons.mood),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  '${score.credit}学分',
-                  style: TextStyle(
-                    fontSize: isTablet ? 17 : 15,
-                    overflow: TextOverflow.ellipsis,
+                IconButton(
+                  onPressed: () => refresh(isRefresh: true),
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SliverPadding _buildStatsCard() {
+    return SliverPadding(
+      padding: const EdgeInsets.all(16.0),
+      sliver: SliverToBoxAdapter(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildStatItem(
+                  icon: Icons.credit_score,
+                  value: ScoreList.getTotalGpa(_scoreList).toStringAsFixed(2),
+                  label: 'GPA',
+                ),
+                _buildStatItem(
+                  icon: Icons.do_not_disturb_on_total_silence,
+                  value: ScoreList.getTotalCourse(_scoreList).toString(),
+                  label: '通过课程',
+                ),
+                GestureDetector(
+                  onTap: _showCreditInfoDialog,
+                  child: _buildStatItem(
+                    icon: Icons.equalizer,
+                    value: ScoreList.getTotalCredit(_scoreList).toStringAsFixed(1),
+                    label: '总学分',
+                    withInfo: true,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: isTablet ? 10 : 18),
-            Row(children: [
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String value,
+    required String label,
+    bool withInfo = false,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, size: 32),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (withInfo)
               const Icon(
-                Icons.location_on,
-                color: Colors.redAccent,
+                Icons.info_outline,
+                size: 9,
+                color: Colors.grey,
               ),
-              const SizedBox(width: 6),
-              Text(
-                '成绩 ${score.grade}',
-                style: TextStyle(
-                  fontSize: isTablet ? 17 : 15,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )
-            ]),
-            SizedBox(height: isTablet ? 10 : 18),
-            Row(children: [
-              const Icon(
-                Icons.grade,
-                color: Colors.green,
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
               ),
-              const SizedBox(width: 6),
-              Text(
-                '绩点 ${score.gpa}',
-                style: TextStyle(
-                  fontSize: isTablet ? 17 : 15,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ]),
-            SizedBox(height: isTablet ? 10 : 18),
-            Row(children: [
-              const Icon(
-                Icons.details,
-                color: Colors.green,
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                // 添加 Expanded
-                child: Text(
-                  score.gradeDetail,
-                  softWrap: true,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis, // 添加省略号
-                  style: TextStyle(
-                    fontSize: isTablet ? 17 : 15,
-                  ),
-                ),
-              ),
-            ]),
+            ),
           ],
-        ));
+        ),
+      ],
+    );
+  }
+
+  void _showCreditInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('说明'),
+        content: const Text(
+            '这里的学分是按照成绩算出来的，只要没有挂科就OK。教务系统给的一般来说要小于等于这个数'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SliverPadding _buildScoreList() {
+    return SliverPadding(
+      padding: const EdgeInsets.all(16.0),
+      sliver: SliverToBoxAdapter(
+        child: _scoreList.isEmpty
+            ? _buildEmptyState()
+            : ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _scoreList.length,
+          itemBuilder: (context, index) =>
+              _buildSemesterCard(_scoreList[index]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const EmptyWidget(),
+            const Center(
+              child: Text(
+                '没有成绩，建议刷新或退出重进',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => refresh(isRefresh: true),
+              child: const Text('刷新数据'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSemesterCard(ScoreList score) {
+    final semesterNames = score.semester.name.split('-');
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              '${semesterNames[0]}至${semesterNames[1]}年 第${semesterNames[2]}学期',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...score.list.map(_buildScoreItem),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoreItem(ScoreModel item) {
+    final isTablet = MediaQuery.of(context).size.width > 600;
+
+    return GestureDetector(
+      onTap: () => _showScoreDetails(item),
+      child: InkWell(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: CourseColorManager.generateSoftColor(item.name),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${item.name}${item.isMinor ? ' (辅修)' : ''}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 4),
+                              _buildScoreMeta(item),
+                            ]),
+                      ),
+                      if (isTablet)
+                        Expanded(
+                          child: Text(
+                            item.gradeDetail,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                    ]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoreMeta(ScoreModel item) {
+    return Row(
+      children: [
+        Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+        const SizedBox(width: 4),
+        Text('${item.credit}学分', style: TextStyle(color: Colors.grey[600])),
+        const SizedBox(width: 16),
+        Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+        const SizedBox(width: 4),
+        Text('成绩 ${item.grade}', style: TextStyle(color: Colors.grey[600])),
+        const SizedBox(width: 16),
+        Icon(Icons.grade, size: 16, color: Colors.grey[600]),
+        const SizedBox(width: 4),
+        Text('绩点 ${item.gpa}', style: TextStyle(color: Colors.grey[600])),
+      ],
+    );
+  }
+
+  Future<void> _showScoreDetails(ScoreModel score) async {
+    final isTablet = MediaQuery.of(context).size.width > 600;
+    final content = _buildScoreDetailsContent(score, isTablet);
 
     if (isTablet) {
-      return showDialog<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return SimpleDialog(
-              children: <Widget>[content],
-            );
-          });
-    }
-
-    final a = MediaQuery.of(context).size.width;
-
-    return showModalBottomSheet<void>(
+      await showDialog<void>(
         context: context,
-        constraints: BoxConstraints(maxWidth: a, minWidth: a),
-        builder: (BuildContext context) {
-          return Padding(padding: const EdgeInsets.all(10), child: content);
-        });
+        builder: (context) => SimpleDialog(children: [content]),
+      );
+    } else {
+      await showModalBottomSheet<void>(
+        context: context,
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width,
+        ),
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(10),
+          child: content,
+        ),
+      );
+    }
+  }
+
+  Widget _buildScoreDetailsContent(ScoreModel score, bool isTablet) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            score.name,
+            style: const TextStyle(
+              fontSize: 20,
+              overflow: TextOverflow.ellipsis,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: isTablet ? 10 : 18),
+          _buildDetailRow(Icons.access_time, Colors.blue, '${score.credit}学分',
+              isTablet),
+          SizedBox(height: isTablet ? 10 : 18),
+          _buildDetailRow(
+              Icons.location_on, Colors.redAccent, '成绩 ${score.grade}', isTablet),
+          SizedBox(height: isTablet ? 10 : 18),
+          _buildDetailRow(Icons.grade, Colors.green, '绩点 ${score.gpa}', isTablet),
+          SizedBox(height: isTablet ? 10 : 18),
+          _buildDetailRow(
+            Icons.details,
+            Colors.green,
+            score.gradeDetail,
+            isTablet,
+            expanded: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(
+      IconData icon,
+      Color color,
+      String text,
+      bool isTablet, {
+        bool expanded = false,
+      }) {
+    final textWidget = Text(
+      text,
+      style: TextStyle(
+        fontSize: isTablet ? 17 : 15,
+        overflow: expanded ? TextOverflow.ellipsis : null,
+      ),
+      softWrap: true,
+      maxLines: expanded ? 3 : 1,
+    );
+
+    return Row(
+      children: [
+        Icon(icon, color: color),
+        const SizedBox(width: 6),
+        expanded ? Expanded(child: textWidget) : textWidget,
+      ],
+    );
   }
 }

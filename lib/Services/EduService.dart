@@ -15,8 +15,18 @@ class EduService {
     try {
       // 调用API
       final prefs = await SharedPreferences.getInstance();
-      var now = DateTime.now().millisecondsSinceEpoch;
+      var nowTime = DateTime.now();
+      var now = nowTime.millisecondsSinceEpoch;
       final last = prefs.getInt('last_fetch_time');
+
+      final lastRemind = prefs.getInt('last_remind_time');
+      final isRemind = prefs.getBool('is_remind') ?? false;
+      if (isRemind && ((lastRemind == null || lastRemind == 0) ||
+          nowTime.day != lastRemind)) {
+        await NotificationService.remind();
+        await prefs.setInt('last_remind_time', nowTime.day);
+      }
+
       if (last != null && last != '') {
         if (now - prefs.getInt('last_fetch_time')! < 1000 * 60 * 20) {
           return true;
@@ -30,9 +40,7 @@ class EduService {
       var cookieData = await getCookieData();
       await getTime();
       await getCourse(userData: cookieData);
-      await getExam(userData: cookieData);
-      // await getInfoCompletion(userData: cookieData);
-      await NotificationService.remind();
+
       await prefs.setInt('last_fetch_time', now);
       return true;
     } catch (e) {

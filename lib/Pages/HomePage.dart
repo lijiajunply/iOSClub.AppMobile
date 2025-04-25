@@ -33,24 +33,31 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    DataService.getTodoList().then((value) {
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final todos = await DataService.getTodoList();
+      final tiles = await OtherService.getTiles();
+      final (isShowingTomorrow, courses) = await DataService.getCourse(
+          isTomorrow: prefs.getBool('is_show_tomorrow') ?? false);
+
+      if (!mounted) return;
+
       setState(() {
-        _todos.addAll(value);
-        OtherService.getTiles().then((value) {
-          _tiles = value;
-        });
+        isRemind = prefs.getBool('is_remind') ?? false;
+        _isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
+        _todos.addAll(todos);
+        _tiles = tiles;
+        _isShowingTomorrow = isShowingTomorrow;
+        changeScheduleItems(courses);
       });
-    });
-    SharedPreferences.getInstance().then((prefs) {
-      DataService.getCourse(
-              isTomorrow: prefs.getBool('is_show_tomorrow') ?? false)
-          .then((value) {
-        setState(() {
-          _isShowingTomorrow = value.$1;
-          changeScheduleItems(value.$2);
-        });
-      });
-    });
+    } catch (e) {
+      debugPrint('初始化失败: $e');
+      // 可添加错误处理逻辑（如显示错误提示）
+    }
   }
 
   void changeScheduleItems(List<CourseModel> a) {

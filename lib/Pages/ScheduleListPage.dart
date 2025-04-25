@@ -18,14 +18,15 @@ class ScheduleListPage extends StatefulWidget {
 }
 
 class _ScheduleListPageState extends State<ScheduleListPage> {
-  final List<List<CourseModel>> allCourse = [];
+  late List<List<CourseModel>> allCourse = [];
   late int maxWeek = 0;
   late int weekNow = 0;
   late PageController pageController = PageController();
   double height = 55.0;
-  int currentPage = 0; // 添加到 State 类中
+  int currentPage = 0;
   CourseStyle courseStyle = CourseStyle.normal;
   bool isStyle = false;
+  bool isLoading = true;
 
   void jumpToPage(int page) {
     if (page < 0) {
@@ -41,48 +42,68 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   @override
   void dispose() {
-    super.dispose();
     pageController.dispose();
+    super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
 
-    DataService.getWeek().then((value) {
-      setState(() {
-        weekNow = value['week']!;
-        maxWeek = value['maxWeek']!;
-        pageController.jumpToPage(weekNow);
-        currentPage = weekNow;
-      });
-      DataService.getAllCourse().then((value) {
-        setState(() {
-          for (var i = 0; i <= maxWeek; i++) {
-            if (i == 0) {
-              allCourse.add(value);
-              continue;
-            }
-            allCourse.add(value
-                .where((course) => course.weekIndexes.contains(i))
-                .toList());
-          }
-          SharedPreferences.getInstance().then((prefs) {
-            var courseSize = prefs.getDouble('course_size');
-            if (courseSize != null && courseSize != 0) {
-              height = courseSize;
-              if (height == 50) {
-                courseStyle = CourseStyle.small;
-              } else if (height == 55) {
-                courseStyle = CourseStyle.normal;
-              } else {
-                courseStyle = CourseStyle.large;
-              }
-            }
-          });
-        });
-      });
+  Future<void> _initializeData() async {
+    try {
+      final weekData = await DataService.getWeek();
+      await _handleWeekData(weekData);
+      await _loadCourses();
+      await _loadPreferences();
+    } catch (e) {
+      debugPrint('初始化数据出错: $e');
+      // 可以考虑在这里显示错误提示给用户
+    }
+  }
+
+  Future<void> _handleWeekData(Map<String, dynamic> weekData) async {
+    setState(() {
+      weekNow = weekData['week']!;
+      maxWeek = weekData['maxWeek']!;
+      currentPage = weekNow;
+
+      pageController = PageController(initialPage: weekNow);
     });
+  }
+
+  Future<void> _loadCourses() async {
+    final courses = await DataService.getAllCourse();
+    setState(() {
+      allCourse = List.generate(maxWeek + 1, (i) {
+        return i == 0
+            ? courses
+            : courses
+                .where((course) => course.weekIndexes.contains(i))
+                .toList();
+      });
+      isLoading = false;
+    });
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final courseSize = prefs.getDouble('course_size');
+
+    if (courseSize != null && courseSize != 0) {
+      setState(() {
+        height = courseSize;
+        courseStyle = _determineCourseStyle(courseSize);
+      });
+    }
+  }
+
+  CourseStyle _determineCourseStyle(double size) {
+    if (size == 50) return CourseStyle.small;
+    if (size == 55) return CourseStyle.normal;
+    return CourseStyle.large;
   }
 
   @override
@@ -272,36 +293,42 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                         ),
                       )
                     : Container())),
-        Expanded(
-          child: PageView.builder(
-            controller: pageController,
-            onPageChanged: (index) {
-              setState(() {
-                currentPage = index;
-              });
-            },
-            itemCount: allCourse.length,
-            itemBuilder: (BuildContext context, int i) {
-              final courses = allCourse[i];
-              return Column(
-                children: [
-                  _buildWeekHeader(i),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      // 添加垂直方向的滚动
-                      scrollDirection: Axis.vertical,
-                      child: SizedBox(
-                        // 设置固定高度确保内容可以完整显示
-                        height: height * 12, // 12节课的总高度
-                        child: _buildScheduleGrid(courses),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        )
+        isLoading
+            ? const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Expanded(
+                child: PageView.builder(
+                  controller: pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentPage = index;
+                    });
+                  },
+                  itemCount: allCourse.length,
+                  itemBuilder: (BuildContext context, int i) {
+                    final courses = allCourse[i];
+                    return Column(
+                      children: [
+                        _buildWeekHeader(i),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            // 添加垂直方向的滚动
+                            scrollDirection: Axis.vertical,
+                            child: SizedBox(
+                              // 设置固定高度确保内容可以完整显示
+                              height: height * 12, // 12节课的总高度
+                              child: _buildScheduleGrid(courses),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              )
       ],
     ));
   }
@@ -455,7 +482,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       maxLines: 3,
                     ),
                     Text(
-                      course.room.substring(2),
+                      course.room,
                       style: TextStyle(
                         fontSize: isTablet ? 10 : 9,
                         overflow: TextOverflow.ellipsis,

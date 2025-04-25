@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -34,15 +35,10 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
 
-    // 初始化逻辑转移到 WebView 属性中
-    requestPermissions();
-
     if (Platform.isAndroid) {
       GiteeService.getReleases().then((result) async {
         final packageInfo = await PackageInfo.fromPlatform();
-        final needUpdate =
-            result.name != '0.0.0' && result.name != packageInfo.version;
-        if (needUpdate) {
+        if (result.name != '0.0.0' && result.name != packageInfo.version) {
           showUpdateDialog(result);
         }
       });
@@ -100,15 +96,6 @@ class _MainAppState extends State<MainApp> {
         ],
       ),
     );
-  }
-
-  Future<void> requestPermissions() async {
-    await [
-      Permission.storage,
-      Permission.notification,
-      Permission.backgroundRefresh,
-      Permission.requestInstallPackages
-    ].request();
   }
 
   final List<NavigationDestination> _destinations = const [

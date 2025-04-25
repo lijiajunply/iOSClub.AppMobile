@@ -4,113 +4,135 @@ import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 import '../Services/DataService.dart';
 import 'EmptyWidget.dart';
 
-class ExamCard extends StatefulWidget {
+class ExamCard extends StatelessWidget {
   const ExamCard({super.key});
 
-  @override
-  State<ExamCard> createState() => _ExamCardState();
-}
-
-class _ExamCardState extends State<ExamCard> {
-  final List<ExamItem> examItems = [];
-
-  @override
-  initState() {
-    super.initState();
-
-    DataService.getExam().then((value) {
-      setState(() {
-        examItems.addAll(value.map((course) => ExamItem(
+  static Future<List<ExamItem>> getExam() async {
+    final result = await DataService.getExam();
+    return result
+        .map((course) => ExamItem(
               title: course.name,
               time: course.examTime,
               location: course.room,
               color: CourseColorManager.generateSoftColor(course),
               seat: course.seatNo,
-            )));
-      });
-    });
+            ))
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return examItems.isEmpty
-        ? const Card(
-            elevation: 4,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  EmptyWidget(),
-                  Center(
-                      child: Text(
-                    '最近没有考试',
-                    style: TextStyle(fontSize: 20),
-                  ))
-                ],
-              ),
-            ))
-        : ListView.builder(
-            shrinkWrap: true,
-            // 让 ListView 根据内容自适应高度
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: examItems.length,
-            itemBuilder: (context, index) {
-              final exam = examItems[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  leading: Container(
-                    width: 4,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: exam.color,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  title: Text(
-                    exam.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Wrap(
+    return FutureBuilder(
+        future: getExam(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return const Card(
+                elevation: 4,
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      Row(
-                        children: [
-                          Icon(Icons.access_time,
-                              size: 16, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(exam.time,
-                              style: TextStyle(color: Colors.grey[600])),
-                        ],
-                      ),
-                      const SizedBox(width: 16),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on,
-                              size: 16, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(exam.location,
-                              style: TextStyle(color: Colors.grey[600])),
-                        ],
-                      ),
-                      const SizedBox(width: 16),
-                      Row(
-                        children: [
-                          Icon(Icons.event_seat,
-                              size: 16, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text('座位号 ${exam.seat}',
-                              style: TextStyle(color: Colors.grey[600])),
-                        ],
-                      ),
+                      EmptyWidget(),
+                      Center(
+                          child: Text(
+                        '无法加载数据',
+                        style: TextStyle(fontSize: 20),
+                      ))
                     ],
                   ),
-                ),
-              );
-            },
-          );
+                ));
+          }
+
+          if (snapshot.hasData) {
+            final examItems = snapshot.data!;
+            return examItems.isEmpty
+                ? const Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          EmptyWidget(),
+                          Center(
+                              child: Text(
+                            '最近没有考试',
+                            style: TextStyle(fontSize: 20),
+                          ))
+                        ],
+                      ),
+                    ))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    // 让 ListView 根据内容自适应高度
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: examItems.length,
+                    itemBuilder: (context, index) {
+                      final exam = examItems[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          leading: Container(
+                            width: 4,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: exam.color,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          title: Text(
+                            exam.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Wrap(
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.access_time,
+                                      size: 16, color: Colors.grey[600]),
+                                  const SizedBox(width: 4),
+                                  Text(exam.time,
+                                      style:
+                                          TextStyle(color: Colors.grey[600])),
+                                ],
+                              ),
+                              const SizedBox(width: 16),
+                              Row(
+                                children: [
+                                  Icon(Icons.location_on,
+                                      size: 16, color: Colors.grey[600]),
+                                  const SizedBox(width: 4),
+                                  Text(exam.location,
+                                      style:
+                                          TextStyle(color: Colors.grey[600])),
+                                ],
+                              ),
+                              const SizedBox(width: 16),
+                              Row(
+                                children: [
+                                  Icon(Icons.event_seat,
+                                      size: 16, color: Colors.grey[600]),
+                                  const SizedBox(width: 4),
+                                  Text('座位号 ${exam.seat}',
+                                      style:
+                                          TextStyle(color: Colors.grey[600])),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+          }
+
+          return const SizedBox();
+        });
   }
 }
 
