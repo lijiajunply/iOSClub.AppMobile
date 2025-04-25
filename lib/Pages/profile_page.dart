@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Services/DataService.dart';
-import 'package:ios_club_app/Services/EduService.dart';
+import 'package:ios_club_app/Services/data_service.dart';
+import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../Services/ClubService.dart';
-import '../Widgets/StudyCreditCard.dart';
+import '../Services/club_service.dart';
+import '../Widgets/study_credit_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

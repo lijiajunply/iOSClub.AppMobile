@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Services/EduService.dart';
+import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Services/GiteeService.dart';
-import '../Services/RemindService.dart';
+import '../Services/git_service.dart';
+import '../Services/notification_service.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Pages/WikiPage.dart';
+import 'package:ios_club_app/Pages/wiki_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Services/OtherService.dart';
+import '../Services/other_service.dart';
 
 class OtherPage extends StatefulWidget {
   const OtherPage({super.key});

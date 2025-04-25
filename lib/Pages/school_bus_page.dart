@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
 
-import '../Services/EduService.dart';
-import '../Widgets/EmptyWidget.dart';
+import '../Services/edu_service.dart';
+import '../Widgets/empty_widget.dart';
 
 class SchoolBusPage extends StatefulWidget {
   const SchoolBusPage({super.key});
@@ -215,7 +215,8 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                                 await _showModalBottomSheet(bus);
                               },
                             );
-                          }))
+                          }),
+                  )
                 else if (selectedDate != null)
                   Card(
                       margin: EdgeInsets.only(top: 20),

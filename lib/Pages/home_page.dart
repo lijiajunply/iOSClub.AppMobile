@@ -2,18 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/Services/DataService.dart';
-import 'package:ios_club_app/Widgets/ExamCard.dart';
+import 'package:ios_club_app/Services/data_service.dart';
+import 'package:ios_club_app/Widgets/exam_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
 import '../Models/TodoItem.dart';
 import '../PageModels/CourseColorManager.dart';
 import '../PageModels/ScheduleItem.dart';
-import '../Services/OtherService.dart';
-import '../Services/RemindService.dart';
-import '../Services/TimeService.dart';
-import '../Widgets/EmptyWidget.dart';
-import '../Widgets/PageHeaderDelegate.dart';
+import '../Services/other_service.dart';
+import '../Services/notification_service.dart';
+import '../Services/time_service.dart';
+import '../Widgets/empty_widget.dart';
+import '../Widgets/page_header_delegate.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

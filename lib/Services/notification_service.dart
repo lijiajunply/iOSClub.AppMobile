@@ -4,8 +4,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
-import 'DataService.dart';
-import 'TimeService.dart';
+import 'data_service.dart';
+import 'time_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._();
@@ -147,8 +147,7 @@ class NotificationService {
   }
 
   static Future<void> remind() async {
-
-    if(!NotificationService.instance.isInit){
+    if (!NotificationService.instance.isInit) {
       await NotificationService.instance.initialize();
     }
 

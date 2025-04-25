@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Services/ClubService.dart';
+import 'package:ios_club_app/Services/club_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Models/LinkModel.dart';
-import '../Widgets/IconFont.dart';
+import '../Widgets/icon_font.dart';
 
 class LinkPage extends StatelessWidget {
   const LinkPage({super.key});

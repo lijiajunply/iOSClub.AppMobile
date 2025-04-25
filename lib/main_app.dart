@@ -5,18 +5,18 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Pages/AboutPage.dart';
-import 'Pages/HomePage.dart';
-import 'Pages/LinkPage.dart';
-import 'Pages/OtherPage.dart';
-import 'Pages/ProfilePage.dart';
-import 'Pages/ScheduleListPage.dart';
-import 'Pages/ScheduleSettingPage.dart';
-import 'Pages/SchoolBusPage.dart';
-import 'Pages/ScorePage.dart';
-import 'Pages/TodoPage.dart';
-import 'Pages/iMemberPage.dart';
-import 'Services/GiteeService.dart';
+import 'Pages/about_page.dart';
+import 'Pages/home_page.dart';
+import 'Pages/link_page.dart';
+import 'Pages/other_page.dart';
+import 'Pages/profile_page.dart';
+import 'Pages/schedule_list_page.dart';
+import 'Pages/schedule_setting_page.dart';
+import 'Pages/school_bus_page.dart';
+import 'Pages/score_page.dart';
+import 'Pages/todo_page.dart';
+import 'Pages/member_page.dart';
+import 'Services/git_service.dart';
 import 'main.dart';
 
 class MainApp extends StatefulWidget {
@@ -167,7 +167,7 @@ class _MainAppState extends State<MainApp> {
         '/ScheduleSetting': (context) => const ScheduleSettingPage(),
         '/SchoolBus': (context) => const SchoolBusPage(),
         '/Other': (context) => const OtherPage(),
-        '/iMember': (context) => const iMemberPage(),
+        '/iMember': (context) => const MemberPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

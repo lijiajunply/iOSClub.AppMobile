@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 
-import '../Services/DataService.dart';
-import 'EmptyWidget.dart';
+import '../Services/data_service.dart';
+import 'empty_widget.dart';
 
 class ExamCard extends StatelessWidget {
   const ExamCard({super.key});

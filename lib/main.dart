@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
-import 'App.dart';
-import 'Services/EduService.dart';
+import 'main_app.dart';
+import 'Services/edu_service.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {

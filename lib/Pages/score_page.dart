@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ios_club_app/Models/SemesterModel.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
-import 'package:ios_club_app/Services/EduService.dart';
+import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
-import '../Services/DataService.dart';
-import '../Widgets/EmptyWidget.dart';
-import '../Widgets/PageHeaderDelegate.dart';
+import '../Services/data_service.dart';
+import '../Widgets/empty_widget.dart';
+import '../Widgets/page_header_delegate.dart';
 
 class ScorePage extends StatefulWidget {
   const ScorePage({super.key});

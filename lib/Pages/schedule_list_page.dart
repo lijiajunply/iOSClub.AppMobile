@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/Services/EduService.dart';
+import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
-import '../Services/DataService.dart';
+import '../Services/data_service.dart';
 
 class ScheduleListPage extends StatefulWidget {
   const ScheduleListPage({super.key});

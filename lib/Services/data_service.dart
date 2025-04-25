@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Models/ScoreModel.dart';
 import 'package:ios_club_app/Models/TodoItem.dart';
-import 'package:ios_club_app/Services/EduService.dart';
+import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
 import '../PageModels/CourseTime.dart';
 import '../Models/ExamModel.dart';
 import '../Models/SemesterModel.dart';
-import 'TimeService.dart';
+import 'time_service.dart';
 
 class DataService {
   static Future<List<CourseModel>> getAllCourse(

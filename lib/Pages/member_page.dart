@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../Services/ClubService.dart';
-import '../Widgets/EmptyWidget.dart';
+import '../Services/club_service.dart';
+import '../Widgets/empty_widget.dart';
 
-class iMemberPage extends StatefulWidget {
-  const iMemberPage({super.key});
+class MemberPage extends StatefulWidget {
+  const MemberPage({super.key});
 
   @override
-  State<iMemberPage> createState() => _MemberPageState();
+  State<MemberPage> createState() => _MemberPageState();
 }
 
-class _MemberPageState extends State<iMemberPage> {
+class _MemberPageState extends State<MemberPage> {
   @override
   Widget build(BuildContext context) {
     return ClubDetailPage();
