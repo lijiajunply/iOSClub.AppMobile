@@ -6,9 +6,11 @@ import 'package:ios_club_app/Models/BusModel.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 import 'package:ios_club_app/Services/login_service.dart';
 import 'package:ios_club_app/Services/notification_service.dart';
+import 'package:ios_club_app/services/widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
+import '../PageModels/ScheduleItem.dart';
 
 class EduService {
   static Future<void> start() async {
@@ -22,6 +24,14 @@ class EduService {
             nowTime.day != lastRemind)) {
       final result = await DataService.getCourse();
       await NotificationService.toList(result.$2);
+      await WidgetService.updateTodayCourses(result.$2.map((value) {
+        return ScheduleItem(
+          title: value.courseName,
+          time: '${value.startUnit} - ${value.endUnit}',
+          location: value.room,
+        );
+      }).toList());
+      debugPrint('提醒课程成功');
       await prefs.setInt('last_remind_time', nowTime.day);
     }
   }

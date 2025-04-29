@@ -3,22 +3,8 @@ import 'package:flutter/material.dart';
 import '../Services/club_service.dart';
 import '../widgets/empty_widget.dart';
 
-class MemberPage extends StatefulWidget {
+class MemberPage extends StatelessWidget {
   const MemberPage({super.key});
-
-  @override
-  State<MemberPage> createState() => _MemberPageState();
-}
-
-class _MemberPageState extends State<MemberPage> {
-  @override
-  Widget build(BuildContext context) {
-    return ClubDetailPage();
-  }
-}
-
-class ClubDetailPage extends StatelessWidget {
-  const ClubDetailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +201,7 @@ class ClubDetailPage extends StatelessWidget {
                                   '${(infoData['projects'] as List<dynamic>).length}'),
                             ],
                           ),
+                          const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -232,7 +219,7 @@ class ClubDetailPage extends StatelessWidget {
                   ),
 
                 if (identity != 'Member' || identity != 'Department')
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                 if (identity != 'Member' || identity != 'Department')
                   SizedBox(
@@ -308,7 +295,7 @@ class ClubDetailPage extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Text(
               subtitle,
@@ -325,7 +312,7 @@ class ClubDetailPage extends StatelessWidget {
     return Column(
       children: [
         Text(label, style: TextStyle(fontSize: 14, color: Colors.grey)),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(value,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -61,7 +62,7 @@ class NotificationService {
       required String body,
       required DateTime courseTime}) async {
     final now = DateTime.now();
-    final reminderTime = courseTime.subtract(Duration(minutes: 6));
+    final reminderTime = courseTime.subtract(Duration(minutes: 15));
 
     if (reminderTime.isBefore(now)) {
       debugPrint('Cannot schedule notification for past reminder time');

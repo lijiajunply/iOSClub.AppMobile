@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'main_app.dart';
 import 'Services/edu_service.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
