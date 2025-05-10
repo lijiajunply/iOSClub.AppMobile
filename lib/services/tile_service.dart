@@ -4,7 +4,9 @@ import 'package:html/parser.dart' as parser;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class OtherService {
+import '../pageModels/ElectricData.dart';
+
+class TileService {
   static Future<double?> getTextAfterKeyword({String? url}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -66,15 +68,9 @@ class OtherService {
   }
 
   static Future<void> openInWeChat(String url) async {
-    // 对 URL 进行编码
-    final encodedUrl = Uri.encodeComponent(url);
-
-    // 构建微信 URL Scheme
-    final wechatUrl = 'weixin://dl/business/?ticket=$encodedUrl';
-
     // 尝试打开微信
-    if (await canLaunchUrl(Uri.parse(wechatUrl))) {
-      await launchUrl(Uri.parse(wechatUrl));
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
       // 如果无法打开微信，则直接在浏览器中打开
       if (await canLaunchUrl(Uri.parse(url))) {
@@ -86,5 +82,47 @@ class OtherService {
         throw '无法打开 URL: $url';
       }
     }
+  }
+
+  static Future<List<ElectricData>> getElectricityWeeklyData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    var url = prefs.getString('electricity_url') ?? '';
+
+    if (url.isEmpty) {
+      return [];
+    }
+
+    url = url.replaceAll('wxAccount', 'wxElecDtl');
+
+    final response = await http.get(Uri.parse(url));
+    var document = parser.parse(response.body);
+    var tables = document.querySelectorAll('table');
+    final List<ElectricData> data = [];
+    for (var table in tables) {
+      var rows = table.querySelectorAll('tr');
+      for (var row in rows) {
+        var cells = row.querySelectorAll('td');
+        if (cells.length == 3) {
+          final split = cells[1].text.split(' ');
+          final dayTime = split[0].split('/');
+          final time = split[1].split(':');
+          final date = DateTime(int.parse(dayTime[0]), int.parse(dayTime[1]),
+              int.parse(dayTime[2]), int.parse(time[0]));
+          if (data.isEmpty || data.last.timestamp.hour != date.hour) {
+            data.add(ElectricData(
+              timestamp: date,
+              value: double.tryParse(cells[2].text)!,
+            ));
+          } else {
+            data.last.value += double.tryParse(cells[2].text)!;
+          }
+        }
+      }
+    }
+
+    data.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    return data;
   }
 }

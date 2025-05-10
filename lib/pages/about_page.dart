@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,9 +71,11 @@ class _AboutPageState extends State<AboutPage> {
                       const SnackBar(content: Text('正在刷新数据...')),
                     );
                     final re = await EduService.refresh();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('刷新数据${re ? '成功' : '失败'}')),
-                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('刷新数据${re ? '成功' : '失败'}')),
+                      );
+                    }
                   },
                 ),
               ),
@@ -278,6 +281,7 @@ class RemindSetting extends StatefulWidget {
 
 class _RemindSettingState extends State<RemindSetting> {
   late bool isRemind = false;
+  late int remindTime = 15;
 
   @override
   void initState() {
@@ -286,6 +290,7 @@ class _RemindSettingState extends State<RemindSetting> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         isRemind = prefs.getBool('is_remind') ?? false;
+        remindTime = prefs.getInt('notification_time') ?? 15;
       });
     });
   }
@@ -293,28 +298,85 @@ class _RemindSettingState extends State<RemindSetting> {
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: ListTile(
-      title: const Text('课程通知',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      subtitle: const Text(
-        '上课前15分钟进行提醒',
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-      ),
-      trailing: CupertinoSwitch(
-        value: isRemind,
-        onChanged: (bool value) async {
-          setState(() {
-            isRemind = value;
-          });
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool('is_remind', value);
-          if (value) {
-            await NotificationService.set(context);
-          }
-        },
-      ),
+        child: Column(
+      children: [
+        ListTile(
+          title: const Text('课程通知',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          subtitle: Text(
+            '上课前进行提醒',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+          ),
+          trailing: CupertinoSwitch(
+            value: isRemind,
+            onChanged: (bool value) async {
+              setState(() {
+                isRemind = value;
+              });
+              final prefs = await SharedPreferences.getInstance();
+              prefs.setBool('is_remind', value);
+              if (value && context.mounted) {
+                await NotificationService.set(context);
+              }
+            },
+          ),
+        ),
+        if (isRemind)
+          ListTile(
+              title: const Text('提前几分钟提醒',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              onTap: () {
+                _show(context);
+              },
+              trailing: Text('$remindTime分钟'))
+      ],
     ));
+  }
+
+  Future<void> _show(BuildContext context) async {
+    final a = MediaQuery.of(context).size.width;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxWidth: a,
+        minWidth: a,
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setStateBottomSheet) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NumberPicker(
+                    value: remindTime,
+                    minValue: 10,
+                    maxValue: 120,
+                    step: 1,
+                    onChanged: (value) async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setInt('notification_time', value);
+                      setStateBottomSheet(() {
+                        remindTime = value;
+                      });
+                      // 可选：更新主页面的 remindTime
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
 
@@ -381,11 +443,12 @@ class _VersionSettingState extends State<VersionSetting> {
                             onPressed: () async {
                               Navigator.of(b).pop();
                               final a = await GiteeService.getReleases();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('正在下载更新...可以继续使用')),
-                              );
-
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('正在下载更新...可以继续使用')),
+                                );
+                              }
                               GiteeService.updateApp(a.name);
                             },
                           ),

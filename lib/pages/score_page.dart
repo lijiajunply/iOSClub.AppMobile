@@ -96,7 +96,7 @@ class _ScorePageState extends State<ScorePage> {
     setState(() => _isLoading = true);
 
     try {
-      final cookieData = await EduService.getCookieData();
+      final cookieData = await EduService.getUserData();
       if (cookieData == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -194,7 +194,7 @@ class _ScorePageState extends State<ScorePage> {
     required SemesterModel semester,
   }) async {
     await EduService.login();
-    final freshCookieData = await EduService.getCookieData();
+    final freshCookieData = await EduService.getUserData();
     if (freshCookieData == null) return null;
 
     final response = await http.get(

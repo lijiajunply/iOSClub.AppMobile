@@ -6,7 +6,6 @@ import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
 import '../PageModels/CourseTime.dart';
-import '../Models/ExamModel.dart';
 import '../Models/SemesterModel.dart';
 import 'time_service.dart';
 
@@ -175,38 +174,6 @@ class DataService {
           semester: s.firstWhere((x) => x.semester == key),
           list: (scoreList as List).map((e) => ScoreModel.fromJson(e)).toList(),
         ));
-      });
-    }
-
-    return list;
-  }
-
-  static Future<List<ExamItem>> getExam() async {
-    final now = DateTime.now();
-    final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('exam_data');
-    final List<ExamItem> list = [];
-    if (jsonString != null) {
-      var jsonList = jsonDecode(jsonString);
-      jsonList = jsonList["exams"];
-      jsonList.forEach((json) {
-        final a = ExamItem.fromJson(json);
-        var timeSplit = a.examTime.split(' ');
-        var daytimeSplit = timeSplit[0].split('-');
-        var hourSplit = timeSplit[1].split('~')[1].split(':');
-
-        final endTime = DateTime(
-            int.parse(daytimeSplit[0]),
-            int.parse(daytimeSplit[1]),
-            int.parse(daytimeSplit[2]),
-            int.parse(hourSplit[0]),
-            int.parse(hourSplit[1]));
-
-        if (now.isAfter(endTime)) {
-          return;
-        }
-
-        list.add(a);
       });
     }
 

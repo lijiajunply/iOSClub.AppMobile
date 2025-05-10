@@ -5,9 +5,8 @@ import 'package:dio/dio.dart';
 
 class LoginService {
   final http.Client httpClient;
-  final ICodeService codeService;
 
-  LoginService(this.httpClient, this.codeService);
+  LoginService(this.httpClient);
 
   Future<Map<String, dynamic>> loginAsync(
       String username, String password) async {
@@ -31,7 +30,7 @@ class LoginService {
       'password': password
     };
 
-    var encodedParams = codeService.encode(loginParams); // 需要实现对应的加密方法
+    var encodedParams = CodeService.encode(loginParams); // 需要实现对应的加密方法
 
     // 发送登录请求
     var loginResponse = await httpClient.post(
@@ -113,9 +112,8 @@ class LoginService {
   }
 }
 
-class CodeService implements ICodeService {
-  @override
-  dynamic encode(Map<String, dynamic>? loginParams) {
+class CodeService {
+  static dynamic encode(Map<String, dynamic>? loginParams) {
     if (loginParams == null) {
       throw ArgumentError.notNull('loginParams');
     }
@@ -141,7 +139,7 @@ class CodeService implements ICodeService {
     return result;
   }
 
-  String calculateSHA1(String input) {
+  static String calculateSHA1(String input) {
     // 将输入字符串转换为字节
     List<int> inputBytes = utf8.encode(input);
 
@@ -151,9 +149,4 @@ class CodeService implements ICodeService {
     // 返回十六进制字符串
     return digest.toString();
   }
-}
-
-// 接口定义
-abstract class ICodeService {
-  dynamic encode(Map<String, dynamic> params);
 }

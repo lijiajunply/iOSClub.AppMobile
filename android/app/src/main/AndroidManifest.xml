@@ -103,9 +103,10 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <queries>
-        <package android:name="com.tencent.mm" />
+        <package android:name="com.tencent.mm" /> <!-- 微信包名 -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="weixin" />
         </intent>
     </queries>

@@ -151,6 +151,7 @@ class _MainAppState extends State<MainApp> {
             TargetPlatform.windows: CustomPageTransitionBuilder(),
             TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
             TargetPlatform.linux: CustomPageTransitionBuilder(),
+            TargetPlatform.fuchsia: const FadeUpwardsPageTransitionsBuilder(),
             // 其他平台也可以添加
           },
         ),

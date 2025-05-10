@@ -5,37 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 import 'package:ios_club_app/Services/login_service.dart';
-import 'package:ios_club_app/Services/notification_service.dart';
-import 'package:ios_club_app/services/widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
-import '../PageModels/ScheduleItem.dart';
 
 class EduService {
-  static Future<void> start() async {
-    final prefs = await SharedPreferences.getInstance();
-    var nowTime = DateTime.now();
-
-    final lastRemind = prefs.getInt('last_remind_time');
-    final isRemind = prefs.getBool('is_remind') ?? false;
-    if (isRemind &&
-        ((lastRemind == null || lastRemind == 0) ||
-            nowTime.day != lastRemind)) {
-      final result = await DataService.getCourse();
-      await NotificationService.toList(result.$2);
-      await WidgetService.updateTodayCourses(result.$2.map((value) {
-        return ScheduleItem(
-          title: value.courseName,
-          time: '${value.startUnit} - ${value.endUnit}',
-          location: value.room,
-        );
-      }).toList());
-      debugPrint('提醒课程成功');
-      await prefs.setInt('last_remind_time', nowTime.day);
-    }
-  }
-
   static Future<bool> refresh() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -46,7 +20,7 @@ class EduService {
         return false;
       }
 
-      var cookieData = await getCookieData();
+      var cookieData = await getUserData();
       await getSemester(userData: cookieData);
       await getTime();
       await getCourse(userData: cookieData, isRefresh: true);
@@ -71,13 +45,13 @@ class EduService {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      final loginService = LoginService(http.Client(), CodeService());
+      final loginService = LoginService(http.Client());
       final response = await loginService.loginAsync(username, password);
 
       if (response["success"] == true) {
         await prefs.setString('user_data', jsonEncode(response));
 
-        var cookieData = await getCookieData();
+        var cookieData = await getUserData();
         var now = DateTime.now().millisecondsSinceEpoch;
         await getSemester(userData: cookieData);
         await getTime();
@@ -111,7 +85,7 @@ class EduService {
       }
 
       final preNow = DateTime.now().millisecondsSinceEpoch;
-      final loginService = LoginService(http.Client(), CodeService());
+      final loginService = LoginService(http.Client());
       final response = await loginService.loginAsync(username, password);
       if (kDebugMode) {
         print('登录用时: ${DateTime.now().millisecondsSinceEpoch - preNow}');
@@ -119,6 +93,9 @@ class EduService {
 
       if (response["success"] == true) {
         await prefs.setString('user_data', jsonEncode(response));
+        var now = DateTime.now().millisecondsSinceEpoch;
+        await prefs.setInt('last_fetch_time', now);
+
         return true;
       }
     } catch (e) {
@@ -130,9 +107,33 @@ class EduService {
     return false;
   }
 
-  static Future<UserData?> getCookieData() async {
+  static Future<UserData?> getUserData() async {
+    // 尝试获取缓存数据
+    final cachedData = await getCookie();
+    if (cachedData is UserData) return cachedData;
+
+    // 缓存无效时尝试登录
+    final loginSuccess = await login();
+    if (!loginSuccess) return null;
+
+    // 登录后重新获取数据
+    final freshData = await getCookie();
+    if (freshData is UserData) return freshData;
+
+    // 数据仍然无效时抛出异常（或根据业务需求处理）
+    throw const FormatException('Cookie data is invalid after successful login');
+  }
+
+  static Future<UserData?> getCookie() async {
     try {
+      var now = DateTime.now().millisecondsSinceEpoch;
+
       final prefs = await SharedPreferences.getInstance();
+      final lastFetchTime = prefs.getInt('last_fetch_time');
+      if (lastFetchTime == null ||
+          now.abs() - lastFetchTime > 1000 * 60 * 20) {
+        return null;
+      }
       final String? jsonString = prefs.getString('user_data');
 
       if (jsonString != null) {
@@ -147,7 +148,7 @@ class EduService {
   }
 
   static Future<void> getThisSemester({UserData? userData}) async {
-    UserData? cookieData = userData ?? await getCookieData();
+    UserData? cookieData = userData ?? await getUserData();
     if (cookieData == null) {
       return;
     }
@@ -176,7 +177,7 @@ class EduService {
   }
 
   static Future<void> getSemester({UserData? userData}) async {
-    UserData? cookieData = userData ?? await getCookieData();
+    UserData? cookieData = userData ?? await getUserData();
     if (cookieData == null) {
       return;
     }
@@ -236,7 +237,7 @@ class EduService {
       return;
     }
 
-    UserData? cookieData = userData ?? await getCookieData();
+    UserData? cookieData = userData ?? await getUserData();
     if (cookieData == null) {
       return;
     }
@@ -259,7 +260,7 @@ class EduService {
             'course_data', jsonEncode(jsonDecode(response.body)));
       } else {
         if (!(await login())) return;
-        var a = await getCookieData();
+        var a = await getUserData();
         if (a == null) return;
         final response = await http.get(
             Uri.parse(
@@ -278,7 +279,7 @@ class EduService {
   }
 
   static Future<void> getAllScore({UserData? userData}) async {
-    var cookieData = userData ?? await getCookieData();
+    var cookieData = userData ?? await getUserData();
     if (cookieData == null) {
       return;
     }
@@ -303,7 +304,7 @@ class EduService {
           json[item.semester] = response.body;
         } else {
           if (!(await login())) return;
-          var a = await getCookieData();
+          var a = await getUserData();
           if (a == null) {
             continue;
           }
@@ -357,7 +358,7 @@ class EduService {
       }
     }
 
-    UserData? cookieData = await getCookieData();
+    UserData? cookieData = await getUserData();
     if (cookieData == null) {
       return [];
     }
@@ -382,7 +383,7 @@ class EduService {
           json[item.semester] = response.body;
         } else {
           if (!(await login())) return [];
-          final a = await getCookieData();
+          final a = await getUserData();
           if (a == null) {
             continue;
           }
@@ -426,7 +427,7 @@ class EduService {
   }
 
   static Future<void> getExam({UserData? userData}) async {
-    UserData? cookieData = userData ?? await getCookieData();
+    UserData? cookieData = userData ?? await getUserData();
     if (cookieData == null) {
       return;
     }
@@ -449,7 +450,7 @@ class EduService {
             'exam_data', jsonEncode(jsonDecode(response.body)));
       } else {
         if (!(await login())) return;
-        final a = await getCookieData();
+        final a = await getUserData();
         if (a == null) {
           return;
         }
@@ -488,7 +489,7 @@ class EduService {
   }
 
   static Future<void> getInfoCompletion({UserData? userData}) async {
-    UserData? cookieData = userData ?? await getCookieData();
+    UserData? cookieData = userData ?? await getUserData();
     if (cookieData == null) {
       return;
     }
@@ -510,7 +511,7 @@ class EduService {
             'info_data', jsonEncode(jsonDecode(response.body)));
       } else {
         if (!(await login())) return;
-        final a = await getCookieData();
+        final a = await getUserData();
         if (a == null) {
           return;
         }

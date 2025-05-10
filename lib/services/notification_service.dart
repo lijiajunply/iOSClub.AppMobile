@@ -61,8 +61,11 @@ class NotificationService {
       required String title,
       required String body,
       required DateTime courseTime}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final notificationTime = prefs.getInt('notification_time') ?? 15;
     final now = DateTime.now();
-    final reminderTime = courseTime.subtract(Duration(minutes: 15));
+    final reminderTime =
+        courseTime.subtract(Duration(minutes: notificationTime));
 
     if (reminderTime.isBefore(now)) {
       debugPrint('Cannot schedule notification for past reminder time');
@@ -90,11 +93,11 @@ class NotificationService {
         title,
         body,
         tzDateTime,
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails(
             'ios_club_app_course_reminders',
             '课程通知',
-            channelDescription: '进行每日课表的课程通知，提前15分钟进行通知',
+            channelDescription: '进行每日课表的课程通知，提前$notificationTime分钟进行通知',
             importance: Importance.max,
             priority: Priority.high,
             playSound: true,

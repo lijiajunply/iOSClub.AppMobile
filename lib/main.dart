@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
+import 'Services/data_service.dart';
+import 'Services/notification_service.dart';
 import 'main_app.dart';
-import 'Services/edu_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   requestPermissions();
-  EduService.start();
+  start();
 
   runApp(MaterialApp(
     title: 'iOS Club App',
@@ -45,4 +47,19 @@ void requestPermissions() async {
     Permission.backgroundRefresh,
     Permission.requestInstallPackages,
   ].request();
+}
+
+Future<void> start() async {
+  final prefs = await SharedPreferences.getInstance();
+  var nowTime = DateTime.now();
+
+  final lastRemind = prefs.getInt('last_remind_time');
+  final isRemind = prefs.getBool('is_remind') ?? false;
+  if (isRemind &&
+      ((lastRemind == null || lastRemind == 0) || nowTime.day != lastRemind)) {
+    final result = await DataService.getCourse();
+    await NotificationService.toList(result.$2);
+    debugPrint('提醒课程成功');
+    await prefs.setInt('last_remind_time', nowTime.day);
+  }
 }

@@ -46,6 +46,8 @@ dependencies:
   timezone: ^0.10.0
   flutter_native_splash: ^2.4.6
   flutter_svg: ^2.1.0
+  numberpicker: ^2.1.2
+  fl_chart: ^1.0.0
 
 dev_dependencies:
   flutter_test:
