@@ -10,7 +10,7 @@ class TilesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: OtherService.getTiles(),
+        future: TileService.getTiles(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SizedBox();

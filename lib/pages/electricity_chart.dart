@@ -16,7 +16,7 @@ class ElectricityChart extends StatelessWidget {
         title: Text('电费数据'),
       ),
       body: FutureBuilder(
-        future: OtherService.getElectricityWeeklyData(),
+        future: TileService.getElectricityWeeklyData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

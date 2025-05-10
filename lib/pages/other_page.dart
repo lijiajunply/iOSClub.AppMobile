@@ -21,13 +21,13 @@ class _OtherPageState extends State<OtherPage> {
   @override
   void initState() {
     super.initState();
-    OtherService.getTextAfterKeyword().then((value) {
+    TileService.getTextAfterKeyword().then((value) {
       setState(() {
         if (value != null) {
           electricity = value;
           isHasData = true;
         }
-        OtherService.getTiles().then((t) {
+        TileService.getTiles().then((t) {
           _tiles = t;
         });
       });
@@ -86,7 +86,7 @@ class _OtherPageState extends State<OtherPage> {
                             TextButton(
                                 onPressed: () async {
                                   final value =
-                                      await OtherService.getTextAfterKeyword();
+                                      await TileService.getTextAfterKeyword();
                                   if (value != null) {
                                     setState(() {
                                       electricity = value;
@@ -124,7 +124,7 @@ class _OtherPageState extends State<OtherPage> {
                         }
                       });
 
-                      await OtherService.setTiles(_tiles);
+                      await TileService.setTiles(_tiles);
                     },
                     value: _tiles.contains('电费'),
                   ),
@@ -178,7 +178,7 @@ class _OtherPageState extends State<OtherPage> {
                     onPressed: () async {
                       Navigator.of(context).pop();
 
-                      final value = await OtherService.getTextAfterKeyword(
+                      final value = await TileService.getTextAfterKeyword(
                           url: _urlController.text);
                       if (value != null) {
                         _urlController.clear();

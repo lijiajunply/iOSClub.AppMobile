@@ -23,7 +23,7 @@ Widget buildTile(String tile) {
 
 Widget buildElectricity() {
   return FutureBuilder(
-      future: OtherService.getTextAfterKeyword(),
+      future: TileService.getTextAfterKeyword(),
       builder: (
         context,
         snapshot,
@@ -53,7 +53,7 @@ Widget buildElectricity() {
                             final prefs = await SharedPreferences.getInstance();
                             var url = prefs.getString('electricity_url') ?? '';
                             url = url.replaceAll('wxAccount', 'wxCharge');
-                            await OtherService.openInWeChat(url);
+                            await TileService.openInWeChat(url);
                           },
                           child: Text('充值')),
                       SizedBox(
