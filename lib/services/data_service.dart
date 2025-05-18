@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:ios_club_app/Models/InfoModel.dart';
 import 'package:ios_club_app/Models/ScoreModel.dart';
-import 'package:ios_club_app/Models/TodoItem.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/CourseModel.dart';
@@ -235,44 +234,6 @@ class DataService {
     }
   }
 
-  static Future<List<TodoItem>> getTodoList() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('todo_data');
-    final String? username = prefs.getString('username');
-
-    if (jsonString != null && username != null) {
-      final List<TodoItem> list = [];
-
-      final Map<String, dynamic> jsonList = jsonDecode(jsonString);
-      if (jsonList.containsKey(username)) {
-        final d = jsonList[username];
-        for (var i in d) {
-          list.add(TodoItem.fromJson(i));
-        }
-        return list;
-      } else {
-        return [];
-      }
-    } else {
-      return [];
-    }
-  }
-
-  static Future<void> setTodoList(List<TodoItem> list) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('todo_data');
-    final String? username = prefs.getString('username');
-
-    if (username != null) {
-      final Map<String, dynamic> jsonList =
-          jsonString == null ? {} : jsonDecode(jsonString);
-      jsonList[username] = list;
-      final json = jsonEncode(jsonList);
-      prefs.setString('todo_data', json);
-    } else {
-      throw Exception('No data found');
-    }
-  }
 
   static Future<List<CourseTime>> getAllTime() async {
     final allCourse = await getAllCourse();

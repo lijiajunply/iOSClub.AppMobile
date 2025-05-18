@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../Models/TodoItem.dart';
-import '../../Services/data_service.dart';
+
+import '../../services/todo_service.dart';
 import '../empty_widget.dart';
 
 class TodoWidget extends StatefulWidget {
@@ -18,7 +19,7 @@ class _TodoWidgetState extends State<TodoWidget> {
   @override
   void initState() {
     super.initState();
-    DataService.getTodoList().then((value) {
+    TodoService.getTodoList().then((value) {
       setState(() {
         _todos = value;
       });
@@ -52,7 +53,7 @@ class _TodoWidgetState extends State<TodoWidget> {
                         setState(() {
                           _todos.add(newItem);
                         });
-                        await DataService.setTodoList(_todos);
+                        await TodoService.setTodoList(_todos);
                       }
                     },
                     icon: const Icon(Icons.add))
@@ -62,79 +63,100 @@ class _TodoWidgetState extends State<TodoWidget> {
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             child: _todos.isEmpty
                 ? const Card(
-                elevation: 4,
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      EmptyWidget(),
-                      Center(
-                          child: Text(
+                    elevation: 4,
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          EmptyWidget(),
+                          Center(
+                              child: Text(
                             '当前没有待办事务',
                             style: TextStyle(fontSize: 20),
                           ))
-                    ],
-                  ),
-                ))
-                : ListView.builder(
-              // 关键是添加这些属性
-              shrinkWrap: true,
-              // 让 ListView 根据内容自适应高度
-              physics: const NeverScrollableScrollPhysics(),
-              // 禁用 ListView 自身的滚动
-              itemCount: _todos.length,
-              itemBuilder: (context, index) {
-                final todo = _todos[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: todo.isCompleted,
-                      onChanged: (value) {
-                        setState(() {
-                          todo.isCompleted = value!;
-                        });
-                        DataService.setTodoList(_todos);
-                      },
-                    ),
-                    title: Text(
-                      todo.title,
-                      style: TextStyle(
-                        decoration: todo.isCompleted
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                        fontWeight: FontWeight.bold,
+                        ],
                       ),
-                    ),
-                    subtitle: Text('截止日期: ${todo.deadline}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        setState(() {
-                          _todos.removeAt(index);
-                        });
-                        await DataService.setTodoList(_todos);
-                      },
-                    ),
-                  ),
-                );
-              },
-            ))
+                    ))
+                : ListView.builder(
+                    // 关键是添加这些属性
+                    shrinkWrap: true,
+                    // 让 ListView 根据内容自适应高度
+                    physics: const NeverScrollableScrollPhysics(),
+                    // 禁用 ListView 自身的滚动
+                    itemCount: _todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = _todos[index];
+                      final deadline =
+                          DateFormat('yyyy-MM-dd').parse(todo.deadline);
+                      final now = DateTime.now();
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: todo.isCompleted,
+                            onChanged: (value) {
+                              setState(() {
+                                todo.isCompleted = value!;
+                              });
+                              TodoService.setTodoList(_todos);
+                            },
+                          ),
+                          title: Text(
+                            todo.title,
+                            style: TextStyle(
+                              decoration: todo.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text('截止日期: ${todo.deadline}',
+                              style: TextStyle(
+                                decoration: deadline.isBefore(now)
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                              )),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              setState(() {
+                                _todos.removeAt(index);
+                              });
+                              await TodoService.setTodoList(_todos);
+                            },
+                          ),
+                          onTap: () async {
+                            var result =
+                                await showAddTodoDialog(context, todo: todo);
+                            if (result != null) {
+                              setState(() {
+                                _todos[index] = result;
+                              });
+                              await TodoService.setTodoList(_todos);
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ))
       ],
     );
   }
 
-  Future<TodoItem?> showAddTodoDialog(BuildContext context) {
+  Future<TodoItem?> showAddTodoDialog(BuildContext context, {TodoItem? todo}) {
     final formKey = GlobalKey<FormState>();
     final titleController = TextEditingController();
     final deadlineController = TextEditingController();
+
+    titleController.text = todo?.title ?? '';
+    deadlineController.text = todo?.deadline ?? '';
 
     return showDialog<TodoItem>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title:
-          const Text('添加待办', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('添加待办', style: TextStyle(fontWeight: FontWeight.bold)),
           content: Form(
             key: formKey,
             child: Column(
@@ -191,8 +213,8 @@ class _TodoWidgetState extends State<TodoWidget> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text('添加',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(todo == null ? '添加' : '更改',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   final todo = TodoItem(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/services/todo_service.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,14 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Services/git_service.dart';
 import '../Services/notification_service.dart';
 
-class AboutPage extends StatefulWidget {
+class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
-  @override
-  State<StatefulWidget> createState() => _AboutPageState();
-}
-
-class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,6 +83,10 @@ class _AboutPageState extends State<AboutPage> {
                 height: 8,
               ),
               RemindSetting(),
+              const SizedBox(
+                height: 8,
+              ),
+              TodoListSetting(),
               const SizedBox(
                 height: 16,
               ),
@@ -488,5 +488,54 @@ class _VersionSettingState extends State<VersionSetting> {
         ],
       ),
     );
+  }
+}
+
+class TodoListSetting extends StatefulWidget {
+  const TodoListSetting({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _TodoListSettingState();
+}
+
+class _TodoListSettingState extends State<TodoListSetting> {
+  late bool isUpdateToClub = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        isUpdateToClub = prefs.getBool('is_update_club') ?? false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: ListTile(
+      title: const Text('是否将待办保存至云端',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      subtitle: const Text(
+        '将待办事务保存至社团官网',
+        style: TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+      ),
+      trailing: CupertinoSwitch(
+        value: isUpdateToClub,
+        onChanged: (bool value) async {
+          setState(() {
+            isUpdateToClub = value;
+          });
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('is_update_club', value);
+          if (value) {
+            await TodoService.nowToUpdate();
+          }
+        },
+      ),
+    ));
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/Services/data_service.dart';
 
 import '../Models/TodoItem.dart';
+import '../services/todo_service.dart';
 import '../widgets/empty_widget.dart';
 
 class TodoPage extends StatefulWidget {
@@ -19,7 +19,7 @@ class _TodoPageState extends State<TodoPage> {
   void initState() {
     super.initState();
 
-    DataService.getTodoList().then((value) {
+    TodoService.getTodoList().then((value) {
       setState(() {
         _todos = value;
       });
@@ -68,7 +68,7 @@ class _TodoPageState extends State<TodoPage> {
                                 todo.isCompleted = value!;
                               });
 
-                              DataService.setTodoList(_todos);
+                              TodoService.setTodoList(_todos);
                             },
                           ),
                           title: Text(
@@ -88,7 +88,7 @@ class _TodoPageState extends State<TodoPage> {
                                 _todos.removeAt(index);
                               });
 
-                              await DataService.setTodoList(_todos);
+                              await TodoService.setTodoList(_todos);
                             },
                           ),
                         ),
@@ -104,7 +104,7 @@ class _TodoPageState extends State<TodoPage> {
                 _todos.add(newItem);
               });
 
-              await DataService.setTodoList(_todos);
+              await TodoService.setTodoList(_todos);
             }
           },
           tooltip: '添加待办',
