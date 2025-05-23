@@ -12,11 +12,11 @@ class WidgetService {
     final now = DateTime.now();
 
     // 更新小组件
-    await HomeWidget.saveWidgetData<String>('title', '今日课表');
+    await HomeWidget.saveWidgetData<String>('flutter.title', '今日课表');
     await HomeWidget.saveWidgetData<String>(
-        'date', DateFormat('yyyy-MM-dd').format(now));
+        'flutter.date', DateFormat('yyyy-MM-dd').format(now));
     await HomeWidget.saveWidgetData<String>(
-        'courses', jsonEncode(todayCourses));
+        'flutter.courses', jsonEncode(todayCourses));
 
     // 刷新小组件
     await HomeWidget.updateWidget(

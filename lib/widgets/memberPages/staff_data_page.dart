@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
 import 'package:ios_club_app/models/MemberModel.dart';
 
-class MemberDataPage extends StatefulWidget {
-  const MemberDataPage({super.key});
+class StaffDataPage extends StatefulWidget {
+  const StaffDataPage({super.key});
 
   @override
-  State<MemberDataPage> createState() => _MemberDataPageState();
+  State<StaffDataPage> createState() => _StaffDataPageState();
 }
 
-class _MemberDataPageState extends State<MemberDataPage> {
+class _StaffDataPageState extends State<StaffDataPage> {
   int _pageNum = 1;
   int _pageSize = 10;
   int _totalPages = 0;
@@ -29,7 +29,7 @@ class _MemberDataPageState extends State<MemberDataPage> {
       isLoading = true;
     });
 
-    final data = await ClubService.getMembersByPage(_pageNum, _pageSize);
+    final data = await ClubService.getStaffsByPage(_pageNum, _pageSize);
 
     setState(() {
       _members = data.data;
@@ -44,41 +44,41 @@ class _MemberDataPageState extends State<MemberDataPage> {
       appBar: AppBar(title: const Text('成员数据')),
       body: SingleChildScrollView(
           child: Column(children: [
-        isLoading
-            ? const Center(
+            isLoading
+                ? const Center(
                 child: Card(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: CircularProgressIndicator(),
-                ),
-              ))
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _members.length,
-                itemBuilder: (context, index) {
-                  final member = _members[index];
-                  return buildMemberCard(member);
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                ))
+                : ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _members.length,
+              itemBuilder: (context, index) {
+                final member = _members[index];
+                return buildMemberCard(member);
+              },
+            ),
+            PaginationWidget(
+                currentPage: _pageNum,
+                totalPages: _totalPages,
+                pageSize: _pageSize,
+                onPageChanged: (page) {
+                  setState(() {
+                    _pageNum = page;
+                  });
+                  _getMembers();
                 },
-              ),
-        PaginationWidget(
-            currentPage: _pageNum,
-            totalPages: _totalPages,
-            pageSize: _pageSize,
-            onPageChanged: (page) {
-              setState(() {
-                _pageNum = page;
-              });
-              _getMembers();
-            },
-            onPageSizeChanged: (pageSize) {
-              setState(() {
-                _pageSize = pageSize;
-              });
-              _getMembers();
-            }),
-        const SizedBox(height: 16),
-      ])),
+                onPageSizeChanged: (pageSize) {
+                  setState(() {
+                    _pageSize = pageSize;
+                  });
+                  _getMembers();
+                }),
+            const SizedBox(height: 16),
+          ])),
     );
   }
 
@@ -239,7 +239,7 @@ class PaginationWidget extends StatelessWidget {
           OutlinedButton(
             style: buttonStyle,
             onPressed:
-                currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
+            currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
             child: const Icon(Icons.chevron_left),
           ),
           const SizedBox(width: 6),
@@ -272,7 +272,7 @@ class PaginationWidget extends StatelessWidget {
                   value: pageSize,
                   items: pageSizeOptions
                       .map((e) =>
-                          DropdownMenuItem(value: e, child: Text('$e / page')))
+                      DropdownMenuItem(value: e, child: Text('$e / page')))
                       .toList(),
                   onChanged: (v) {
                     if (v != null && v != pageSize) {

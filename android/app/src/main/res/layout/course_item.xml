@@ -1,15 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/course_item_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="12dp">
 
+    <!-- 课程标题 -->
     <TextView
-        android:id="@+id/course_text"
+        android:id="@+id/course_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#1c1c1e"
-        android:textSize="14sp" />
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"/>
 
+    <!-- 课程时间 -->
+    <TextView
+        android:id="@+id/course_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#B3FFFFFF"
+        android:layout_marginTop="4dp"/>
+
+    <!-- 课程地点 -->
+    <TextView
+        android:id="@+id/course_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#B3FFFFFF"
+        android:layout_marginTop="2dp"/>
 </LinearLayout>

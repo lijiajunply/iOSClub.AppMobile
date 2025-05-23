@@ -197,4 +197,63 @@ class ClubService {
       totalPages: 0,
     );
   }
+
+  static Future<MemberData> getStaffsByPage(int pageNum, int pageSize) async {
+    final url =
+        'https://www.xauat.site/api/President/GetStaffsByPage?pageNum=$pageNum&pageSize=$pageSize';
+    final prefs = await SharedPreferences.getInstance();
+    final memberDataString = prefs.getString('member_data');
+
+    final memberData = jsonDecode(memberDataString ?? '{}');
+    var jwt = prefs.getString('member_jwt');
+    if (jwt == null) {
+      return MemberData(
+        data: [],
+        totalCount: 0,
+        totalPages: 0,
+      );
+    }
+
+    Map<String, String> finalHeaders = {
+      'Authorization': 'Bearer $jwt',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.get(Uri.parse(url), headers: finalHeaders);
+
+      if (response.statusCode == 200) {
+        var result = await GzipService.decompress(response.body);
+        return MemberData.fromJson(jsonDecode(result));
+      }
+      if (response.statusCode == 401) {
+        if (await ClubService.loginMember(
+            memberData['userName'], memberData['userId'])) {
+          jwt = prefs.getString('member_jwt');
+          finalHeaders['Authorization'] = 'Bearer $jwt';
+
+          final response =
+          await http.get(Uri.parse(url), headers: finalHeaders);
+
+          if (response.statusCode == 200) {
+            if (kDebugMode) {
+              print('GetStaffsByPage successful');
+            }
+            var result = await GzipService.decompress(response.body);
+            return MemberData.fromJson(jsonDecode(result));
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return MemberData(
+      data: [],
+      totalCount: 0,
+      totalPages: 0,
+    );
+  }
 }

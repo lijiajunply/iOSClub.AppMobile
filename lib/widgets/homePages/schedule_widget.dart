@@ -43,6 +43,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
         _isShowingTomorrow = isShowingTomorrow;
         changeScheduleItems(courses);
       });
+
     } catch (e) {
       debugPrint('初始化失败: $e');
       // 可添加错误处理逻辑（如显示错误提示）
@@ -141,8 +142,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                               .getInstance();
                                           prefs.setBool('is_remind', value);
                                           if (value) {
-                                            await NotificationService.set(
-                                                context);
+                                            await NotificationService.set(context);
                                           }
                                         },
                                       ),
