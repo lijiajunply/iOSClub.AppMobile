@@ -15,27 +15,13 @@
         android:layout_centerVertical="true"
         android:background="@drawable/time_indicator_bg" />
 
-    <!-- 时间显示 -->
-    <TextView
-        android:id="@+id/course_time_short"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/time_indicator"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="2dp"
-        android:text="09:00"
-        android:textColor="#007AFF"
-        android:textSize="12sp"
-        android:textStyle="bold" />
 
     <!-- 课程标题 -->
     <TextView
         android:id="@+id/course_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/course_time_short"
         android:layout_toEndOf="@id/time_indicator"
-        android:layout_toStartOf="@id/status_indicator"
         android:layout_marginStart="12dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
@@ -51,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/course_title"
         android:layout_toEndOf="@id/time_indicator"
-        android:layout_toStartOf="@id/status_indicator"
         android:layout_marginStart="12dp"
         android:layout_marginTop="6dp"
         android:layout_marginEnd="8dp"
@@ -81,7 +66,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/time_layout"
         android:layout_toEndOf="@id/time_indicator"
-        android:layout_toStartOf="@id/status_indicator"
         android:layout_marginStart="12dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
@@ -103,14 +87,5 @@
             android:textSize="13sp" />
 
     </LinearLayout>
-
-    <!-- 状态指示器 -->
-    <TextView
-        android:id="@+id/status_indicator"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:background="@drawable/status" />
 
 </RelativeLayout>

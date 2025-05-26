@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 
+import '../../models/ExamModel.dart';
 import '../../services/exam_service.dart';
 import '../empty_widget.dart';
 
@@ -12,7 +13,7 @@ class ExamCard extends StatefulWidget {
 }
 
 class _ExamCardState extends State<ExamCard> {
-  List<ExamItem> examItems = [];
+  List<ExamData> examItems = [];
   bool isLoading = true;
 
   @override
@@ -21,19 +22,21 @@ class _ExamCardState extends State<ExamCard> {
     setState(() {
       isLoading = true;
     });
-    ExamService.getExam().then((result) {
-      setState(() {
-        examItems = result
-            .map((course) => ExamItem(
-          title: course.name,
-          time: course.examTime,
-          location: course.room,
-          color: CourseColorManager.generateSoftColor(course),
-          seat: course.seatNo,
-        ))
-            .toList();
-        isLoading = false;
-      });
+    ExamService.getExam().then((result) => setExam(result));
+  }
+
+  void setExam(List<ExamItem> result) {
+    setState(() {
+      examItems = result
+          .map((course) => ExamData(
+        title: course.name,
+        time: course.examTime,
+        location: course.room,
+        color: CourseColorManager.generateSoftColor(course),
+        seat: course.seatNo,
+      ))
+          .toList();
+      isLoading = false;
     });
   }
 
@@ -42,18 +45,7 @@ class _ExamCardState extends State<ExamCard> {
         isLoading = true;
       });
     final result = await ExamService.getExam(isRefresh: true);
-    setState(() {
-      examItems = result
-          .map((course) => ExamItem(
-                title: course.name,
-                time: course.examTime,
-                location: course.room,
-                color: CourseColorManager.generateSoftColor(course),
-                seat: course.seatNo,
-              ))
-          .toList();
-      isLoading = false;
-    });
+    setExam(result);
   }
 
   @override
@@ -90,7 +82,7 @@ class _ExamCardState extends State<ExamCard> {
     );
   }
 
-  Widget examWrap(ExamItem exam) {
+  Widget examWrap(ExamData exam) {
     return Wrap(
       children: [
         Row(
@@ -189,14 +181,14 @@ class _ExamCardState extends State<ExamCard> {
   }
 }
 
-class ExamItem {
+class ExamData {
   final String title;
   final String time;
   final String location;
   final Color color;
   final String seat;
 
-  ExamItem({
+  ExamData({
     required this.title,
     required this.time,
     required this.location,

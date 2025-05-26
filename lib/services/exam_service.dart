@@ -38,9 +38,10 @@ class ExamService {
     final int? examTime = prefs.getInt('exam_time');
 
     final bool isCached = examTime != null &&
-        now.difference(DateTime.fromMillisecondsSinceEpoch(examTime)).inHours <
+        now.difference(DateTime.fromMicrosecondsSinceEpoch(examTime)).inHours <
             1 &&
         jsonString.isNotEmpty;
+
 
     return (isRefresh || !isCached, jsonString);
   }
