@@ -8,6 +8,7 @@ import '../../PageModels/ScheduleItem.dart';
 import '../../Services/data_service.dart';
 import '../../Services/notification_service.dart';
 import '../../Services/time_service.dart';
+import '../../services/widget_service.dart';
 import '../empty_widget.dart';
 
 class ScheduleWidget extends StatefulWidget {
@@ -44,6 +45,11 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
         changeScheduleItems(courses);
       });
 
+      try {
+        await WidgetService.updateTodayCourses(scheduleItems);
+      } catch (e) {
+        debugPrint('显示小部件失败: $e');
+      }
     } catch (e) {
       debugPrint('初始化失败: $e');
       // 可添加错误处理逻辑（如显示错误提示）
@@ -142,7 +148,8 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                               .getInstance();
                                           prefs.setBool('is_remind', value);
                                           if (value) {
-                                            await NotificationService.set(context);
+                                            await NotificationService.set(
+                                                context);
                                           }
                                         },
                                       ),

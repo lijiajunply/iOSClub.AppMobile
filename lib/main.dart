@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/services/widget_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
-import 'PageModels/ScheduleItem.dart';
 import 'Services/data_service.dart';
 import 'Services/notification_service.dart';
 import 'main_app.dart';
@@ -54,18 +52,6 @@ void requestPermissions() async {
 Future<void> start() async {
   final prefs = await SharedPreferences.getInstance();
   var nowTime = DateTime.now();
-
-  try {
-    final w = [for (var i = 0; i < 5; i++)
-      ScheduleItem(
-        title: i.toString(),
-        time: '第$i节 ~ 第${i + 1}节',
-        location: '不知道',
-      )];
-    await WidgetService.updateTodayCourses(w);
-  } catch (e) {
-    debugPrint('进行课程失败: $e');
-  }
 
   final lastRemind = prefs.getInt('last_remind_time');
   final isRemind = prefs.getBool('is_remind') ?? false;
