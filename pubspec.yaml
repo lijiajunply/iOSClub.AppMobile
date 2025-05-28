@@ -49,6 +49,7 @@ dependencies:
   numberpicker: ^2.1.2
   fl_chart: ^1.0.0
   archive: ^4.0.7
+  flutter_background_service: ^5.1.0
 
 dev_dependencies:
   flutter_test:

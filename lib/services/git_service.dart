@@ -11,11 +11,6 @@ import 'package:url_launcher/url_launcher.dart';
 class GiteeService {
   static Future<ReleaseModel> getReleases() async {
     final prefs = await SharedPreferences.getInstance();
-    final bool? updateIgnored = prefs.getBool('update_ignored');
-
-    if (updateIgnored != null && updateIgnored == true) {
-      return ReleaseModel(name: '0.0.0', body: '0.0.0');
-    }
 
     final Map<String, String> finalHeaders = {
       'Accept': 'application/json',
@@ -29,7 +24,19 @@ class GiteeService {
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final a = jsonDecode(jsonResponse);
-      return ReleaseModel.fromJson(a[0] as Map<String, dynamic>);
+      final re = ReleaseModel.fromJson(a[0] as Map<String, dynamic>);
+
+      if(re.body.contains('[强制更新]')){
+        return re;
+      }
+
+      final bool? updateIgnored = prefs.getBool('update_ignored');
+
+      if (updateIgnored != null && updateIgnored == true) {
+        return ReleaseModel(name: '0.0.0', body: '0.0.0');
+      }
+
+      return re;
     } else {
       return ReleaseModel(name: '0.0.0', body: '0.0.0');
     }
