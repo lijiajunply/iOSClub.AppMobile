@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/git_service.dart';
 import '../Services/notification_service.dart';
+import '../services/download_service.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -444,12 +445,9 @@ class _VersionSettingState extends State<VersionSetting> {
                               Navigator.of(b).pop();
                               final a = await GiteeService.getReleases();
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('正在下载更新...可以继续使用')),
-                                );
+                                UpdateManager.showUpdateWithProgress(
+                                    context, a.name);
                               }
-                              GiteeService.updateApp(a.name);
                             },
                           ),
                           TextButton(

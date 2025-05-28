@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ios_club_app/services/download_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -95,10 +96,7 @@ class _MainAppState extends State<MainApp> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('正在下载更新...可以继续使用')),
-                  );
-                  await GiteeService.updateApp(model.name);
+                  UpdateManager.showUpdateWithProgress(context, model.name);
                 },
                 child: const Text('现在就更新'),
               ),
