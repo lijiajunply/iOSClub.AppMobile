@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/services/BackgroundService.dart';
+import 'package:ios_club_app/services/background_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
