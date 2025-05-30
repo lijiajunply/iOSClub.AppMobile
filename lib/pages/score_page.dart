@@ -25,12 +25,14 @@ class _ScorePageState extends State<ScorePage> {
   final List<ScoreList> _scoreList = [];
   bool _isLoading = true;
   bool _isFool = false;
-  late final Future<void> _initialLoad;
+  String _loadingText = '正在获取数据...';
+  final List<ScoreList> _yearList = [];
+  bool _isYear = false;
 
   @override
   void initState() {
     super.initState();
-    _initialLoad = refresh();
+    refresh();
   }
 
   Future<void> refresh({bool isRefresh = false}) async {
@@ -111,6 +113,10 @@ class _ScorePageState extends State<ScorePage> {
 
       final freshScoreList = <ScoreList>[];
       for (final semester in semesters) {
+        setState(() {
+          _loadingText = '正在获取 ${semester.name} 学期数据...';
+        });
+
         final semesterScores = await _fetchSemesterScores(
           cookieData: cookieData,
           semester: semester,
@@ -248,23 +254,31 @@ class _ScorePageState extends State<ScorePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initialLoad,
-      builder: (context, snapshot) {
-        if (_isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 10),
+            Text(
+              _loadingText,
+              style: TextStyle(fontSize: 16),
+            )
+          ],
+        )),
+      );
+    }
 
-        return Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              _buildAppBar(),
-              _buildStatsCard(),
-              _buildScoreList(),
-            ],
-          ),
-        );
-      },
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          _buildStatsCard(),
+          _buildScoreList(),
+        ],
+      ),
     );
   }
 
@@ -287,6 +301,12 @@ class _ScorePageState extends State<ScorePage> {
             Row(
               children: [
                 IconButton(
+                  onPressed: _changeScoreList,
+                  icon: Icon(_isYear
+                      ? Icons.calendar_today_rounded
+                      : Icons.calendar_view_day_rounded),
+                ),
+                IconButton(
                   onPressed: _handleFoolishMode,
                   icon: const Icon(Icons.mood),
                 ),
@@ -302,40 +322,68 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
+  void _changeScoreList() {
+    setState(() {
+      _isYear = !_isYear;
+      if (_isYear && _yearList.isEmpty && _scoreList.isNotEmpty) {
+        for (var i = _scoreList.length - 1; i >= 0; i--) {
+          var j = _scoreList.length - 1 - i;
+          if (j % 2 == 0) {
+            _yearList.add(_scoreList[i]);
+          } else {
+            var a = _yearList.lastOrNull;
+            if (a != null) {
+              a.list.addAll(_scoreList[i].list);
+            }
+          }
+        }
+      }
+    });
+  }
+
   SliverPadding _buildStatsCard() {
     return SliverPadding(
       padding: const EdgeInsets.all(16.0),
       sliver: SliverToBoxAdapter(
         child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildStatItem(
-                  icon: Icons.credit_score,
-                  value: ScoreList.getTotalGpa(_scoreList).toStringAsFixed(2),
-                  label: 'GPA',
-                ),
-                _buildStatItem(
-                  icon: Icons.do_not_disturb_on_total_silence,
-                  value: ScoreList.getTotalCourse(_scoreList).toString(),
-                  label: '通过课程',
-                ),
-                InkWell(
-                  onTap: _showCreditInfoDialog,
-                  child: _buildStatItem(
-                    icon: Icons.equalizer,
-                    value: ScoreList.getTotalCredit(_scoreList)
-                        .toStringAsFixed(1),
-                    label: '总学分',
-                    withInfo: true,
-                  ),
-                )
-              ],
-            ),
-          ),
+          child: _buildStatsPadding(),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatsPadding({ScoreList? scoreList}) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildStatItem(
+            icon: Icons.credit_score,
+            value: scoreList == null
+                ? ScoreList.getTotalGpa(_scoreList).toStringAsFixed(2)
+                : scoreList.totalGpa.toStringAsFixed(2),
+            label: 'GPA',
+          ),
+          _buildStatItem(
+            icon: Icons.do_not_disturb_on_total_silence,
+            value: scoreList == null
+                ? ScoreList.getTotalCourse(_scoreList).toString()
+                : scoreList.totalCourse.toString(),
+            label: '通过课程',
+          ),
+          InkWell(
+            onTap: _showCreditInfoDialog,
+            child: _buildStatItem(
+              icon: Icons.equalizer,
+              value: scoreList == null
+                  ? ScoreList.getTotalCredit(_scoreList).toStringAsFixed(1)
+                  : scoreList.totalCredit.toStringAsFixed(1),
+              label: '总学分',
+              withInfo: true,
+            ),
+          )
+        ],
       ),
     );
   }
@@ -401,15 +449,53 @@ class _ScorePageState extends State<ScorePage> {
       sliver: SliverToBoxAdapter(
         child: _scoreList.isEmpty
             ? _buildEmptyState()
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _scoreList.length,
-                itemBuilder: (context, index) =>
-                    _buildSemesterCard(_scoreList[index]),
-              ),
+            : _isYear
+                ? _buildYearList()
+                : _buildSemesterList(),
       ),
     );
+  }
+
+  Widget _buildSemesterList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _scoreList.length,
+      itemBuilder: (context, index) => _buildSemesterCard(_scoreList[index]),
+    );
+  }
+
+  Widget _buildYearList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _yearList.length,
+      itemBuilder: (context, index) => _buildYearCard(_yearList[index], index),
+    );
+  }
+
+  Widget _buildYearCard(ScoreList score, int index) {
+    const yearStringList = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+    return Card(
+        margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4),
+        elevation: 4,
+        child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(children: [
+              Text('大${yearStringList[index]}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  )),
+              _buildStatsPadding(scoreList: score),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: score.list.length,
+                itemBuilder: (context, index) =>
+                    _buildScoreItem(score.list[index]),
+              )
+            ])));
   }
 
   Widget _buildEmptyState() {
