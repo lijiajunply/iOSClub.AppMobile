@@ -146,7 +146,7 @@ class _MainAppState extends State<MainApp> {
             // 为不同平台配置不同的转场动画
             TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
             TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CustomPageTransitionBuilder(),
+            TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
             TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
             TargetPlatform.linux: CustomPageTransitionBuilder(),
             TargetPlatform.fuchsia: const FadeUpwardsPageTransitionsBuilder(),

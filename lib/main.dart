@@ -14,11 +14,11 @@ void main() async {
   requestPermissions();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-
-  }else{
+    await CourseReminderService.performCourseReminder();
+  } else {
     await BackgroundService.initializeService();
+    await BackgroundService.startService();
   }
-
 
   runApp(MaterialApp(
     title: 'iOS Club App',

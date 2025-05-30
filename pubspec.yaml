@@ -50,6 +50,7 @@ dependencies:
   fl_chart: ^1.0.0
   archive: ^4.0.7
   flutter_background_service: ^5.1.0
+  msix: ^3.16.9
 
 dev_dependencies:
   flutter_test:
@@ -86,3 +87,11 @@ flutter_native_splash:
   color_dark: "#121212"
   image_dark: assets/icon.png
   web: false
+
+msix_config:
+  display_name: iOS Club App
+  msix_version: 1.10.0.0
+  logo_path: C:\Projects\FlutterProjects\ios_club_app\windows\runner\resources\app_icon.ico
+  publisher_display_name: iOS Club of XAUAT
+  identity_name: com.xauatiosclub.clubapp
+  timestamp_url: http://timestamp.digicert.com  # 或尝试其他服务器

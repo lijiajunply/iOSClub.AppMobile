@@ -101,6 +101,16 @@ void onStart(ServiceInstance service) async {
   await _updateTodayCourse();
 }
 
+class CourseReminderService {
+  static Future<void> performCourseReminder() async {
+    await _performCourseReminder();
+  }
+
+  static Future<void> updateTodayCourse() async {
+    await _updateTodayCourse();
+  }
+}
+
 // 课程提醒逻辑
 Future<void> _performCourseReminder() async {
   try {

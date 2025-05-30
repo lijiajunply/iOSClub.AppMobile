@@ -110,36 +110,159 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   Widget build(BuildContext context) {
     final isDesktop =
         Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+
+    final setting = Row(
+      children: [
+        IconButton(
+            onPressed: () {
+              setState(() {
+                isStyle = !isStyle;
+              });
+            },
+            icon: const Icon(Icons.style)),
+        IconButton(
+            onPressed: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('正在进行更新，请稍后'),
+                ),
+              );
+              await EduService.getCourse(isRefresh: true);
+              setState(() {
+                allCourse.clear();
+                DataService.getAllCourse().then((value) {
+                  setState(() {
+                    for (var i = 0; i <= maxWeek; i++) {
+                      if (i == 0) {
+                        allCourse.add(value);
+                        continue;
+                      }
+                      allCourse.add(value
+                          .where((course) => course.weekIndexes.contains(i))
+                          .toList());
+                    }
+                    jumpToPage(weekNow);
+                  });
+                });
+              });
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('更新完成'),
+                  ),
+                );
+              }
+            },
+            icon: const Icon(Icons.refresh)),
+        IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/ScheduleSetting');
+            },
+            icon: const Icon(Icons.more_vert))
+      ],
+    );
+    final animatedSlide = AnimatedSlide(
+        duration: const Duration(milliseconds: 300), // 动画持续时间，可以根据需要调整
+        curve: Curves.easeInOut,
+        offset: Offset(0, isStyle ? 0 : -0.1),
+        child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            opacity: isStyle ? 1.0 : 0.0,
+            child: isStyle
+                ? Padding(
+                    padding: EdgeInsets.all(4),
+                    child: CupertinoSlidingSegmentedControl<CourseStyle>(
+                      groupValue: courseStyle,
+                      // Callback that sets the selected segmented control.
+                      onValueChanged: (CourseStyle? value) async {
+                        if (value != null) {
+                          setState(() {
+                            courseStyle = value;
+                            if (value == CourseStyle.small) {
+                              height = 50;
+                            } else if (value == CourseStyle.normal) {
+                              height = 55;
+                            } else if (value == CourseStyle.large) {
+                              height = 60;
+                            } else if (value == CourseStyle.fool) {
+                              allCourse.clear();
+                              allCourse.add([]);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('是的，我没有课了'),
+                                ),
+                              );
+                            }
+                          });
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setDouble('course_size', height);
+                        }
+                      },
+                      children: {
+                        CourseStyle.small: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text('较小'),
+                        ),
+                        CourseStyle.normal: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text('默认'),
+                        ),
+                        CourseStyle.large: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text('较大'),
+                        ),
+                        CourseStyle.fool: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text('愚人节'),
+                        ),
+                      },
+                    ),
+                  )
+                : Container()));
+
     return Scaffold(
         body: Column(
       children: [
         Padding(
             padding: const EdgeInsets.all(8),
             child: isDesktop
-                ? Row(
+                ? Column(
                     children: [
-                      Expanded(
-                          child: TextButton(
-                              onPressed: () =>
-                                  jumpToPage((currentPage - 1).ceil()),
-                              child: const Text('上一周'))),
-                      Expanded(
-                          child: Center(
-                        child: Text(
-                          currentPage == 0
-                              ? '全部课表'
-                              : '第 $currentPage 周 ${currentPage == weekNow ? "(本周)" : ""}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      )),
-                      Expanded(
-                          child: TextButton(
-                              onPressed: () =>
-                                  jumpToPage((pageController.page! + 1).ceil()),
-                              child: const Text('下一周'))),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: TextButton(
+                                  onPressed: () =>
+                                      jumpToPage((currentPage - 1).ceil()),
+                                  child: const Text('上一周'))),
+                          Expanded(
+                              child: Center(
+                            child: Text(
+                              currentPage == 0
+                                  ? '全部课表'
+                                  : '第 $currentPage 周 ${currentPage == weekNow ? "(本周)" : ""}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                          )),
+                          Expanded(
+                              child: TextButton(
+                                  onPressed: () => jumpToPage(
+                                      (pageController.page! + 1).ceil()),
+                                  child: const Text('下一周'))),
+                        ],
+                      ),
+                      Row(children: [
+                        Expanded(child: const SizedBox()),
+                        Expanded(child: animatedSlide),
+                        Expanded(child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [setting],
+                        ))
+                      ])
                     ],
                   )
                 : Row(
@@ -179,120 +302,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                           )
                         ]),
                       ),
-                      Row(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isStyle = !isStyle;
-                                });
-                              },
-                              icon: const Icon(Icons.style)),
-                          IconButton(
-                              onPressed: () async {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('正在进行更新，请稍后'),
-                                  ),
-                                );
-                                await EduService.getCourse(isRefresh: true);
-                                setState(() {
-                                  allCourse.clear();
-                                  DataService.getAllCourse().then((value) {
-                                    setState(() {
-                                      for (var i = 0; i <= maxWeek; i++) {
-                                        if (i == 0) {
-                                          allCourse.add(value);
-                                          continue;
-                                        }
-                                        allCourse.add(value
-                                            .where((course) =>
-                                                course.weekIndexes.contains(i))
-                                            .toList());
-                                      }
-                                      jumpToPage(weekNow);
-                                    });
-                                  });
-                                });
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('更新完成'),
-                                    ),
-                                  );
-                                }
-                              },
-                              icon: const Icon(Icons.refresh)),
-                          IconButton(
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                    context, '/ScheduleSetting');
-                              },
-                              icon: const Icon(Icons.more_vert))
-                        ],
-                      )
+                      setting
                     ],
                   )),
-        AnimatedSlide(
-            duration: const Duration(milliseconds: 300), // 动画持续时间，可以根据需要调整
-            curve: Curves.easeInOut,
-            offset: Offset(0, isStyle ? 0 : -0.1),
-            child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                opacity: isStyle ? 1.0 : 0.0,
-                child: isStyle
-                    ? Padding(
-                        padding: EdgeInsets.all(4),
-                        child: CupertinoSlidingSegmentedControl<CourseStyle>(
-                          groupValue: courseStyle,
-                          // Callback that sets the selected segmented control.
-                          onValueChanged: (CourseStyle? value) async {
-                            if (value != null) {
-                              setState(() {
-                                courseStyle = value;
-                                if (value == CourseStyle.small) {
-                                  height = 50;
-                                } else if (value == CourseStyle.normal) {
-                                  height = 55;
-                                } else if (value == CourseStyle.large) {
-                                  height = 60;
-                                } else if (value == CourseStyle.fool) {
-                                  allCourse.clear();
-                                  allCourse.add([]);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('是的，我没有课了'),
-                                    ),
-                                  );
-                                }
-                              });
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              await prefs.setDouble('course_size', height);
-                            }
-                          },
-                          children: {
-                            CourseStyle.small: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              child: Text('较小'),
-                            ),
-                            CourseStyle.normal: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              child: Text('默认'),
-                            ),
-                            CourseStyle.large: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              child: Text('较大'),
-                            ),
-                            CourseStyle.fool: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              child: Text('愚人节'),
-                            ),
-                          },
-                        ),
-                      )
-                    : Container())),
+        if (!isDesktop) animatedSlide,
         isLoading
             ? const Expanded(
                 child: Center(
