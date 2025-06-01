@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:home_widget/home_widget.dart';
+import 'package:intl/intl.dart';
 
 import '../PageModels/ScheduleItem.dart';
 import 'data_service.dart';
@@ -18,8 +19,8 @@ class WidgetService {
 
     // 更新小组件
     await HomeWidget.saveWidgetData<String>('flutter.title', '今日课表');
-    await HomeWidget.saveWidgetData<String>(
-        'flutter.date', '第$weekNow周 周${a[now.weekday]}');
+    await HomeWidget.saveWidgetData<String>('flutter.date',
+        '第$weekNow周 周${a[now.weekday]} ${now.hour}时 ${DateFormat('mm').format(now)}分');
     await HomeWidget.saveWidgetData<String>(
         'flutter.courses', jsonEncode(todayCourses));
 
