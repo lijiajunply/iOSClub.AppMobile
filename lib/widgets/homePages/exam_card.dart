@@ -121,7 +121,13 @@ class _ExamCardState extends State<ExamCard> {
         elevation: 4,
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Center(child: CircularProgressIndicator()),
+          child: Column(
+            children: [
+              Center(child: CircularProgressIndicator()),
+              SizedBox(height: 16),
+              Text('正在加载考试信息...'),
+            ],
+          ),
         ),
       );
     }

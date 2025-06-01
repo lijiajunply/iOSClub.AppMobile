@@ -34,9 +34,25 @@ class NotificationService {
       requestSoundPermission: true,
     );
 
+    final DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
+    final WindowsInitializationSettings initializationSettingsWindows =
+        WindowsInitializationSettings(
+      appName: 'iOS Club App',
+      appUserModelId: 'DA45F98E-38F0-F574-4192-36EB8C8DA0CA',
+      guid: 'DA45F98E-38F0-F574-4192-36EB8C8DA0CA',
+    );
+
     final InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
+      windows: initializationSettingsWindows,
+      macOS: initializationSettingsDarwin,
     );
 
     await notifications.initialize(

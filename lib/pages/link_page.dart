@@ -61,6 +61,9 @@ class ScoreBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 判断是否为平板布局（宽度大于600）
+    final isTablet = screenWidth > 600;
 
     return Card(
       elevation: 6,
@@ -73,8 +76,8 @@ class ScoreBuilder extends StatelessWidget {
               style: const TextStyle(fontSize: 24),
             ),
             GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isTablet ? 6 : 3,
                 ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -91,7 +94,7 @@ class ScoreBuilder extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           FutureBuilder(
-                              future: IconUtil.getIconFont(linkList.icon!),
+                              future: IconUtil.getIconFont(linkList),
                               builder: (context, snapshot) {
                                 return snapshot.hasData
                                     ? snapshot.data!
