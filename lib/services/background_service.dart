@@ -78,27 +78,31 @@ void onStart(ServiceInstance service) async {
     service.stopSelf();
   });
 
-  // 定时器用于课程提醒（8小时间隔）
-  Timer.periodic(const Duration(hours: 8), (timer) async {
-    if (shouldStop) {
-      timer.cancel();
-      return;
-    }
-    await _performCourseReminder();
-  });
-
-  // 定时器用于更新今日课程（15分钟间隔）
-  Timer.periodic(const Duration(minutes: 15), (timer) async {
-    if (shouldStop) {
-      timer.cancel();
-      return;
-    }
-    await _updateTodayCourse();
-  });
-
   // 立即执行一次
   await _performCourseReminder();
   await _updateTodayCourse();
+
+  var performCourseReminderTime = DateTime.now();
+  var updateTodayCourseTime = DateTime.now();
+
+  while (true) {
+    if (shouldStop) {
+      return;
+    }
+
+    if (DateTime.now().difference(performCourseReminderTime) >=
+        const Duration(hours: 8)) {
+      await _performCourseReminder();
+      performCourseReminderTime = DateTime.now();
+    }
+    if (DateTime.now().difference(updateTodayCourseTime) >=
+        const Duration(minutes: 15)) {
+      await _updateTodayCourse();
+      updateTodayCourseTime = DateTime.now();
+    }
+
+    await Future.delayed(const Duration(minutes: 1));
+  }
 }
 
 class CourseReminderService {
@@ -121,7 +125,8 @@ Future<void> _performCourseReminder() async {
     final isRemind = prefs.getBool('is_remind') ?? false;
 
     if (isRemind &&
-        ((lastRemind == null || lastRemind == 0) || nowTime.day != lastRemind)) {
+        ((lastRemind == null || lastRemind == 0) ||
+            nowTime.day != lastRemind)) {
       try {
         final result = await DataService.getCourse();
         await NotificationService.toList(result.$2);
@@ -139,8 +144,8 @@ Future<void> _performCourseReminder() async {
 // 更新今日课程逻辑
 Future<void> _updateTodayCourse() async {
   try {
-    final (isShowingTomorrow, courses) = await DataService.getCourse(
-        isTomorrow: false);
+    final (isShowingTomorrow, courses) =
+        await DataService.getCourse(isTomorrow: false);
     final scheduleItems = changeScheduleItems(courses);
     await WidgetService.updateTodayCourses(scheduleItems);
     debugPrint('更新今日课程成功');
@@ -170,8 +175,7 @@ List<ScheduleItem> changeScheduleItems(List<CourseModel> a) {
 
     return ScheduleItem(
       title: course.courseName,
-      time:
-      '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
+      time: '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
       location: course.room,
     );
   }));
