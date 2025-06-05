@@ -109,7 +109,7 @@ class _ScorePageState extends State<ScorePage> {
       }
 
       final headers = _buildHeaders(cookieData);
-      final semesters = await DataService.getSemester();
+      final semesters = await DataService.getSemester(isRefresh: isRefresh);
 
       final freshScoreList = <ScoreList>[];
       for (final semester in semesters) {

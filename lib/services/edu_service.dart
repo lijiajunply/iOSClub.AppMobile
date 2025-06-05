@@ -198,6 +198,9 @@ class EduService {
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('semester_data', response.body);
+
+        final now = DateTime.now().microsecondsSinceEpoch;
+        await prefs.setInt('semester_time', now);
       }
     } catch (e) {
       if (kDebugMode) {
