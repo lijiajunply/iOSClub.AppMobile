@@ -8,8 +8,6 @@ import 'dart:io';
 
 import 'main_app.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

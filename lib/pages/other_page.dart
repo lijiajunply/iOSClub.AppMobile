@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/tile_service.dart';
+import '../widgets/BlurWidget.dart';
 
 class OtherPage extends StatefulWidget {
   const OtherPage({super.key});
@@ -39,6 +40,7 @@ class _OtherPageState extends State<OtherPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('其他'),
+        flexibleSpace: BlurWidget(child: SizedBox.expand()),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(8.0),

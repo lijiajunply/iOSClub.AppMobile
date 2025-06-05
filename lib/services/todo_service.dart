@@ -16,7 +16,7 @@ class TodoService {
     }
     final List<TodoItem> list = [];
     list.addAll(await getLocalTodoList());
-    list.addAll(await getClubTodoList());
+    //list.addAll(await getClubTodoList());
     return list;
   }
 

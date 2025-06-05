@@ -18,7 +18,8 @@ import 'Pages/score_page.dart';
 import 'Pages/todo_page.dart';
 import 'Pages/member_page.dart';
 import 'Services/git_service.dart';
-import 'main.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -42,6 +43,13 @@ class _MainAppState extends State<MainApp> {
         }
       });
     }
+
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        _currentIndex = prefs.getInt('page_index') ?? 0;
+        navigatorKey.currentState?.pushNamed(_routeMap[_currentIndex] ?? '/');
+      });
+    });
   }
 
   @override

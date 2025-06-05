@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../Models/TodoItem.dart';
 import '../services/todo_service.dart';
+import '../widgets/BlurWidget.dart';
 import '../widgets/empty_widget.dart';
 
 class TodoPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class _TodoPageState extends State<TodoPage> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('待办事务'),
+          flexibleSpace: BlurWidget(child: SizedBox.expand()),
         ),
         body: Padding(
             padding: EdgeInsets.all(16),

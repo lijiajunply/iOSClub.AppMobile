@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
 import 'package:ios_club_app/models/MemberModel.dart';
 
+import '../BlurWidget.dart';
+
 class StaffDataPage extends StatefulWidget {
   const StaffDataPage({super.key});
 
@@ -41,44 +43,47 @@ class _StaffDataPageState extends State<StaffDataPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('成员数据')),
+      appBar: AppBar(
+        title: const Text('成员数据'),
+        flexibleSpace: BlurWidget(child: SizedBox.expand()),
+      ),
       body: SingleChildScrollView(
           child: Column(children: [
-            isLoading
-                ? const Center(
+        isLoading
+            ? const Center(
                 child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                ))
-                : ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _members.length,
-              itemBuilder: (context, index) {
-                final member = _members[index];
-                return buildMemberCard(member);
-              },
-            ),
-            PaginationWidget(
-                currentPage: _pageNum,
-                totalPages: _totalPages,
-                pageSize: _pageSize,
-                onPageChanged: (page) {
-                  setState(() {
-                    _pageNum = page;
-                  });
-                  _getMembers();
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ))
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _members.length,
+                itemBuilder: (context, index) {
+                  final member = _members[index];
+                  return buildMemberCard(member);
                 },
-                onPageSizeChanged: (pageSize) {
-                  setState(() {
-                    _pageSize = pageSize;
-                  });
-                  _getMembers();
-                }),
-            const SizedBox(height: 16),
-          ])),
+              ),
+        PaginationWidget(
+            currentPage: _pageNum,
+            totalPages: _totalPages,
+            pageSize: _pageSize,
+            onPageChanged: (page) {
+              setState(() {
+                _pageNum = page;
+              });
+              _getMembers();
+            },
+            onPageSizeChanged: (pageSize) {
+              setState(() {
+                _pageSize = pageSize;
+              });
+              _getMembers();
+            }),
+        const SizedBox(height: 16),
+      ])),
     );
   }
 
@@ -166,8 +171,9 @@ class PaginationWidget extends StatelessWidget {
             style: buttonStyle.copyWith(
               side: WidgetStateProperty.all(BorderSide(
                   color: page == currentPage ? Colors.blue : Colors.grey)),
-              backgroundColor: WidgetStateProperty.all(
-                  page == currentPage ? Colors.blue.withValues(alpha: 220) : null),
+              backgroundColor: WidgetStateProperty.all(page == currentPage
+                  ? Colors.blue.withValues(alpha: 220)
+                  : null),
             ),
             onPressed: page == currentPage ? null : () => onPageChanged(page),
             child: Text(
@@ -239,7 +245,7 @@ class PaginationWidget extends StatelessWidget {
           OutlinedButton(
             style: buttonStyle,
             onPressed:
-            currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
+                currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
             child: const Icon(Icons.chevron_left),
           ),
           const SizedBox(width: 6),
@@ -272,7 +278,7 @@ class PaginationWidget extends StatelessWidget {
                   value: pageSize,
                   items: pageSizeOptions
                       .map((e) =>
-                      DropdownMenuItem(value: e, child: Text('$e / page')))
+                          DropdownMenuItem(value: e, child: Text('$e / page')))
                       .toList(),
                   onChanged: (v) {
                     if (v != null && v != pageSize) {

@@ -89,6 +89,10 @@ class AboutPage extends StatelessWidget {
               ),
               TodoListSetting(),
               const SizedBox(
+                height: 8,
+              ),
+              HomePageSetting(),
+              const SizedBox(
                 height: 16,
               ),
               Padding(
@@ -535,5 +539,83 @@ class _TodoListSettingState extends State<TodoListSetting> {
         },
       ),
     ));
+  }
+}
+
+class HomePageSetting extends StatefulWidget {
+  const HomePageSetting({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _HomePageSettingState();
+}
+
+class _HomePageSettingState extends State<HomePageSetting> {
+  int _pageIndex = 0;
+  final List<String> _pageNames = [
+    '首页',
+    '课程页',
+    '成绩页',
+    '个人页',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        _pageIndex = prefs.getInt('page_index') ?? 0;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: const Text('打开应用的第一个页面',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        trailing: Text(_pageNames[_pageIndex]),
+        onTap: () => _showDialog(CupertinoPicker(
+          magnification: 1.22,
+          squeeze: 1.2,
+          useMagnifier: true,
+          itemExtent: 32.0,
+          // This sets the initial item.
+          scrollController:
+              FixedExtentScrollController(initialItem: _pageIndex),
+          // This is called when selected item is changed.
+          onSelectedItemChanged: (int selectedItem) {
+            setState(() {
+              _pageIndex = selectedItem;
+            });
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setInt('page_index', selectedItem);
+            });
+          },
+          children: List.generate(_pageNames.length, (int index) {
+            return Center(child: Text(_pageNames[index]));
+          }),
+        )),
+      ),
+    );
+  }
+
+  // This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoPicker.
+  void _showDialog(Widget child) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        // The Bottom margin is provided to align the popup above the system navigation bar.
+        margin:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        // Provide a background color for the popup.
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        // Use a SafeArea widget to avoid system overlaps.
+        child: SafeArea(top: false, child: child),
+      ),
+    );
   }
 }

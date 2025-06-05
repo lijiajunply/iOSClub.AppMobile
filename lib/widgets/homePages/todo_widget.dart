@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Models/TodoItem.dart';
 
@@ -14,16 +15,31 @@ class TodoWidget extends StatefulWidget {
 }
 
 class _TodoWidgetState extends State<TodoWidget> {
-  List<TodoItem> _todos = [];
+  final List<TodoItem> _todos = [];
 
   @override
   void initState() {
     super.initState();
-    TodoService.getTodoList().then((value) {
-      setState(() {
-        _todos = value;
-      });
+    getTodoList();
+  }
+
+  Future<void> getTodoList() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final isUpdateToClub = prefs.getBool('is_update_club') ?? false;
+    List<TodoItem> list = [];
+    _todos.clear();
+    list = await TodoService.getLocalTodoList();
+    setState(() {
+      _todos.addAll(list);
     });
+
+    if(isUpdateToClub){
+      list = await TodoService.getClubTodoList();
+      setState(() {
+        _todos.addAll(list);
+      });
+    }
   }
 
   @override

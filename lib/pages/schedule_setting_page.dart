@@ -82,108 +82,117 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop =
+        Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+
     super.build(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('课程设置')),
+      appBar: AppBar(
+        title: const Text('课程设置'),
+      ),
       body: CustomScrollView(
         cacheExtent: 500,
         slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: PageHeaderDelegate(
-              title: '将课程录入到日历',
-              minHeight: 66,
-              maxHeight: 80,
-              icon: Icon(Icons.open_in_new),
-              onPressed: () async {
-                if (url == '') {
-                  return;
-                }
-                // 尝试启动系统日历
-
-                if (Platform.isAndroid) {
-                  final intent = AndroidIntent(
-                    action: 'android.intent.action.VIEW',
-                    data: 'webcal$url',
-                    type: 'text/calendar',
-                  );
-                  var result = await intent.canResolveActivity();
-                  if (result != null && result) {
-                    await intent.launch();
-                  } else {
-                    // 如果没有找到可以处理该 Intent 的应用，则显示错误消息
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('没有找到日历应用，请手动导入'),
-                        ),
-                      );
-                    }
+          if (!isDesktop)
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: PageHeaderDelegate(
+                title: '将课程录入到日历',
+                minHeight: 66,
+                maxHeight: 80,
+                icon: Icon(Icons.open_in_new),
+                onPressed: () async {
+                  if (url == '') {
+                    return;
                   }
-                  return;
-                }
+                  // 尝试启动系统日历
 
-                final Uri uri = Uri.parse('webcal$url');
+                  if (Platform.isAndroid) {
+                    final intent = AndroidIntent(
+                      action: 'android.intent.action.VIEW',
+                      data: 'webcal$url',
+                      type: 'text/calendar',
+                    );
+                    var result = await intent.canResolveActivity();
+                    if (result != null && result) {
+                      await intent.launch();
+                    } else {
+                      // 如果没有找到可以处理该 Intent 的应用，则显示错误消息
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('没有找到日历应用，请手动导入'),
+                          ),
+                        );
+                      }
+                    }
+                    return;
+                  }
 
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri);
-                } else {
-                  throw '无法打开日历应用';
-                }
-              },
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '没有用？试试手动录入',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: TextEditingController(text: 'webcal$url'),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey[800] // 暗色模式下的背景
-                          : Colors.grey[100], // 亮色模式下的背景,
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.copy,
-                            color:
-                            Theme.of(context).brightness == Brightness.dark
-                                ? Colors.grey[300] // 暗色模式下的图标颜色
-                                : Colors.grey[700] // 亮色模式下的图标颜色
-                        ),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: 'webcal$url'));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('复制成功!'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => showCalendarGuidanceDialog(context),
-                    label: Text('我不会导入'),
-                    icon: Icon(Icons.help),
-                  )
-                ],
+                  final Uri uri = Uri.parse('webcal$url');
+
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri);
+                  } else {
+                    throw '无法打开日历应用';
+                  }
+                },
               ),
             ),
-          ),
+          if (!isDesktop)
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '没有用？试试手动录入',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: TextEditingController(text: 'webcal$url'),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Colors.grey[800] // 暗色模式下的背景
+                                : Colors.grey[100], // 亮色模式下的背景,
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.copy,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.grey[300] // 暗色模式下的图标颜色
+                                  : Colors.grey[700] // 亮色模式下的图标颜色
+                              ),
+                          onPressed: () {
+                            Clipboard.setData(
+                                ClipboardData(text: 'webcal$url'));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('复制成功!'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () => showCalendarGuidanceDialog(context),
+                      label: Text('我不会导入'),
+                      icon: Icon(Icons.help),
+                    )
+                  ],
+                ),
+              ),
+            ),
           SliverPersistentHeader(
             pinned: true,
             delegate: PageHeaderDelegate(

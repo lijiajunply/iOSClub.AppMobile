@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../Services/club_service.dart';
+import '../widgets/BlurWidget.dart';
 import '../widgets/empty_widget.dart';
 import '../widgets/memberPages/member_data_page.dart';
 
@@ -10,15 +11,15 @@ class MemberPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      appBar: AppBar(title: Text('社团详情')),
+      appBar: AppBar(
+        title: Text('社团详情'),
+        flexibleSpace: BlurWidget(child: SizedBox.expand()),
+      ),
       body: FutureBuilder(
         future: ClubService.getMemberInfo(),
         builder: (context, snapshot) {
@@ -60,7 +61,7 @@ class MemberPage extends StatelessWidget {
                     Text(
                       '我的任务',
                       style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     if ((infoData['tasks'] as List<dynamic>).isNotEmpty)
@@ -74,9 +75,9 @@ class MemberPage extends StatelessWidget {
                           EmptyWidget(),
                           Center(
                               child: Text(
-                                '您的任务都已经完成了',
-                                style: TextStyle(fontSize: 20),
-                              ))
+                            '您的任务都已经完成了',
+                            style: TextStyle(fontSize: 20),
+                          ))
                         ],
                       ),
                   ],
@@ -89,7 +90,7 @@ class MemberPage extends StatelessWidget {
                     Text(
                       '我的项目',
                       style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     if ((infoData['projects'] as List<dynamic>).isNotEmpty)
@@ -103,9 +104,9 @@ class MemberPage extends StatelessWidget {
                           EmptyWidget(),
                           Center(
                               child: Text(
-                                '您的项目都已经完成了',
-                                style: TextStyle(fontSize: 20),
-                              ))
+                            '您的项目都已经完成了',
+                            style: TextStyle(fontSize: 20),
+                          ))
                         ],
                       ),
                   ],
@@ -124,28 +125,27 @@ class MemberPage extends StatelessWidget {
                     padding: EdgeInsets.all(16),
                     child: isTablet
                         ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(child: info),
-                        Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: task,
-                            ))
-                      ],
-                    )
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(child: info),
+                              Expanded(
+                                  child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: task,
+                              ))
+                            ],
+                          )
                         : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [info],
-                    ),
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [info],
+                          ),
                   ),
                 ),
 
                 if (!isTablet) SizedBox(height: 16),
 
                 if (!isTablet)
-                  ...task.map((item) =>
-                      Column(
+                  ...task.map((item) => Column(
                         children: [
                           SizedBox(
                               width: double.infinity,
@@ -157,7 +157,7 @@ class MemberPage extends StatelessWidget {
                       )),
 
                 if (identity != 'Member' && identity != 'Department')
-                // 部门卡片
+                  // 部门卡片
                   Card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +183,7 @@ class MemberPage extends StatelessWidget {
                   SizedBox(height: 16),
 
                 if (identity != 'Member' && identity != 'Department')
-                // 数据中心卡片
+                  // 数据中心卡片
                   Card(
                       child: Padding(
                           padding: EdgeInsets.all(16),
@@ -198,41 +198,32 @@ class MemberPage extends StatelessWidget {
                               SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
-                                  _buildDataItem(
-                                      '当前成员', '${infoData['total']}',
+                                  _buildDataItem('当前成员', '${infoData['total']}',
                                       onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                                  return MemberDataPage();
-                                                }
-                                            )
-                                        );
-                                      }),
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return MemberDataPage();
+                                    }));
+                                  }),
                                   _buildDataItem(
                                       '部员数量', '${infoData['staffsCount']}'),
                                   _buildDataItem('项目数量',
-                                      '${(infoData['projects'] as List<dynamic>)
-                                          .length}'),
+                                      '${(infoData['projects'] as List<dynamic>).length}'),
                                 ],
                               ),
                               const SizedBox(height: 16),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   _buildDataItem('任务数量',
-                                      '${(infoData['tasks'] as List<dynamic>)
-                                          .length}'),
+                                      '${(infoData['tasks'] as List<dynamic>).length}'),
                                   _buildDataItem('资源数量',
-                                      '${(infoData['resources'] as List<
-                                          dynamic>).length}'),
+                                      '${(infoData['resources'] as List<dynamic>).length}'),
                                   _buildDataItem('部门数量',
-                                      '${(infoData['departments'] as List<
-                                          dynamic>).length}'),
+                                      '${(infoData['departments'] as List<dynamic>).length}'),
                                 ],
                               ),
                             ],
@@ -264,23 +255,23 @@ class MemberPage extends StatelessWidget {
                                   department['name'], department['description'],
                                   rightWidget: Icon(Icons.open_in_new),
                                   onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: Text(department['name']),
-                                            content:
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(department['name']),
+                                        content:
                                             Text(department['description']),
-                                            actions: [
-                                              TextButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: Text('关闭'))
-                                            ],
-                                          );
-                                        });
-                                  });
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('关闭'))
+                                        ],
+                                      );
+                                    });
+                              });
                             }).toList(),
                           if ((infoData['resources'] as List<dynamic>).isEmpty)
                             Column(
@@ -288,9 +279,9 @@ class MemberPage extends StatelessWidget {
                                 EmptyWidget(),
                                 Center(
                                     child: Text(
-                                      '当前没有资源',
-                                      style: TextStyle(fontSize: 20),
-                                    ))
+                                  '当前没有资源',
+                                  style: TextStyle(fontSize: 20),
+                                ))
                               ],
                             ),
                         ],
@@ -327,7 +318,7 @@ class MemberPage extends StatelessWidget {
     return ListTile(
         title: Text(title, style: TextStyle(fontSize: 16)),
         subtitle:
-        Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
         //trailing: Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
         trailing: rightWidget);

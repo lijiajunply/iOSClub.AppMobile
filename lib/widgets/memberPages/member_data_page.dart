@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
 import 'package:ios_club_app/models/MemberModel.dart';
 
+import '../BlurWidget.dart';
+
 class MemberDataPage extends StatefulWidget {
   const MemberDataPage({super.key});
 
@@ -41,7 +43,10 @@ class _MemberDataPageState extends State<MemberDataPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('成员数据')),
+      appBar: AppBar(
+        title: const Text('成员数据'),
+        flexibleSpace: BlurWidget(child: SizedBox.expand()),
+      ),
       body: SingleChildScrollView(
           child: Column(children: [
         isLoading
@@ -166,8 +171,9 @@ class PaginationWidget extends StatelessWidget {
             style: buttonStyle.copyWith(
               side: WidgetStateProperty.all(BorderSide(
                   color: page == currentPage ? Colors.blue : Colors.grey)),
-              backgroundColor: WidgetStateProperty.all(
-                  page == currentPage ? Colors.blue.withValues(alpha: 220) : null),
+              backgroundColor: WidgetStateProperty.all(page == currentPage
+                  ? Colors.blue.withValues(alpha: 220)
+                  : null),
             ),
             onPressed: page == currentPage ? null : () => onPageChanged(page),
             child: Text(
