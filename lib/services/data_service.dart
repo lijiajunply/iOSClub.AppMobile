@@ -179,8 +179,24 @@ class DataService {
     return list;
   }
 
-  static Future<List<SemesterModel>> getSemester() async {
+  static Future<List<SemesterModel>> getSemester(
+      {bool isRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
+    if (isRefresh) {
+      await EduService.getSemester();
+    }
+
+    final semesterIntTime = prefs.getInt('semester_time');
+
+    if (semesterIntTime != null) {
+      final now = DateTime.now();
+      if (now
+              .difference(DateTime.fromMicrosecondsSinceEpoch(semesterIntTime))
+              .inHours <
+          1) {
+        await EduService.getSemester();
+      }
+    }
     final String? jsonString = prefs.getString('semester_data');
     final List<SemesterModel> list = [];
     if (jsonString != null) {
@@ -233,7 +249,6 @@ class DataService {
       return list;
     }
   }
-
 
   static Future<List<CourseTime>> getAllTime() async {
     final allCourse = await getAllCourse();

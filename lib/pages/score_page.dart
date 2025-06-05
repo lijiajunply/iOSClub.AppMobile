@@ -109,7 +109,7 @@ class _ScorePageState extends State<ScorePage> {
       }
 
       final headers = _buildHeaders(cookieData);
-      final semesters = await DataService.getSemester();
+      final semesters = await DataService.getSemester(isRefresh: isRefresh);
 
       final freshScoreList = <ScoreList>[];
       for (final semester in semesters) {
@@ -325,11 +325,14 @@ class _ScorePageState extends State<ScorePage> {
   void _changeScoreList() {
     setState(() {
       _isYear = !_isYear;
-      if (_isYear && _yearList.isEmpty && _scoreList.isNotEmpty) {
+      if (_isYear && _scoreList.isNotEmpty) {
         for (var i = _scoreList.length - 1; i >= 0; i--) {
           var j = _scoreList.length - 1 - i;
           if (j % 2 == 0) {
-            _yearList.add(_scoreList[i]);
+            _yearList.add(ScoreList(
+              semester: _scoreList[i].semester,
+              list: _scoreList[i].list,
+            ));
           } else {
             var a = _yearList.lastOrNull;
             if (a != null) {
