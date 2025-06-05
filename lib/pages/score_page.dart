@@ -109,6 +109,9 @@ class _ScorePageState extends State<ScorePage> {
       }
 
       final headers = _buildHeaders(cookieData);
+      setState(() {
+        _loadingText = '正在获取所有学期数据...';
+      });
       final semesters = await DataService.getSemester(isRefresh: isRefresh);
 
       final freshScoreList = <ScoreList>[];
