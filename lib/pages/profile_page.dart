@@ -369,7 +369,39 @@ class _ProfilePageState extends State<ProfilePage> {
     ));
   }
 
+  List<ProfileButtonItem> get profileButtonItems {
+    return [
+      ProfileButtonItem(
+          icon: CupertinoIcons.square_list, title: '待办事务', route: '/Todo'),
+      ProfileButtonItem(
+          icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
+      ProfileButtonItem(
+          icon: Icons.info_outline, title: '设置/关于', route: '/About'),
+      ProfileButtonItem(
+          title: '校车', icon: Icons.directions_bus_rounded, route: '/SchoolBus'),
+      ProfileButtonItem(
+          icon: Icons.apple,
+          title: _isBoth ? '社团详情' : '登录社团iMember',
+          onPressed: () {
+            if (!_isBoth) {
+              setState(() {
+                _isLoggedIn = false;
+                _isOnlyLoginMember = true;
+              });
+            } else {
+              Navigator.pushNamed(context, '/iMember');
+            }
+          }),
+      ProfileButtonItem(title: '其他', icon: Icons.apps, route: '/Other'),
+      ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
+    ];
+  }
+
   Widget _buildProfileContent() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 判断是否为平板布局（宽度大于600）
+    final isTablet = screenWidth > 600;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -427,118 +459,19 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Card(
                 child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Column(children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          RawMaterialButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/Todo');
-                              },
-                              child: const Column(
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.square_list,
-                                    size: 32,
-                                  ),
-                                  Text(
-                                    '待办事务',
-                                    style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  ),
-                                ],
-                              )),
-                          RawMaterialButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/Link');
-                              },
-                              child: const Column(
-                                children: [
-                                  Icon(CupertinoIcons.link_circle, size: 32),
-                                  Text(
-                                    '建大导航',
-                                    style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  ),
-                                ],
-                              )),
-                          RawMaterialButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/About');
-                              },
-                              child: const Column(
-                                children: [
-                                  Icon(Icons.info_outline, size: 32),
-                                  Text(
-                                    '设置/关于',
-                                    style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  ),
-                                ],
-                              )),
-                        ],
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isTablet ? 6 : 3,
                       ),
-                      SizedBox(height: 20),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            RawMaterialButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/SchoolBus');
-                                },
-                                child: const Column(children: [
-                                  Icon(Icons.directions_bus_rounded, size: 32),
-                                  Text(
-                                    '校车',
-                                    style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  )
-                                ])),
-                            RawMaterialButton(
-                                onPressed: () {
-                                  if (!_isBoth) {
-                                    setState(() {
-                                      _isLoggedIn = false;
-                                      _isOnlyLoginMember = true;
-                                    });
-                                  } else {
-                                    Navigator.pushNamed(context, '/iMember');
-                                  }
-                                },
-                                child: Column(children: [
-                                  const Icon(Icons.apple, size: 32),
-                                  Text(
-                                    _isBoth ? '社团详情' : '登录社团iMember',
-                                    style: const TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  )
-                                ])),
-                            RawMaterialButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/Other');
-                                },
-                                child: const Column(children: [
-                                  Icon(Icons.apps, size: 32),
-                                  Text(
-                                    '其他',
-                                    style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey),
-                                  )
-                                ])),
-                          ])
-                    ])),
+                      itemBuilder: (context, index) {
+                        return Center(
+                          child: profileButtonItems[index].build(context),
+                        );
+                      },
+                      itemCount: profileButtonItems.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                    )),
               )),
           FutureBuilder(
               future: DataService.getInfoList(),
@@ -562,5 +495,47 @@ class _ProfilePageState extends State<ProfilePage> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+}
+
+class ProfileButtonItem {
+  final String title;
+  final IconData icon;
+  String route = '';
+  Function? onPressed;
+
+  ProfileButtonItem(
+      {required this.title,
+      required this.icon,
+      this.route = '',
+      this.onPressed});
+
+  RawMaterialButton build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: () {
+        if (route.isEmpty) {
+          onPressed?.call();
+        } else {
+          Navigator.pushNamed(context, route);
+        }
+      },
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 32,
+            ),
+            Text(
+              title,
+              style: const TextStyle(
+                  fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

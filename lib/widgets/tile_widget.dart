@@ -44,7 +44,7 @@ Widget buildElectricity() {
                     '${snapshot.data ?? '...'} 元',
                     style: TextStyle(
                         fontSize: 18,
-                        color: snapshot.data! <= 20 ? Colors.redAccent : null),
+                        color: snapshot.data! <= 10 ? Colors.redAccent : null),
                   ),
                   Wrap(
                     children: [

@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ios_club_app/pages/program_page.dart';
 import 'package:ios_club_app/services/download_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -175,6 +176,7 @@ class _MainAppState extends State<MainApp> {
         '/SchoolBus': (context) => const SchoolBusPage(),
         '/Other': (context) => const OtherPage(),
         '/iMember': (context) => const MemberPage(),
+        '/Program': (context) => const ProgramPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

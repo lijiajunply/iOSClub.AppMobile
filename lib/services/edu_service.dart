@@ -8,6 +8,7 @@ import 'package:ios_club_app/Services/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
+import '../models/PlanCourse.dart';
 
 class EduService {
   static Future<bool> refresh() async {
@@ -121,7 +122,8 @@ class EduService {
     if (freshData is UserData) return freshData;
 
     // 数据仍然无效时抛出异常（或根据业务需求处理）
-    throw const FormatException('Cookie data is invalid after successful login');
+    throw const FormatException(
+        'Cookie data is invalid after successful login');
   }
 
   static Future<UserData?> getCookie() async {
@@ -130,8 +132,7 @@ class EduService {
 
       final prefs = await SharedPreferences.getInstance();
       final lastFetchTime = prefs.getInt('last_fetch_time');
-      if (lastFetchTime == null ||
-          now.abs() - lastFetchTime > 1000 * 60 * 20) {
+      if (lastFetchTime == null || now.abs() - lastFetchTime > 1000 * 60 * 20) {
         return null;
       }
       final String? jsonString = prefs.getString('user_data');
@@ -574,5 +575,75 @@ class EduService {
     }
 
     return BusModel(records: [], total: 0);
+  }
+
+  static Future<List<PlanCourse>> getProgram() async {
+    UserData? cookieData = await getUserData();
+    if (cookieData == null) {
+      return [];
+    }
+
+    try {
+      final Map<String, String> finalHeaders = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cookie': cookieData.cookie,
+        'xauat': cookieData.cookie,
+      };
+
+      final response = await http.get(
+          Uri.parse(
+              'https://xauatapi.xauat.site/Program?id=${cookieData.studentId}'),
+          headers: finalHeaders);
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+        if (kDebugMode) {
+          print('找到了培养方案：${result.length}');
+        }
+        return result.map<PlanCourse>((e) => PlanCourse.fromJson(e)).toList();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return [];
+  }
+
+  static Future<List<PlanCourseList>> getPrograms() async {
+    UserData? cookieData = await getUserData();
+    if (cookieData == null) {
+      return [];
+    }
+
+    final Map<String, String> finalHeaders = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Cookie': cookieData.cookie,
+      'xauat': cookieData.cookie,
+    };
+
+    try {
+      final response = await http.get(
+          Uri.parse(
+              'https://xauatapi.xauat.site/Program/GetDic?id=${cookieData.studentId}'),
+          headers: finalHeaders);
+      if (response.statusCode == 200) {
+        var result = jsonDecode(response.body);
+        if (kDebugMode) {
+          print('找到了培养方案：${result.length}');
+        }
+        return result.entries
+            .map<PlanCourseList>((entry) => PlanCourseList.fromMap(entry.key, entry.value))
+            .toList();
+      }
+    }catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+    }
+
+    return [];
   }
 }
