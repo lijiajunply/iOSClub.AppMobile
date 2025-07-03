@@ -334,12 +334,12 @@ class _ScorePageState extends State<ScorePage> {
           if (j % 2 == 0) {
             _yearList.add(ScoreList(
               semester: _scoreList[i].semester,
-              list: _scoreList[i].list,
+              list: _scoreList[i].list.toList(),
             ));
           } else {
             var a = _yearList.lastOrNull;
             if (a != null) {
-              a.list.addAll(_scoreList[i].list);
+              a.list.addAll(_scoreList[i].list.toList());
             }
           }
         }

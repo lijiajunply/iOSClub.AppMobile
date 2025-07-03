@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/tile_service.dart';
-import '../widgets/BlurWidget.dart';
+import '../widgets/blur_widget.dart';
 
 class OtherPage extends StatefulWidget {
   const OtherPage({super.key});

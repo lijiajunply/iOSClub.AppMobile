@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../Services/club_service.dart';
-import '../widgets/BlurWidget.dart';
+import '../widgets/blur_widget.dart';
 import '../widgets/empty_widget.dart';
 import '../widgets/memberPages/member_data_page.dart';
 

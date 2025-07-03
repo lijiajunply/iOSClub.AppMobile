@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../Models/TodoItem.dart';
 import '../services/todo_service.dart';
-import '../widgets/BlurWidget.dart';
+import '../widgets/blur_widget.dart';
 import '../widgets/empty_widget.dart';
 
 class TodoPage extends StatefulWidget {

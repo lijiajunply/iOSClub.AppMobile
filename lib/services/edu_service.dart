@@ -132,7 +132,7 @@ class EduService {
 
       final prefs = await SharedPreferences.getInstance();
       final lastFetchTime = prefs.getInt('last_fetch_time');
-      if (lastFetchTime == null || now.abs() - lastFetchTime > 1000 * 60 * 20) {
+      if (lastFetchTime == null || now - lastFetchTime > 1000 * 60 * 20) {
         return null;
       }
       final String? jsonString = prefs.getString('user_data');
@@ -625,7 +625,7 @@ class EduService {
     };
 
     try {
-      final response = await http.get(
+      var response = await http.get(
           Uri.parse(
               'https://xauatapi.xauat.site/Program/GetDic?id=${cookieData.studentId}'),
           headers: finalHeaders);
@@ -637,6 +637,29 @@ class EduService {
         return result.entries
             .map<PlanCourseList>((entry) => PlanCourseList.fromMap(entry.key, entry.value))
             .toList();
+      }else{
+        if (!(await login())) return [];
+        final a = await getUserData();
+        if (a == null) {
+          return [];
+        }
+
+        finalHeaders['Cookie'] = finalHeaders['xauat'] = a.cookie;
+
+        response = await http.get(
+            Uri.parse(
+                'https://xauatapi.xauat.site/Program/GetDic?id=${cookieData.studentId}'),
+            headers: finalHeaders);
+
+        if (response.statusCode == 200) {
+          var result = jsonDecode(response.body);
+          if (kDebugMode) {
+            print('找到了培养方案：${result.length}');
+          }
+          return result.entries
+              .map<PlanCourseList>((entry) => PlanCourseList.fromMap(entry.key, entry.value))
+              .toList();
+        }
       }
     }catch (e) {
       if (kDebugMode) {

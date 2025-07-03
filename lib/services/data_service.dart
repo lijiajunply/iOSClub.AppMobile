@@ -228,8 +228,13 @@ class DataService {
     List<InfoModel> list = [];
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('info_data');
+    final time = prefs.getInt('info_data_time');
 
-    if (jsonString != null) {
+    final date = DateTime.now().microsecondsSinceEpoch;
+
+    if (jsonString != null &&
+        time != null &&
+        date - time > 1000 * 60 * 60 * 3) {
       final jsonList = jsonDecode(jsonString);
       for (var i in jsonList) {
         list.add(InfoModel.fromJson(i));
@@ -244,6 +249,8 @@ class DataService {
         for (var i in jsonList) {
           list.add(InfoModel.fromJson(i));
         }
+
+        await prefs.setInt('info_data_time', date);
       }
 
       return list;

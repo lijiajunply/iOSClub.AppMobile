@@ -3,7 +3,7 @@ import 'package:ios_club_app/Services/club_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Models/LinkModel.dart';
-import '../widgets/BlurWidget.dart';
+import '../widgets/blur_widget.dart';
 import '../widgets/icon_font.dart';
 
 class LinkPage extends StatelessWidget {

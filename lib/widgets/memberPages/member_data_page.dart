@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
 import 'package:ios_club_app/models/MemberModel.dart';
 
-import '../BlurWidget.dart';
+import '../blur_widget.dart';
 
 class MemberDataPage extends StatefulWidget {
   const MemberDataPage({super.key});
