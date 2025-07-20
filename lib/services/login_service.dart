@@ -1,4 +1,4 @@
-import 'dart:convert' show jsonEncode, utf8;
+import 'dart:convert' show jsonEncode, utf8, jsonDecode;
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -10,6 +10,20 @@ class LoginService {
 
   Future<Map<String, dynamic>> loginAsync(
       String username, String password) async {
+    var saltResponse = await httpClient.get(
+      Uri.parse('https://xauatlogin.zeabur.app/login/$username/$password'),
+    );
+
+    var result = jsonDecode(saltResponse.body);
+
+    String studentId = await getCode(result['cookies']);
+    if (studentId.isEmpty) {
+      return {'success': false};
+    }
+    return {'success': true, 'studentId': studentId, 'cookie': result['cookies']};
+  }
+
+  Future<Map<String, dynamic>> oldLoginAsync(String username, String password) async {
     // 获取 salt
 
     var saltResponse = await httpClient.get(

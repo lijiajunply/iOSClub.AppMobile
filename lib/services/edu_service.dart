@@ -43,29 +43,23 @@ class EduService {
       return false;
     }
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
-      final loginService = LoginService(http.Client());
-      final response = await loginService.loginAsync(username, password);
+    final loginService = LoginService(http.Client());
+    final response = await loginService.loginAsync(username, password);
 
-      if (response["success"] == true) {
-        await prefs.setString('user_data', jsonEncode(response));
+    if (response["success"] == true) {
+      await prefs.setString('user_data', jsonEncode(response));
 
-        var cookieData = await getUserData();
-        var now = DateTime.now().millisecondsSinceEpoch;
-        await getSemester(userData: cookieData);
-        await getTime();
-        await getCourse(userData: cookieData, isRefresh: true);
-        await getExam(userData: cookieData);
-        await getInfoCompletion(userData: cookieData);
-        await prefs.setInt('last_fetch_time', now);
-        return true;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching data: $e');
-      }
+      var cookieData = await getUserData();
+      var now = DateTime.now().millisecondsSinceEpoch;
+      await getSemester(userData: cookieData);
+      await getTime();
+      await getCourse(userData: cookieData, isRefresh: true);
+      await getExam(userData: cookieData);
+      await getInfoCompletion(userData: cookieData);
+      await prefs.setInt('last_fetch_time', now);
+      return true;
     }
 
     return false;
