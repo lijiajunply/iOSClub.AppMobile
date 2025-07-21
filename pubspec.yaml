@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.11+1
+version: 1.1.12+1
 
 environment:
   sdk: '>=3.5.3 <4.0.0'
@@ -54,9 +54,6 @@ dependencies:
   window_manager: ^0.5.0
   tray_manager: ^0.5.0
   get: ^4.7.2
-  encrypt: ^5.0.3
-  xml: ^6.5.0
-  pointycastle: ^3.9.1
 
 dev_dependencies:
   flutter_test:
@@ -96,7 +93,7 @@ flutter_native_splash:
 
 msix_config:
   display_name: iOS Club App
-  msix_version: 1.10.0.0
+  msix_version: 1.12.0.0
   logo_path: C:\Projects\FlutterProjects\ios_club_app\windows\runner\resources\app_icon.ico
   publisher_display_name: iOS Club of XAUAT
   identity_name: com.xauatiosclub.clubapp

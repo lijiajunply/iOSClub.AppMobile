@@ -270,7 +270,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ? Colors.grey[300] // 暗色模式下的图标颜色
                             : Colors.grey[700] // 亮色模式下的图标颜色
                         ),
-                    hintText: _isOnlyLoginMember ? '学号' : '教务系统密码',
+                    hintText: _isOnlyLoginMember ? '学号' : '统一身份认证密码',
                     suffixIcon: IconButton(
                       icon: Icon(_obscureText
                           ? Icons.visibility_off

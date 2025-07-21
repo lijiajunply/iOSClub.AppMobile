@@ -12,7 +12,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 android {
     namespace = "com.example.ios_club_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "25.1.8937393"
+    ndkVersion = "26.1.10909125"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
