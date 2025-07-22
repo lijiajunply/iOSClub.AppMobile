@@ -11,7 +11,7 @@ class SemesterModel {
     );
   }
 
-  toJson() {
+  Map<String, String> toJson() {
     return {
       'value': semester,
       'text': name,
