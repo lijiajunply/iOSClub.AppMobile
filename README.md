@@ -1,16 +1,61 @@
-# ios_club_app
+# iOS Club App
 
-A new Flutter project.
+这是一个基于 Flutter 的跨平台移动应用程序，专为 iOS Club 设计，旨在提供课程信息、日程安排、成员管理等功能。该应用支持 Android 和 iOS 平台，并包含一些特定平台的定制功能，如 Android 上的 AppWidget。
 
-## Getting Started
+## 主要功能
 
-This project is a starting point for a Flutter application.
+- **课程管理**：展示课程列表，包括课程名称、时间、地点等信息。
+- **日程安排**：提供日程设置和展示功能。
+- **成员管理**：展示俱乐部成员信息。
+- **考试信息**：显示考试安排。
+- **待办事项**：管理日常任务。
+- **成绩查询**：查看个人成绩。
+- **校园巴士信息**：提供校园巴士时刻表。
+- **维基百科页面**：提供俱乐部相关知识。
+- **个人资料页面**：展示用户个人信息。
+- **链接页面**：提供有用的外部链接。
+- **其他功能**：包括电力图表、通知服务等。
 
-A few resources to get you started if this is your first Flutter project:
+## Android 特定功能
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **TodayCoursesWidgetProvider**：提供了一个 AppWidget，用于在 Android 桌面上显示当天的课程。
+- **CourseListRemoteViewsService** 和 **CourseListRemoteViewsFactory**：支持 AppWidget 的远程视图服务和数据绑定。
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 开发环境
+
+- Flutter SDK
+- Android Studio / Xcode（根据目标平台）
+- Git
+
+## 安装步骤
+
+1. 确保你已经安装了 [Flutter SDK](https://flutter.dev/docs/get-started/install)。
+2. 克隆仓库：
+   ```bash
+   git clone https://gitee.com/luckyfishisdashen/iOSClub.AppMobile.git
+   ```
+3. 进入项目目录：
+   ```bash
+   cd iOSClub.AppMobile
+   ```
+4. 获取依赖：
+   ```bash
+   flutter pub get
+   ```
+5. 运行应用：
+   ```bash
+   flutter run
+   ```
+
+## 贡献指南
+
+欢迎贡献代码和报告问题。请遵循以下步骤：
+
+1. Fork 仓库。
+2. 创建新分支。
+3. 提交你的更改。
+4. 创建 Pull Request。
+
+## 许可证
+
+本项目采用 MIT 许可证。详情请查看 [LICENSE](LICENSE) 文件。
