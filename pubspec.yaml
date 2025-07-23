@@ -73,8 +73,14 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/
+    - assets/empty.svg
+    - assets/icon.ico
+    - assets/icon.png
+    - assets/iOS_Club_Logo.png
+    - assets/女生.png
+    - assets/男生.png
     - assets/iconfont/iconfont.json
+    - assets/iconfont/iconfont.ttf
 
   fonts:
     - family: IconFont
