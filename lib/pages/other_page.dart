@@ -15,6 +15,7 @@ class OtherPage extends StatefulWidget {
 class _OtherPageState extends State<OtherPage> {
   /// 是否有电费数据
   bool isHasData = false;
+  bool isShowBus = false;
   double electricity = 0;
   final TextEditingController _urlController = TextEditingController();
   List<String> _tiles = [];
@@ -30,6 +31,7 @@ class _OtherPageState extends State<OtherPage> {
         }
         TileService.getTiles().then((t) {
           _tiles = t;
+          isShowBus = t.any((s) => s == '校车');
         });
       });
     });
@@ -132,6 +134,29 @@ class _OtherPageState extends State<OtherPage> {
                   ),
                 ),
               ),
+            Card(
+              child: ListTile(
+                title: Text(
+                  '是否显示校车磁贴',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                trailing: CupertinoSwitch(
+                  value: isShowBus,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      isShowBus = value;
+                    });
+                    if (isShowBus) {
+                      _tiles.add("校车");
+                    } else {
+                      _tiles.remove("校车");
+                    }
+
+                    TileService.setTiles(_tiles);
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),

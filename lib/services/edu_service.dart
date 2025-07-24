@@ -126,7 +126,7 @@ class EduService {
 
       final prefs = await SharedPreferences.getInstance();
       final lastFetchTime = prefs.getInt('last_fetch_time');
-      if (lastFetchTime == null || now - lastFetchTime > 1000 * 60 * 60 * 8) { // 8小时
+      if (lastFetchTime == null || now - lastFetchTime > 1000 * 60 * 20) { // 8小时
         return null;
       }
       final String? jsonString = prefs.getString('user_data');
