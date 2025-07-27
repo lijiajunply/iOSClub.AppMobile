@@ -13,5 +13,4 @@ class AppSharedPreferences{
     _prefs = await SharedPreferences.getInstance();
   }
 
-
 }

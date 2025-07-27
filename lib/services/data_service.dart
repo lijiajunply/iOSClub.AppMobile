@@ -230,17 +230,18 @@ class DataService {
     final String? jsonString = prefs.getString('info_data');
     final time = prefs.getInt('info_data_time');
 
-    final date = DateTime.now().microsecondsSinceEpoch;
+    final date = DateTime.now().millisecondsSinceEpoch;
 
     if (jsonString != null &&
         time != null &&
-        date - time > 1000 * 60 * 60 * 3) {
+        (time - date).abs() < 1000 * 60 * 60 * 3) { // 3小时
       final jsonList = jsonDecode(jsonString);
       for (var i in jsonList) {
         list.add(InfoModel.fromJson(i));
       }
       return list;
     } else {
+      // 从网络获取数据
       await EduService.getInfoCompletion();
       final String? jsonString = prefs.getString('info_data');
 

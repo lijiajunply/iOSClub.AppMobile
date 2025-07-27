@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ios_club_app/pages/electricity_page.dart';
 import 'package:ios_club_app/pages/program_page.dart';
 import 'package:ios_club_app/services/download_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -177,6 +178,7 @@ class _MainAppState extends State<MainApp> {
         '/Other': (context) => const OtherPage(),
         '/iMember': (context) => const MemberPage(),
         '/Program': (context) => const ProgramPage(),
+        '/Electricity': (context) => const ElectricityPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

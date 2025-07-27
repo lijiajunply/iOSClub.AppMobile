@@ -41,14 +41,16 @@ class TilesWidget extends StatelessWidget {
                       pattern: [
                         // 动态生成模式
                         for (int i = 0; i < snapshot.data!.length; i++)
-                        // 可以根据索引或数据内容决定瓦片大小
-                          i == snapshot.data!.length - 1 && snapshot.data!.length % 2 == 1
+                          // 可以根据索引或数据内容决定瓦片大小
+                          i == snapshot.data!.length - 1 &&
+                                  snapshot.data!.length % 2 == 1
                               ? const QuiltedGridTile(1, 2) // 最后一个元素且为奇数时占满整行
                               : const QuiltedGridTile(1, 1), // 其他情况占一个格子
                       ],
                     ),
                     childrenDelegate: SliverChildBuilderDelegate(
-                      (context, index) => buildTile(snapshot.data![index]),
+                      (context, index) =>
+                          buildTile(snapshot.data![index], context),
                       childCount: snapshot.data!.length,
                     ),
                     physics: const NeverScrollableScrollPhysics(),

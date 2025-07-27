@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Services/tile_service.dart';
 import '../widgets/blur_widget.dart';
+import 'electricity_chart.dart';
 
 class OtherPage extends StatefulWidget {
   const OtherPage({super.key});
@@ -132,6 +133,21 @@ class _OtherPageState extends State<OtherPage> {
                     },
                     value: _tiles.contains('电费'),
                   ),
+                ),
+              ),
+            if (isHasData)
+              Card(
+                child: ListTile(
+                  title: Text('查看电费详情',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  trailing: Icon(Icons.data_exploration),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ElectricityChart()));
+                  },
                 ),
               ),
             Card(

@@ -392,7 +392,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.pushNamed(context, '/iMember');
             }
           }),
-      ProfileButtonItem(title: '其他', icon: Icons.apps, route: '/Other'),
+      ProfileButtonItem(icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
       ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
     ];
   }

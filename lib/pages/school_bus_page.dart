@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Models/BusModel.dart';
 
 import '../Services/edu_service.dart';
+import '../Services/tile_service.dart';
 import '../widgets/empty_widget.dart';
 
 class SchoolBusPage extends StatefulWidget {
@@ -23,6 +25,9 @@ class _SchoolBusPageState extends State<SchoolBusPage>
   final Map<String, String> availableDates = {};
   bool isCaoTang = true;
 
+  bool isShowBus = false;
+  List<String> _tiles = [];
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +41,15 @@ class _SchoolBusPageState extends State<SchoolBusPage>
     });
     selectedDate = availableDates.isNotEmpty ? availableDates.keys.first : null;
     if (selectedDate != null) _fetchBusData();
+
+    TileService.getTextAfterKeyword().then((value) {
+      setState(() {
+        TileService.getTiles().then((t) {
+          _tiles = t;
+          isShowBus = t.any((s) => s == '校车');
+        });
+      });
+    });
   }
 
   void _generateWeeklyDates() {
@@ -84,24 +98,29 @@ class _SchoolBusPageState extends State<SchoolBusPage>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          centerTitle: true,
           title: TextButton(
-              onPressed: () {
-                setState(() {
-                  isCaoTang = !isCaoTang;
-                  if (isCaoTang) {
-                    busData = todayBusData
-                        .where((bus) => bus.lineName.startsWith("草堂"))
-                        .toList();
-                  } else {
-                    busData = todayBusData
-                        .where((bus) => bus.lineName.startsWith("雁塔"))
-                        .toList();
-                  }
-                });
-              },
-              child: Text(isCaoTang ? "草堂校区 -> 雁塔校区" : "雁塔校区 -> 草堂校区",
-                  style: TextStyle(fontWeight: FontWeight.bold))),
+            onPressed: () {
+              setState(() {
+                isCaoTang = !isCaoTang;
+                if (isCaoTang) {
+                  busData = todayBusData
+                      .where((bus) => bus.lineName.startsWith("草堂"))
+                      .toList();
+                } else {
+                  busData = todayBusData
+                      .where((bus) => bus.lineName.startsWith("雁塔"))
+                      .toList();
+                }
+              });
+            },
+            child: Row(
+              children: [
+                Text(isCaoTang ? '草堂校区' : '雁塔校区'),
+                Icon(Icons.arrow_forward),
+                Text(isCaoTang ? '雁塔校区' : '草堂校区')
+              ],
+            ),
+          ),
           bottom: TabBar(
             controller: _tabController,
             tabAlignment: TabAlignment.start,
@@ -109,6 +128,45 @@ class _SchoolBusPageState extends State<SchoolBusPage>
             isScrollable: true,
             dividerColor: Colors.transparent,
           ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                _fetchBusData();
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (alertContext) => StatefulBuilder(
+                        builder: (context, setStateDialog) => AlertDialog(
+                              title: Text('设置'),
+                              content: ListTile(
+                                title: Text(
+                                  '是否显示校车磁贴',
+                                ),
+                                trailing: CupertinoSwitch(
+                                  value: isShowBus,
+                                  onChanged: (bool value) async {
+                                    setStateDialog(() {
+                                      isShowBus = value;
+                                    });
+                                    if (isShowBus) {
+                                      _tiles.add("校车");
+                                    } else {
+                                      _tiles.remove("校车");
+                                    }
+
+                                    TileService.setTiles(_tiles);
+                                  },
+                                ),
+                              ),
+                            )));
+              },
+            ),
+          ],
         ),
         body: Padding(
             padding: EdgeInsets.all(16),
@@ -137,85 +195,83 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                   )
                 else if (busData.isNotEmpty)
                   Expanded(
-                      child: ListView.builder(
-                          itemCount: busData.length,
-                          itemBuilder: (context, index) {
-                            final bus = busData[index];
-                            return GestureDetector(
-                              child: Card(
-                                margin: EdgeInsets.all(8),
-                                child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              bus.departureStation,
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              bus.runTime,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
+                    child: ListView.builder(
+                        itemCount: busData.length,
+                        itemBuilder: (context, index) {
+                          final bus = busData[index];
+                          return GestureDetector(
+                            child: Card(
+                              margin: EdgeInsets.all(8),
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            bus.departureStation,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            bus.runTime,
+                                            style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
                                       ),
-                                      Expanded(
-                                          child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                            Text(bus.description,
-                                                style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                            Divider(
-                                              thickness: 1,
-                                            ),
-                                            Text(bus.arrivalStationTime,
-                                                style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontWeight:
-                                                        FontWeight.bold))
-                                          ])),
-                                      Expanded(
-                                          child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                            Text(
-                                              bus.arrivalStation,
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              bus.totalTime,
+                                    ),
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                          Text(bus.description,
                                               style: TextStyle(
                                                   color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ]))
-                                    ],
-                                  ),
+                                                  fontWeight: FontWeight.bold)),
+                                          Divider(
+                                            thickness: 1,
+                                          ),
+                                          Text(bus.arrivalStationTime,
+                                              style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontWeight: FontWeight.bold))
+                                        ])),
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                          Text(
+                                            bus.arrivalStation,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            bus.totalTime,
+                                            style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ]))
+                                  ],
                                 ),
                               ),
-                              onTap: () async {
-                                await _showModalBottomSheet(bus);
-                              },
-                            );
-                          }),
+                            ),
+                            onTap: () async {
+                              await _showModalBottomSheet(bus);
+                            },
+                          );
+                        }),
                   )
                 else if (selectedDate != null)
                   Card(

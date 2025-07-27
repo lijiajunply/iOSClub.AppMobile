@@ -46,7 +46,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       if (username != null && password != null) {
         setState(() {
           url =
-              '://schedule-backend.borry.org/class?school=xauat&username=$username&password=$password';
+              '://schedule.xauat.site/class?school=xauat&username=$username&password=$password';
         });
       }
     } catch (e) {
