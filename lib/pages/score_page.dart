@@ -511,13 +511,7 @@ class _ScorePageState extends State<ScorePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const EmptyWidget(),
-            const Center(
-              child: Text(
-                '没有成绩，建议刷新或退出重进',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
+            EmptyWidget(title: '没有成绩', subtitle: '建议刷新或退出重进',icon: Icons.school,),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => refresh(isRefresh: true),

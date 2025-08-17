@@ -6,6 +6,7 @@ import 'dart:math';
 
 import '../Services/tile_service.dart';
 import '../pageModels/ElectricData.dart';
+import '../widgets/empty_widget.dart';
 
 class ElectricityPage extends StatefulWidget {
   const ElectricityPage({super.key});
@@ -205,6 +206,15 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   Widget _buildChart(List<ElectricData> data) {
+    if (data.isEmpty) {
+      return Center(
+        child: EmptyWidget(
+          title: '没有数据',
+          subtitle: '',
+          icon: Icons.hourglass_empty,
+        ),
+      );
+    }
     double dataMaxValue = data.map((e) => e.value).reduce(max);
     final calculatedMaxY = dataMaxValue.ceilToDouble() * 1.2;
 
@@ -291,10 +301,10 @@ class _ElectricityPageState extends State<ElectricityPage> {
       child: Column(
         children: [
           if (isHasData) ...[
-            _buildSettingsTile(
-              icon: CupertinoIcons.home,
-              title: '添加到首页',
-              subtitle: '在首页显示电费磁贴',
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('添加到首页'),
+              subtitle: Text('在首页显示电费磁贴'),
               trailing: CupertinoSwitch(
                 value: _tiles.contains('电费'),
                 onChanged: (value) async {
@@ -321,54 +331,6 @@ class _ElectricityPageState extends State<ElectricityPage> {
               },
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Widget trailing,
-  }) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(
-              icon,
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          trailing,
         ],
       ),
     );

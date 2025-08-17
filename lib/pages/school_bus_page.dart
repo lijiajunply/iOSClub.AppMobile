@@ -276,16 +276,10 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                 else if (selectedDate != null)
                   Card(
                       margin: EdgeInsets.only(top: 20),
-                      child: Column(
-                        children: [
-                          EmptyWidget(),
-                          Center(
-                              child: Text(
-                            '今天没有车了',
-                            style: TextStyle(fontSize: 20),
-                          )),
-                          SizedBox(height: 10),
-                        ],
+                      child: EmptyWidget(
+                        title: '今天没有车了',
+                        subtitle: '明天再来吧',
+                        icon: Icons.directions_bus,
                       ))
               ],
             )));

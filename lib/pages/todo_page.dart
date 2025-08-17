@@ -43,15 +43,10 @@ class _TodoPageState extends State<TodoPage> {
                         elevation: 4,
                         child: Padding(
                           padding: EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              EmptyWidget(),
-                              Center(
-                                  child: Text(
-                                    '当前没有待办事务',
-                                    style: TextStyle(fontSize: 20),
-                                  ))
-                            ],
+                          child: EmptyWidget(
+                            title: '当前没有待办事务',
+                            subtitle: '右上角添加一个待办事务',
+                            icon: Icons.calendar_today_outlined,
                           ),
                         )),
                   )

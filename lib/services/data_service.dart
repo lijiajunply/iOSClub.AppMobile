@@ -70,15 +70,13 @@ class DataService {
     if (time["startTime"] == null) {
       return {'week': 0, 'maxWeek': 0};
     }
-    final week =
-        DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays ~/
-                7 +
-            1;
+    final a =
+        DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays;
+
+    final week = a ~/ 7 + (a < 0 ? 0 : 1);
     final maxWeek = DateTime.parse(time["endTime"]!)
                 .difference(DateTime.parse(time["startTime"]!))
-                .inDays ~/
-            7 +
-        1;
+                .inDays ~/ 7 + 1;
     return {'week': week, 'maxWeek': maxWeek};
   }
 
@@ -310,7 +308,7 @@ class DataService {
 
         if (start.compareTo(now) <= 0) continue;
 
-        if (timeList.isNotEmpty && timeList.last == start) continue;
+        if (timeList.isNotEmpty && timeList.last.startTime == start) continue;
 
         l = endTime.split(':');
         var end = DateTime(

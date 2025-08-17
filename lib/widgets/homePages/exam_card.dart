@@ -29,12 +29,12 @@ class _ExamCardState extends State<ExamCard> {
     setState(() {
       examItems = result
           .map((course) => ExamData(
-        title: course.name,
-        time: course.examTime,
-        location: course.room,
-        color: CourseColorManager.generateSoftColor(course),
-        seat: course.seatNo,
-      ))
+                title: course.name,
+                time: course.examTime,
+                location: course.room,
+                color: CourseColorManager.generateSoftColor(course),
+                seat: course.seatNo,
+              ))
           .toList();
       isLoading = false;
     });
@@ -42,8 +42,8 @@ class _ExamCardState extends State<ExamCard> {
 
   Future<void> getExam() async {
     setState(() {
-        isLoading = true;
-      });
+      isLoading = true;
+    });
     final result = await ExamService.getExam(isRefresh: true);
     setExam(result);
   }
@@ -139,12 +139,11 @@ class _ExamCardState extends State<ExamCard> {
               padding: EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  EmptyWidget(),
-                  Center(
-                      child: Text(
-                    '最近没有考试',
-                    style: TextStyle(fontSize: 20),
-                  ))
+                  EmptyWidget(
+                    title: '最近没有考试',
+                    subtitle: '说不定刷新一下就有了',
+                    icon: Icons.videogame_asset_rounded,
+                  )
                 ],
               ),
             ))

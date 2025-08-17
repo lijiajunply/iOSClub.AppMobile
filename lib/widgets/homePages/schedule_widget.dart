@@ -140,7 +140,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                           final prefs = await SharedPreferences
                                               .getInstance();
                                           prefs.setBool('is_remind', value);
-                                          if (value) {
+                                          if (value && context.mounted) {
                                             await NotificationService.set(
                                                 context);
                                           }
@@ -158,17 +158,10 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
             child: scheduleItems.isEmpty
                 ? Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        EmptyWidget(),
-                        Center(
-                            child: Text(
-                          '${_isShowingTomorrow ? '明' : '今'}天没有课了',
-                          style: TextStyle(fontSize: 20),
-                        ))
-                      ],
-                    ),
-                  )
+                    child: EmptyWidget(
+                        title: '${_isShowingTomorrow ? '明' : '今'}天没有课了',
+                        icon: Icons.school,
+                        subtitle: '好好休息会儿吧，学一天累死个人'))
                 : Column(
                     children: scheduleItems.map(_buildScheduleItem).toList(),
                   ),

@@ -3,177 +3,245 @@ import '../Services/edu_service.dart';
 import '../Services/tile_service.dart';
 
 Widget buildTile(String tile, BuildContext context) {
-  late Widget? a;
+  Widget? content;
 
   if (tile == '电费') {
-    a = buildElectricity(context);
+    content = buildElectricity(context);
   }
 
   if (tile == '校车') {
-    a = buildBus(context);
+    content = buildBus(context);
   }
 
-  a ??= Container();
+  content ??= Container();
 
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
+  return Container(
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
+        ),
+      ],
     ),
-    child: a,
+    child: content,
   );
 }
 
 Widget buildElectricity(BuildContext context) {
   return InkWell(
+    onTap: () => Navigator.pushNamed(context, '/Electricity'),
+    borderRadius: BorderRadius.circular(20),
     child: FutureBuilder(
-        future: TileService.getTextAfterKeyword(),
-        builder: (
-          context,
-          snapshot,
-        ) {
-          if (snapshot.hasData) {
-            return Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(
-                      '当前电费',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      '${snapshot.data ?? '...'} 元',
-                      style: TextStyle(
-                          fontSize: 18,
-                          color:
-                              snapshot.data! <= 10 ? Colors.redAccent : null),
-                    ),
-                  ]),
-            );
-          }
+      future: TileService.getTextAfterKeyword(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final amount = snapshot.data ?? 0.0;
+          final isLow = amount <= 10;
 
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isLow
+                    ? [Colors.red.withOpacity(0.1), Colors.orange.withOpacity(0.05)]
+                    : [Colors.blue.withOpacity(0.1), Colors.indigo.withOpacity(0.05)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isLow ? Colors.red.withOpacity(0.15) : Colors.blue.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.electric_bolt_rounded,
+                        color: isLow ? Colors.red : Colors.blue,
+                        size: 24,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (isLow)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '余额不足',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '当前电费',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '¥${amount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: isLow ? Colors.red : Colors.blue,
+                  ),
+                ),
+              ],
+            ),
           );
-        }),
-    onTap: () {
-      Navigator.pushNamed(context, '/Electricity');
-    },
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
+    ),
   );
 }
 
 Widget buildBus(BuildContext context) {
   return FutureBuilder(
-      future: EduService.getBus(),
-      builder: (
-        context,
-        snapshot,
-      ) {
-        if (snapshot.hasData) {
-          final busData = snapshot.data!.records;
-          return Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
+    future: EduService.getBus(),
+    builder: (context, snapshot) {
+      if (snapshot.hasData) {
+        final busData = snapshot.data!.records;
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.green.withOpacity(0.1),
+                Colors.teal.withOpacity(0.05),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    '今日校车',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  if (busData.isNotEmpty)
-                    Expanded(
-                      child: ListView.builder(
-                          itemCount: busData.length,
-                          itemBuilder: (context, index) {
-                            final bus = busData[index];
-                            return GestureDetector(
-                              child: Card(
-                                margin: EdgeInsets.all(8),
-                                child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              bus.departureStation,
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              bus.runTime,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                          child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                            Text(bus.description,
-                                                style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                            Divider(
-                                              thickness: 1,
-                                            ),
-                                            Text(bus.arrivalStationTime,
-                                                style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontWeight:
-                                                        FontWeight.bold))
-                                          ])),
-                                      Expanded(
-                                          child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                            Text(
-                                              bus.arrivalStation,
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              bus.totalTime,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ]))
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
-                    )
-                  else
-                    Text(
-                      '今天没有车了',
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                ]),
-          );
-        }
-
-        return const Center(
-          child: CircularProgressIndicator(),
+                    child: const Icon(
+                      Icons.directions_bus_rounded,
+                      color: Colors.green,
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${busData.length}班次',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '今日校车',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (busData.isNotEmpty)
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: busData.length > 2 ? 2 : busData.length,
+                    itemBuilder: (context, index) {
+                      final bus = busData[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${bus.departureStation} → ${bus.arrivalStation}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              bus.runTime,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                )
+              else
+                const Text(
+                  '今天没有班次',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+            ],
+          ),
         );
-      });
+      }
+
+      return Container(
+        padding: const EdgeInsets.all(20),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    },
+  );
 }

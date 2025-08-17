@@ -24,7 +24,7 @@ class BackgroundService {
       androidConfiguration: AndroidConfiguration(
         onStart: onStart,
         autoStart: true,
-        isForegroundMode: false,
+        isForegroundMode: true,
         autoStartOnBoot: true,
       ),
     );
@@ -44,7 +44,7 @@ class BackgroundService {
   }
 }
 
-// iOS 后台处理
+/// iOS 后台处理
 @pragma('vm:entry-point')
 Future<bool> onIosBackground(ServiceInstance service) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +52,7 @@ Future<bool> onIosBackground(ServiceInstance service) async {
   return true;
 }
 
-// 主要的后台服务入口点
+/// 主要的后台服务入口点
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   // 确保 Flutter 绑定初始化
@@ -115,7 +115,7 @@ class CourseReminderService {
   }
 }
 
-// 课程提醒逻辑
+/// 课程提醒逻辑
 Future<void> _performCourseReminder() async {
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -141,7 +141,7 @@ Future<void> _performCourseReminder() async {
   }
 }
 
-// 更新今日课程逻辑
+/// 更新今日课程逻辑
 Future<void> _updateTodayCourse() async {
   try {
     final (isShowingTomorrow, courses) =

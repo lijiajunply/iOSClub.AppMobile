@@ -231,7 +231,7 @@ class _ProfilePageState extends State<ProfilePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/icon.png',
+                  'assets/icon.webp',
                   width: 160,
                   height: 160,
                 ),
@@ -392,9 +392,11 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.pushNamed(context, '/iMember');
             }
           }),
-      ProfileButtonItem(icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
+      ProfileButtonItem(
+          icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
       ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
-      ProfileButtonItem(icon: Icons.toc, title: '饭卡', route: '/Payment'),
+      ProfileButtonItem(
+          icon: Icons.monetization_on_outlined, title: '饭卡', route: '/Payment'),
     ];
   }
 
@@ -414,10 +416,10 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white,
-                      backgroundImage: AssetImage('assets/icon.png'),
+                    const Image(
+                      width: 48,
+                      height: 48,
+                      image: AssetImage('assets/icon.webp'),
                     ),
                     const SizedBox(width: 8),
                     Column(

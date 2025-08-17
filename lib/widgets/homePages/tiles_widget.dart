@@ -9,6 +9,7 @@ class TilesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return FutureBuilder(
         future: TileService.getTiles(),
         builder: (context, snapshot) {
@@ -24,7 +25,7 @@ class TilesWidget extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '磁贴',
+                        '快捷功能',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

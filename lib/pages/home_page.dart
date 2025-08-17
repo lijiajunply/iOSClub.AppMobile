@@ -9,19 +9,25 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final list = <Widget>[
+      ScheduleWidget(),
+      TilesWidget(),
+      // 考试列表
+      ExamCard(),
+      // 待办事项
+      TodoWidget()
+    ];
     return Scaffold(
         body: SingleChildScrollView(
-      child: Column(
-        children: [
-          // 课表部分
-          ScheduleWidget(),
-          TilesWidget(),
-          // 考试列表
-          ExamCard(),
-          // 待办事项
-          TodoWidget(),
-        ],
-      ),
-    ));
+            child: (width < 600)
+                ? Column(children: list)
+                : Wrap(
+                    children: List.generate(
+                        list.length,
+                        (index) => SizedBox(
+                            width:
+                                width > 750 ? (((width - 90) / ((index + 1) % 4 < 2 ? 3 : (1.5)))) : ((width - 90) / 2),
+                            child: list[index])))));
   }
 }

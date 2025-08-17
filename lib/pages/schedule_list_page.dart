@@ -68,9 +68,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     setState(() {
       weekNow = weekData['week']!;
       maxWeek = weekData['maxWeek']!;
-      currentPage = weekNow;
+      currentPage = weekNow <= 0 ? 0 : weekNow;
 
-      pageController = PageController(initialPage: weekNow);
+      pageController = PageController(initialPage: currentPage);
     });
   }
 
@@ -221,6 +221,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                   )
                 : Container()));
 
+    final weekText = weekNow <= 0 ? '距离开学还有${-weekNow + 1}周' : '当前为第$weekNow周';
+
     return Scaffold(
         body: Column(
       children: [
@@ -239,7 +241,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                           Expanded(
                               child: Center(
                             child: Text(
-                              currentPage == 0
+                              currentPage <= 0
                                   ? '全部课表'
                                   : '第 $currentPage 周 ${currentPage == weekNow ? "(本周)" : ""}',
                               style: const TextStyle(
@@ -258,7 +260,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       Row(children: [
                         Expanded(child: const SizedBox()),
                         Expanded(child: animatedSlide),
-                        Expanded(child: Row(
+                        Expanded(
+                            child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [setting],
                         ))
@@ -291,9 +294,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                       child: Text(
                                         currentPage == weekNow
                                             ? '第$currentPage周'
-                                            : currentPage == 0
-                                                ? '全部课表 当前为第$weekNow周'
-                                                : '第$currentPage周 当前为第$weekNow周',
+                                            : currentPage <= 0
+                                                ? '全部课表 $weekText'
+                                                : '第$currentPage周 $weekText',
                                         style: const TextStyle(
                                           fontSize: 14,
                                         ),

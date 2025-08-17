@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/services/background_service.dart';
@@ -102,7 +104,7 @@ class _WindowPageState extends State<WindowPage>
     await windowManager.setPreventClose(true);
 
     await trayManager.setIcon(
-      Platform.isWindows ? 'assets/icon.ico' : 'assets/icon.png',
+      Platform.isWindows ? 'assets/icon.ico' : 'assets/icon.webp',
     );
   }
 

@@ -27,7 +27,7 @@ class AboutPage extends StatelessWidget {
                 height: 16,
               ),
               const Image(
-                image: AssetImage('assets/icon.png'),
+                image: AssetImage('assets/icon.webp'),
                 width: 100,
                 height: 100,
               ),
@@ -207,7 +207,7 @@ class AboutPage extends StatelessWidget {
                             fontSize: 24, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     Image(
-                      image: AssetImage('assets/iOS_Club_Logo.png'),
+                      image: AssetImage('assets/iOS_Club_Logo.webp'),
                       height: 150,
                       width: 150,
                     ),

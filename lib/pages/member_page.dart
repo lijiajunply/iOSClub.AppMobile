@@ -38,7 +38,7 @@ class MemberPage extends StatelessWidget {
           final info = Column(
             children: [
               Image(
-                  image: AssetImage('assets/${memberData['gender']}生.png'),
+                  image: AssetImage('assets/${memberData['gender']}生.webp'),
                   height: isTablet ? 200 : 120),
               Text(
                 memberData['userName'],
@@ -70,15 +70,10 @@ class MemberPage extends StatelessWidget {
                             department['title'], department['description']);
                       }).toList(),
                     if ((infoData['tasks'] as List<dynamic>).isEmpty)
-                      Column(
-                        children: [
-                          EmptyWidget(),
-                          Center(
-                              child: Text(
-                            '您的任务都已经完成了',
-                            style: TextStyle(fontSize: 20),
-                          ))
-                        ],
+                      EmptyWidget(
+                        title: '您的任务都已经完成了',
+                        subtitle: '可以好好休息了',
+                        icon: Icons.school,
                       ),
                   ],
                 ),
@@ -99,15 +94,10 @@ class MemberPage extends StatelessWidget {
                             department['title'], department['description']);
                       }).toList(),
                     if ((infoData['projects'] as List<dynamic>).isEmpty)
-                      Column(
-                        children: [
-                          EmptyWidget(),
-                          Center(
-                              child: Text(
-                            '您的项目都已经完成了',
-                            style: TextStyle(fontSize: 20),
-                          ))
-                        ],
+                      EmptyWidget(
+                        title: '您的项目都已经完成了',
+                        subtitle: '可以好好休息了',
+                        icon: Icons.done_all_outlined,
                       ),
                   ],
                 ),
@@ -274,15 +264,10 @@ class MemberPage extends StatelessWidget {
                               });
                             }).toList(),
                           if ((infoData['resources'] as List<dynamic>).isEmpty)
-                            Column(
-                              children: [
-                                EmptyWidget(),
-                                Center(
-                                    child: Text(
-                                  '当前没有资源',
-                                  style: TextStyle(fontSize: 20),
-                                ))
-                              ],
+                            EmptyWidget(
+                              title: '当前没有资源',
+                              subtitle: '去添加一个',
+                              icon: Icons.work,
                             ),
                         ],
                       ),

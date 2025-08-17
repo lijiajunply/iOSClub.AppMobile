@@ -34,7 +34,7 @@ class _TodoWidgetState extends State<TodoWidget> {
       _todos.addAll(list);
     });
 
-    if(isUpdateToClub){
+    if (isUpdateToClub) {
       list = await TodoService.getClubTodoList();
       setState(() {
         _todos.addAll(list);
@@ -82,16 +82,10 @@ class _TodoWidgetState extends State<TodoWidget> {
                     elevation: 4,
                     child: Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          EmptyWidget(),
-                          Center(
-                              child: Text(
-                            '当前没有待办事务',
-                            style: TextStyle(fontSize: 20),
-                          ))
-                        ],
-                      ),
+                      child: EmptyWidget(
+                          title: '当前没有待办事务',
+                          icon: Icons.done_all,
+                          subtitle: '点击右上角添加待办事项'),
                     ))
                 : ListView.builder(
                     // 关键是添加这些属性
