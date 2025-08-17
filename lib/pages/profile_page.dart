@@ -394,6 +394,7 @@ class _ProfilePageState extends State<ProfilePage> {
           }),
       ProfileButtonItem(icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
       ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
+      ProfileButtonItem(icon: Icons.toc, title: '饭卡', route: '/Payment'),
     ];
   }
 

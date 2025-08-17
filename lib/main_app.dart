@@ -1,25 +1,15 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/pages/electricity_page.dart';
-import 'package:ios_club_app/pages/program_page.dart';
+import 'package:ios_club_app/router.dart';
 import 'package:ios_club_app/services/download_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'Pages/about_page.dart';
-import 'Pages/home_page.dart';
-import 'Pages/link_page.dart';
-import 'Pages/other_page.dart';
-import 'Pages/profile_page.dart';
-import 'Pages/schedule_list_page.dart';
-import 'Pages/schedule_setting_page.dart';
-import 'Pages/school_bus_page.dart';
-import 'Pages/score_page.dart';
-import 'Pages/todo_page.dart';
-import 'Pages/member_page.dart';
 import 'Services/git_service.dart';
+import 'UnderMaintenanceScreen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -138,6 +128,16 @@ class _MainAppState extends State<MainApp> {
       selectedIcon: Icon(Icons.person),
       label: '我的',
     ),
+    NavigationDestination(
+      icon: Icon(CupertinoIcons.bolt),
+      selectedIcon: Icon(CupertinoIcons.bolt_fill),
+      label: '电费',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.directions_bus_outlined),
+      selectedIcon: Icon(Icons.directions_bus_rounded),
+      label: '校车',
+    ),
   ];
 
   static const Map<int, String> _routeMap = {
@@ -145,6 +145,8 @@ class _MainAppState extends State<MainApp> {
     1: '/Schedule',
     2: '/Score',
     3: '/Profile',
+    4: '/Electricity',
+    5: '/SchoolBus'
   };
 
   final MaterialApp _app = MaterialApp(
@@ -165,28 +167,10 @@ class _MainAppState extends State<MainApp> {
         ),
       ),
       darkTheme: ThemeData.dark(),
-      routes: {
-        '/': (context) => const HomePage(),
-        '/Schedule': (context) => const ScheduleListPage(),
-        '/Score': (context) => const ScorePage(),
-        '/Profile': (context) => const ProfilePage(),
-        '/Link': (context) => const LinkPage(),
-        '/Todo': (context) => const TodoPage(),
-        '/About': (context) => const AboutPage(),
-        '/ScheduleSetting': (context) => const ScheduleSettingPage(),
-        '/SchoolBus': (context) => const SchoolBusPage(),
-        '/Other': (context) => const OtherPage(),
-        '/iMember': (context) => const MemberPage(),
-        '/Program': (context) => const ProgramPage(),
-        '/Electricity': (context) => const ElectricityPage(),
-      },
+      routes: AppRouter.routes,
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
-          builder: (context) => Scaffold(
-            body: Center(
-              child: Text('未找到页面: ${settings.name}'),
-            ),
-          ),
+          builder: (context) => UnderMaintenanceScreen(),
         );
       });
 
@@ -228,7 +212,7 @@ class _MainAppState extends State<MainApp> {
         : Scaffold(
             body: SafeArea(child: _app),
             bottomNavigationBar: NavigationBar(
-              destinations: _destinations,
+              destinations: _destinations.sublist(0, 4),
               selectedIndex: _currentIndex,
               onDestinationSelected: (int index) {
                 setState(() {

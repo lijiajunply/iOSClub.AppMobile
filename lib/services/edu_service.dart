@@ -478,6 +478,8 @@ class EduService {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'time_data', jsonEncode(jsonDecode(response.body)));
+        final now = DateTime.now().millisecondsSinceEpoch;
+        await prefs.setInt('time_last_updated', now);
       }
     } catch (e) {
       if (kDebugMode) {

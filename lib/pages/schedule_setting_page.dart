@@ -152,7 +152,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                     ),
                     SizedBox(height: 16),
                     TextField(
-                      controller: TextEditingController(text: 'webcal$url'),
+                      controller: TextEditingController(text: 'https$url'),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor:

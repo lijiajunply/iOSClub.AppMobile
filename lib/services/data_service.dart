@@ -212,10 +212,21 @@ class DataService {
 
   static Future<Map<String, String>> getTime() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('time_data');
+    String? jsonString = prefs.getString('time_data');
+    final timeLastUpdated = prefs.getInt('time_last_updated');
+    final now = DateTime.now().millisecondsSinceEpoch;
     final Map<String, String> list = {};
-    if (jsonString != null) {
+    if (jsonString != null &&
+        (timeLastUpdated != null &&
+            (now - timeLastUpdated).abs() < 1000 * 60 * 60 * 24)) {
       var jsonList = jsonDecode(jsonString);
+      jsonList.forEach((key, value) {
+        list[key] = value.toString();
+      });
+    } else {
+      await EduService.getTime();
+      jsonString = prefs.getString('time_data');
+      var jsonList = jsonDecode(jsonString ?? '{}');
       jsonList.forEach((key, value) {
         list[key] = value.toString();
       });
@@ -234,7 +245,8 @@ class DataService {
 
     if (jsonString != null &&
         time != null &&
-        (time - date).abs() < 1000 * 60 * 60 * 3) { // 3小时
+        (time - date).abs() < 1000 * 60 * 60 * 3) {
+      // 3小时
       final jsonList = jsonDecode(jsonString);
       for (var i in jsonList) {
         list.add(InfoModel.fromJson(i));
