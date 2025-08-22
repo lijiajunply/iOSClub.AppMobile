@@ -98,27 +98,29 @@ class _SchoolBusPageState extends State<SchoolBusPage>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: TextButton(
-            onPressed: () {
-              setState(() {
-                isCaoTang = !isCaoTang;
-                if (isCaoTang) {
-                  busData = todayBusData
-                      .where((bus) => bus.lineName.startsWith("草堂"))
-                      .toList();
-                } else {
-                  busData = todayBusData
-                      .where((bus) => bus.lineName.startsWith("雁塔"))
-                      .toList();
-                }
-              });
-            },
-            child: Row(
-              children: [
-                Text(isCaoTang ? '草堂校区' : '雁塔校区'),
-                Icon(Icons.arrow_forward),
-                Text(isCaoTang ? '雁塔校区' : '草堂校区')
-              ],
+          title: Center(
+            child: CupertinoButton(
+              onPressed: () {
+                setState(() {
+                  isCaoTang = !isCaoTang;
+                  if (isCaoTang) {
+                    busData = todayBusData
+                        .where((bus) => bus.lineName.startsWith("草堂"))
+                        .toList();
+                  } else {
+                    busData = todayBusData
+                        .where((bus) => bus.lineName.startsWith("雁塔"))
+                        .toList();
+                  }
+                });
+              },
+              child: Row(
+                children: [
+                  Text(isCaoTang ? '草堂校区' : '雁塔校区'),
+                  Icon(Icons.arrow_forward),
+                  Text(isCaoTang ? '雁塔校区' : '草堂校区')
+                ],
+              ),
             ),
           ),
           bottom: TabBar(

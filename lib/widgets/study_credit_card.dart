@@ -21,28 +21,25 @@ class StudyCreditCard extends StatelessWidget {
             children: [
               // 标题部分
               _buildHeader(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               // 总学分部分
               _buildMainCreditCard(context),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // 分项标题
               _buildSubtitle(context),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
               // 分项学分列表
               ...data.other.asMap().entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildCreditItem(
-                    context: context,
-                    title: entry.value.name,
-                    actual: entry.value.actual,
-                    full: entry.value.full,
-                    delay: entry.key * 100,
-                  ),
+                return _buildCreditItem(
+                  context: context,
+                  title: entry.value.name,
+                  actual: entry.value.actual,
+                  full: entry.value.full,
+                  delay: entry.key * 100,
                 );
               }),
             ],

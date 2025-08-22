@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../Services/club_service.dart';
-import '../widgets/blur_widget.dart';
-import '../widgets/empty_widget.dart';
 import '../widgets/memberPages/member_data_page.dart';
 
 class MemberPage extends StatelessWidget {
@@ -12,267 +10,651 @@ class MemberPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('社团详情'),
-        flexibleSpace: BlurWidget(child: SizedBox.expand()),
-      ),
-      body: FutureBuilder(
-        future: ClubService.getMemberInfo(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('加载失败: ${snapshot.error}'));
-          }
-          final data = snapshot.data!;
-          final identity = data['memberData']['identity'] ?? 'Member';
-          final memberData = data['memberData'];
-          final infoData = data['info'];
-          String role = _mapIdentityToRole(identity);
-
-          final info = Column(
-            children: [
-              Image(
-                  image: AssetImage('assets/${memberData['gender']}生.webp'),
-                  height: isTablet ? 200 : 120),
-              Text(
-                memberData['userName'],
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text('ID: ${memberData['userId']}'),
-              SizedBox(height: 8),
-              Text('身份: $role'),
-            ],
-          );
-
-          List<Widget> task = [];
-          if (identity != 'Member') {
-            task = [
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Text(
-                      '我的任务',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 8),
-                    if ((infoData['tasks'] as List<dynamic>).isNotEmpty)
-                      ...infoData['tasks'].map((department) {
-                        return _buildDepartmentItem(
-                            department['title'], department['description']);
-                      }).toList(),
-                    if ((infoData['tasks'] as List<dynamic>).isEmpty)
-                      EmptyWidget(
-                        title: '您的任务都已经完成了',
-                        subtitle: '可以好好休息了',
-                        icon: Icons.school,
-                      ),
-                  ],
+      backgroundColor:
+          isDarkMode ? const Color(0xFF000000) : const Color(0xFFF2F2F7),
+      body: CustomScrollView(
+        slivers: [
+          // 苹果风格的导航栏
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: false,
+            pinned: true,
+            backgroundColor: isDarkMode
+                ? const Color(0xFF1C1C1E)
+                : Colors.white.withOpacity(0.94),
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                '社团详情',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Column(
-                  children: [
-                    Text(
-                      '我的项目',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 8),
-                    if ((infoData['projects'] as List<dynamic>).isNotEmpty)
-                      ...infoData['projects'].map((department) {
-                        return _buildDepartmentItem(
-                            department['title'], department['description']);
-                      }).toList(),
-                    if ((infoData['projects'] as List<dynamic>).isEmpty)
-                      EmptyWidget(
-                        title: '您的项目都已经完成了',
-                        subtitle: '可以好好休息了',
-                        icon: Icons.done_all_outlined,
-                      ),
-                  ],
-                ),
-              ),
-            ];
-          }
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // 基本信息
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: isTablet
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(child: info),
-                              Expanded(
-                                  child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: task,
-                              ))
-                            ],
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [info],
-                          ),
+              centerTitle: true,
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: isDarkMode
+                        ? [const Color(0xFF1C1C1E), const Color(0xFF000000)]
+                        : [Colors.white, const Color(0xFFF2F2F7)],
                   ),
                 ),
-
-                if (!isTablet) SizedBox(height: 16),
-
-                if (!isTablet)
-                  ...task.map((item) => Column(
-                        children: [
-                          SizedBox(
-                              width: double.infinity,
-                              child: Card(
-                                child: item,
-                              )),
-                          SizedBox(height: 16)
-                        ],
-                      )),
-
-                if (identity != 'Member' && identity != 'Department')
-                  // 部门卡片
-                  Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 16, right: 16, top: 16, bottom: 8),
-                          child: Text(
-                            '社团部门',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        ...infoData['departments'].map((department) {
-                          return _buildDepartmentItem(
-                              department['name'], department['description']);
-                        }).toList(),
-                      ],
+              ),
+            ),
+            leading: IconButton(
+              icon: Icon(
+                CupertinoIcons.back,
+                color: CupertinoColors.activeBlue,
+                size: 28,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          // 主内容
+          SliverToBoxAdapter(
+            child: FutureBuilder(
+              future: ClubService.getMemberInfo(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SizedBox(
+                    height: 400,
+                    child: Center(
+                      child: CupertinoActivityIndicator(radius: 15),
                     ),
-                  ),
-
-                if (identity != 'Member' && identity != 'Department')
-                  SizedBox(height: 16),
-
-                if (identity != 'Member' && identity != 'Department')
-                  // 数据中心卡片
-                  Card(
-                      child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '数据中心',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  _buildDataItem('当前成员', '${infoData['total']}',
-                                      onTap: () {
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return MemberDataPage();
-                                    }));
-                                  }),
-                                  _buildDataItem(
-                                      '部员数量', '${infoData['staffsCount']}'),
-                                  _buildDataItem('项目数量',
-                                      '${(infoData['projects'] as List<dynamic>).length}'),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  _buildDataItem('任务数量',
-                                      '${(infoData['tasks'] as List<dynamic>).length}'),
-                                  _buildDataItem('资源数量',
-                                      '${(infoData['resources'] as List<dynamic>).length}'),
-                                  _buildDataItem('部门数量',
-                                      '${(infoData['departments'] as List<dynamic>).length}'),
-                                ],
-                              ),
-                            ],
-                          ))),
-
-                if (identity != 'Member' || identity != 'Department')
-                  const SizedBox(height: 16),
-
-                if (identity != 'Member' || identity != 'Department')
-                  SizedBox(
-                    width: double.infinity, // 让容器占据所有可用宽度
-                    child: Card(
+                  );
+                }
+                if (snapshot.hasError) {
+                  return SizedBox(
+                    height: 400,
+                    child: Center(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 16, right: 16, top: 16, bottom: 8),
-                            child: Text(
-                              '社团资源',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                          Icon(
+                            CupertinoIcons.exclamationmark_circle,
+                            size: 60,
+                            color: CupertinoColors.systemRed,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            '加载失败',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                              color: isDarkMode ? Colors.white : Colors.black,
                             ),
                           ),
-                          if ((infoData['resources'] as List<dynamic>)
-                              .isNotEmpty)
-                            ...infoData['resources'].map((department) {
-                              return _buildDepartmentItem(
-                                  department['name'], department['description'],
-                                  rightWidget: Icon(Icons.open_in_new),
-                                  onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text(department['name']),
-                                        content:
-                                            Text(department['description']),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: Text('关闭'))
-                                        ],
-                                      );
-                                    });
-                              });
-                            }).toList(),
-                          if ((infoData['resources'] as List<dynamic>).isEmpty)
-                            EmptyWidget(
-                              title: '当前没有资源',
-                              subtitle: '去添加一个',
-                              icon: Icons.work,
+                          const SizedBox(height: 8),
+                          Text(
+                            '${snapshot.error}',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: CupertinoColors.systemGrey,
                             ),
+                          ),
                         ],
                       ),
                     ),
+                  );
+                }
+
+                final data = snapshot.data!;
+                final identity = data['memberData']['identity'] ?? 'Member';
+                final memberData = data['memberData'];
+                final infoData = data['info'];
+                String role = _mapIdentityToRole(identity);
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      // 用户信息卡片
+                      _buildUserInfoCard(
+                          memberData, role, isTablet, isDarkMode),
+
+                      if (identity != 'Member') ...[
+                        const SizedBox(height: 20),
+                        _buildTaskSection(infoData, isDarkMode),
+                        const SizedBox(height: 20),
+                        _buildProjectSection(infoData, isDarkMode),
+                      ],
+
+                      if (identity != 'Member' && identity != 'Department') ...[
+                        const SizedBox(height: 20),
+                        _buildDepartmentSection(infoData, isDarkMode),
+                        const SizedBox(height: 20),
+                        _buildDataCenterSection(infoData, context, isDarkMode),
+                        const SizedBox(height: 20),
+                        _buildResourceSection(infoData, context, isDarkMode),
+                      ],
+
+                      const SizedBox(height: 40),
+                    ],
                   ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 用户信息卡片
+  Widget _buildUserInfoCard(
+      Map memberData, String role, bool isTablet, bool isDarkMode) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          // 头像容器
+          Image(
+              image: AssetImage('assets/${memberData['gender']}生.webp'),
+              height: isTablet ? 200 : 120),
+          const SizedBox(height: 20),
+          // 用户名
+          Text(
+            memberData['userName'],
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: isDarkMode ? Colors.white : Colors.black,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          // ID 和身份标签
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemGrey6,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'ID: ${memberData['userId']}',
+              style: TextStyle(
+                fontSize: 14,
+                color: CupertinoColors.systemGrey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  CupertinoColors.activeBlue,
+                  CupertinoColors.activeBlue.withOpacity(0.8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              role,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 任务部分
+  Widget _buildTaskSection(Map infoData, bool isDarkMode) {
+    final tasks = infoData['tasks'] as List<dynamic>;
+    return _buildSection(
+      title: '我的任务',
+      icon: CupertinoIcons.checkmark_circle,
+      isEmpty: tasks.isEmpty,
+      emptyMessage: '您的任务都已经完成了',
+      emptySubtitle: '可以好好休息了',
+      items: tasks,
+      isDarkMode: isDarkMode,
+    );
+  }
+
+  // 项目部分
+  Widget _buildProjectSection(Map infoData, bool isDarkMode) {
+    final projects = infoData['projects'] as List<dynamic>;
+    return _buildSection(
+      title: '我的项目',
+      icon: CupertinoIcons.folder,
+      isEmpty: projects.isEmpty,
+      emptyMessage: '您的项目都已经完成了',
+      emptySubtitle: '可以好好休息了',
+      items: projects,
+      isDarkMode: isDarkMode,
+    );
+  }
+
+  // 部门部分
+  Widget _buildDepartmentSection(Map infoData, bool isDarkMode) {
+    final departments = infoData['departments'] as List<dynamic>;
+    return _buildSection(
+      title: '社团部门',
+      icon: CupertinoIcons.person_3,
+      items: departments
+          .map((d) => {
+                'title': d['name'],
+                'description': d['description'],
+              })
+          .toList(),
+      isDarkMode: isDarkMode,
+    );
+  }
+
+  // 通用部分构建器
+  Widget _buildSection({
+    required String title,
+    required IconData icon,
+    required List<dynamic> items,
+    bool isEmpty = false,
+    String? emptyMessage,
+    String? emptySubtitle,
+    required bool isDarkMode,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: CupertinoColors.activeBlue,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isEmpty && emptyMessage != null)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      CupertinoIcons.check_mark_circled,
+                      size: 48,
+                      color: CupertinoColors.systemGreen,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      emptyMessage,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                    if (emptySubtitle != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        emptySubtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            )
+          else
+            ...items.map((item) => _buildListItem(
+                  item['title'] ?? item['name'],
+                  item['description'],
+                  isDarkMode,
+                )),
+        ],
+      ),
+    );
+  }
+
+  // 列表项
+  Widget _buildListItem(String title, String subtitle, bool isDarkMode) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: isDarkMode
+                ? Colors.white.withOpacity(0.1)
+                : CupertinoColors.systemGrey6,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: ListTile(
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: isDarkMode ? Colors.white : Colors.black,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 14,
+            color: CupertinoColors.systemGrey,
+          ),
+        ),
+        trailing: Icon(
+          CupertinoIcons.chevron_right,
+          size: 16,
+          color: CupertinoColors.systemGrey3,
+        ),
+      ),
+    );
+  }
+
+  // 数据中心
+  Widget _buildDataCenterSection(
+      Map infoData, BuildContext context, bool isDarkMode) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            CupertinoColors.activeBlue.withOpacity(0.9),
+            CupertinoColors.activeBlue,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.activeBlue.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                CupertinoIcons.chart_bar_square,
+                color: Colors.white,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '数据中心',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildDataCard(
+                  '当前成员', '${infoData['total']}', CupertinoIcons.person_2,
+                  onTap: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (context) => MemberDataPage()),
+                );
+              }),
+              _buildDataCard(
+                  '部员数量', '${infoData['staffsCount']}', CupertinoIcons.person),
+              _buildDataCard(
+                  '项目数量',
+                  '${(infoData['projects'] as List<dynamic>).length}',
+                  CupertinoIcons.folder),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildDataCard(
+                  '任务数量',
+                  '${(infoData['tasks'] as List<dynamic>).length}',
+                  CupertinoIcons.checkmark_circle),
+              _buildDataCard(
+                  '资源数量',
+                  '${(infoData['resources'] as List<dynamic>).length}',
+                  CupertinoIcons.cube_box),
+              _buildDataCard(
+                  '部门数量',
+                  '${(infoData['departments'] as List<dynamic>).length}',
+                  CupertinoIcons.building_2_fill),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 数据卡片
+  Widget _buildDataCard(String label, String value, IconData icon,
+      {GestureTapCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white.withOpacity(0.9),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 资源部分
+  Widget _buildResourceSection(
+      Map infoData, BuildContext context, bool isDarkMode) {
+    final resources = infoData['resources'] as List<dynamic>;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Icon(
+                  CupertinoIcons.cube_box,
+                  color: CupertinoColors.activeBlue,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '社团资源',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (resources.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      CupertinoIcons.tray,
+                      size: 48,
+                      color: CupertinoColors.systemGrey3,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '当前没有资源',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '去添加一个',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ...resources.map((resource) => _buildResourceItem(
+                  resource,
+                  context,
+                  isDarkMode,
+                )),
+        ],
+      ),
+    );
+  }
+
+  // 资源项
+  Widget _buildResourceItem(
+      Map resource, BuildContext context, bool isDarkMode) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: isDarkMode
+                ? Colors.white.withOpacity(0.1)
+                : CupertinoColors.systemGrey6,
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: ListTile(
+        title: Text(
+          resource['name'],
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: isDarkMode ? Colors.white : Colors.black,
+          ),
+        ),
+        subtitle: Text(
+          resource['description'],
+          style: TextStyle(
+            fontSize: 14,
+            color: CupertinoColors.systemGrey,
+          ),
+        ),
+        trailing: Icon(
+          CupertinoIcons.arrow_up_right_square,
+          size: 20,
+          color: CupertinoColors.activeBlue,
+        ),
+        onTap: () {
+          showCupertinoDialog(
+            context: context,
+            builder: (context) => CupertinoAlertDialog(
+              title: Text(resource['name']),
+              content: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(resource['description']),
+              ),
+              actions: [
+                CupertinoDialogAction(
+                  child: const Text('关闭'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ],
             ),
           );
@@ -295,33 +677,5 @@ class MemberPage extends StatelessWidget {
       default:
         return '普通成员';
     }
-  }
-
-  // 部门项构建
-  Widget _buildDepartmentItem(String title, String subtitle,
-      {GestureTapCallback? onTap, Widget? rightWidget}) {
-    return ListTile(
-        title: Text(title, style: TextStyle(fontSize: 16)),
-        subtitle:
-            Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
-        //trailing: Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
-        trailing: rightWidget);
-  }
-
-  // 数据项构建
-  Widget _buildDataItem(String label, String value,
-      {GestureTapCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Text(label, style: TextStyle(fontSize: 14, color: Colors.grey)),
-          const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
   }
 }

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Services/git_service.dart';
 import '../Services/notification_service.dart';
 import '../services/download_service.dart';
+import '../widgets/ClubAppBar.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -16,8 +17,8 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('设置/关于'),
+      appBar: ClubAppBar(
+        title: '设置/关于',
       ),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(8.0),

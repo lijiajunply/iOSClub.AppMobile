@@ -7,7 +7,6 @@ import 'Pages/about_page.dart';
 import 'Pages/home_page.dart';
 import 'Pages/link_page.dart';
 import 'Pages/member_page.dart';
-import 'Pages/other_page.dart';
 import 'Pages/profile_page.dart';
 import 'Pages/schedule_list_page.dart';
 import 'Pages/schedule_setting_page.dart';
@@ -26,7 +25,6 @@ class AppRouter {
         '/About': (context) => const AboutPage(),
         '/ScheduleSetting': (context) => const ScheduleSettingPage(),
         '/SchoolBus': (context) => const SchoolBusPage(),
-        '/Other': (context) => const OtherPage(),
         '/iMember': (context) => const MemberPage(),
         '/Program': (context) => const ProgramPage(),
         '/Electricity': (context) => const ElectricityPage(),

@@ -5,6 +5,8 @@ import '../PageModels/CourseColorManager.dart';
 
 import 'package:flutter/cupertino.dart';
 
+import '../widgets/ClubAppBar.dart';
+
 class ProgramPage extends StatelessWidget {
   const ProgramPage({super.key});
 
@@ -16,18 +18,8 @@ class ProgramPage extends StatelessWidget {
     final accentColor = const Color(0xFF007AFF); // iOS主色调
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          '培养方案',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            color: isDarkMode ? Colors.white : Colors.black,
-            letterSpacing: -0.5,
-          ),
-        ),
+      appBar: ClubAppBar(
+        title: '培养方案',
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 8),

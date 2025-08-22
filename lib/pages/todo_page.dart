@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../Models/TodoItem.dart';
 import '../services/todo_service.dart';
-import '../widgets/blur_widget.dart';
+import '../widgets/ClubAppBar.dart';
 import '../widgets/empty_widget.dart';
 
 class TodoPage extends StatefulWidget {
@@ -30,9 +30,8 @@ class _TodoPageState extends State<TodoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('待办事务'),
-          flexibleSpace: BlurWidget(child: SizedBox.expand()),
+        appBar: ClubAppBar(
+          title: '待办事务',
         ),
         body: Padding(
             padding: EdgeInsets.all(16),

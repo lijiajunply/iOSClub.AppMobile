@@ -3,6 +3,7 @@ import 'package:ios_club_app/Services/club_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Models/LinkModel.dart';
+import '../widgets/ClubAppBar.dart';
 import '../widgets/blur_widget.dart';
 import '../widgets/icon_font.dart';
 
@@ -12,9 +13,8 @@ class LinkPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('建大导航'),
-        flexibleSpace: BlurWidget(child: SizedBox.expand()),
+      appBar: ClubAppBar(
+        title: '建大导航',
       ),
       body: FutureBuilder(
           future: ClubService.getLinks(),

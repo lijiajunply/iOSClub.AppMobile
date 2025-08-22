@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/services/turnover_analyzer.dart';
 import 'dart:math' as math;
 
+import 'package:ios_club_app/widgets/ClubAppBar.dart';
+
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
 
@@ -12,10 +14,10 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   bool _isLoading = true;
   String _errorMessage = '';
-  final TurnoverAnalyzer analyzer = TurnoverAnalyzer('');
+  late List<PaymentModel> records;
 
-  int totalRecharge = 0;
-  int totalConsume = 0;
+  double totalRecharge = 0;
+  String num = '';
 
   @override
   void initState() {
@@ -24,36 +26,32 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _loadData() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = '';
-      });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
 
-      final success = await analyzer.fetchData();
-      if (success) {
-        setState(() {
-          totalRecharge = analyzer.records
-              .where((r) => r.turnoverType == '充值')
-              .map((r) => r.tranamt)
-              .fold(0, (sum, amt) => sum + amt);
+    num = await TurnoverAnalyzer.getPayment();
 
-          totalConsume = analyzer.records
-              .where((r) => r.turnoverType == '消费')
-              .map((r) => r.tranamt)
-              .fold(0, (sum, amt) => sum + amt);
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = '数据加载失败';
-        });
-      }
-    } catch (e) {
+    if (num.isEmpty) {
       setState(() {
         _isLoading = false;
-        _errorMessage = '加载数据时出错: $e';
+        _errorMessage = '请先绑定饭卡';
+      });
+      return;
+    }
+
+    final recordsResult = await TurnoverAnalyzer.fetchData(num);
+    if (recordsResult.payments.isNotEmpty) {
+      setState(() {
+        records = recordsResult.payments;
+        totalRecharge = recordsResult.total;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = '数据加载失败';
       });
     }
   }
@@ -70,31 +68,61 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      title: const Text(
-        '饭卡余额',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
+  PreferredSizeWidget _buildAppBar() {
+    return ClubAppBar(
+      title: '饭卡余额',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: _loadData,
         ),
-      ),
-      centerTitle: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () {
+            // 饭卡数额设置，拿个弹窗
+            showDialog(
+              context: context,
+              builder: (contextDialog) {
+                final controller = TextEditingController(text: num);
+                return AlertDialog(
+                  title: const Text('设置饭卡卡号'),
+                  content: TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      hintText: '请输入饭卡卡号',
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(contextDialog).pop();
+                      },
+                      child: const Text('取消'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await TurnoverAnalyzer.setPayment(controller.text);
+                        if (contextDialog.mounted){
+                          Navigator.of(contextDialog).pop();
+                        }
+                        _loadData();
+                      },
+                      child: const Text('确定'),
+                    ),
+                  ],
+                );
+              }
+            );
+          },
+        )
+      ],
     );
   }
 
   Widget _buildLoadingIndicator() {
     return const Center(
-      child: CircularProgressIndicator(
-        color: Colors.blue,
-        strokeWidth: 3,
-      ),
+      child: CircularProgressIndicator(),
     );
   }
 
@@ -134,103 +162,17 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildContent() {
-    final balance = totalRecharge - totalConsume;
-
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 饭卡卡片
-          _buildCard(balance),
-
-          const SizedBox(height: 24),
-
           // 统计信息
           _buildStatisticsSection(),
-
-          const SizedBox(height: 24),
 
           // 最近交易
           _buildRecentTransactionsSection(),
         ],
       ),
-    );
-  }
-
-  Widget _buildCard(int balance) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF007AFF),
-            const Color(0xFF0A84FF),
-            Colors.blue.shade700,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '饭卡余额',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '¥${(balance / 100).toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildCardInfoItem('充值总额', totalRecharge),
-              _buildCardInfoItem('消费总额', totalConsume),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardInfoItem(String title, int amount) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '¥${(amount / 100).toStringAsFixed(2)}',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 
@@ -249,19 +191,14 @@ class _PaymentPageState extends State<PaymentPage> {
           ),
           const SizedBox(height: 16),
           _buildStatCard(
-              '总充值', totalRecharge, Icons.add_circle_outline, Colors.green),
-          const SizedBox(height: 12),
-          _buildStatCard(
-              '总消费', totalConsume, Icons.remove_circle_outline, Colors.red),
-          const SizedBox(height: 12),
-          _buildStatCard('余额', totalRecharge - totalConsume,
-              Icons.account_balance_wallet, Colors.blue),
+              '余额', totalRecharge, Icons.add_circle_outline, Colors.green),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String title, int amount, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, double amount, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -293,7 +230,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '¥${(amount / 100).toStringAsFixed(2)}',
+                  '¥${(amount).toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -308,22 +245,9 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildRecentTransactionsSection() {
-    final recentRecords =
-        analyzer.records.where((r) => r.turnoverType == '消费').toList()
-          ..sort((a, b) => b.datetime.compareTo(a.datetime))
-          ..take(5);
+    final recentRecords = records.where((r) => r.turnoverType == '消费').toList();
 
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,21 +293,6 @@ class _PaymentPageState extends State<PaymentPage> {
     final description = record.resume;
 
     return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: isRecharge
-              ? Colors.green.withOpacity(0.2)
-              : Colors.red.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(
-          isRecharge ? Icons.add : Icons.remove,
-          color: isRecharge ? Colors.green : Colors.red,
-          size: 24,
-        ),
-      ),
       title: Text(
         description.trim(),
         style: const TextStyle(
@@ -399,11 +308,10 @@ class _PaymentPageState extends State<PaymentPage> {
         ),
       ),
       trailing: Text(
-        '${isRecharge ? '+' : '-'}¥${(amount / 100).toStringAsFixed(2)}',
+        '${isRecharge ? '+' : '-'}${(amount).toStringAsFixed(2)}',
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: isRecharge ? Colors.green : Colors.red,
         ),
       ),
     );

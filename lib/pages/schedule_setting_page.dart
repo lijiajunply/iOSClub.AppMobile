@@ -7,6 +7,7 @@ import 'package:ios_club_app/Services/data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/ClubAppBar.dart';
 import '../widgets/page_header_delegate.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
@@ -87,8 +88,8 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
 
     super.build(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('课程设置'),
+      appBar: ClubAppBar(
+        title: ('课程设置'),
       ),
       body: CustomScrollView(
         cacheExtent: 500,

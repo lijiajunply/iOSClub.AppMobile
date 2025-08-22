@@ -6,6 +6,7 @@ import 'dart:math';
 
 import '../Services/tile_service.dart';
 import '../pageModels/ElectricData.dart';
+import '../widgets/ClubAppBar.dart';
 import '../widgets/empty_widget.dart';
 
 class ElectricityPage extends StatefulWidget {
@@ -47,8 +48,8 @@ class _ElectricityPageState extends State<ElectricityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('电费管理'),
+        appBar: ClubAppBar(
+          title: '电费管理',
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(16),
