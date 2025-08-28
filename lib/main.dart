@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:display_mode/display_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/services/background_service.dart';
@@ -34,6 +35,7 @@ void main() async {
       await windowManager.focus();
     });
   } else {
+    await FlutterDisplayMode.setHighRefreshRate();
     await BackgroundService.initializeService();
     await BackgroundService.startService();
   }
