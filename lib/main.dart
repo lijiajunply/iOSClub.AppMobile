@@ -48,14 +48,14 @@ void initApp() {
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-        fontFamily: Platform.isWindows ? 'PingFang SC' : null,
+        fontFamily: Platform.isWindows ? '苹方-简' : null,
         appBarTheme: AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           foregroundColor: Colors.black,
           elevation: 0,
         )),
     darkTheme: ThemeData(
-      fontFamily: Platform.isWindows ? 'Microsoft YaHei UI' : null,
+      fontFamily: Platform.isWindows ? '苹方-简' : null,
       brightness: Brightness.dark,
       appBarTheme: const AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle.light,

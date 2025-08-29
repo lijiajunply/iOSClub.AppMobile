@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -457,38 +458,35 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
+          ClubCard(
+            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+            child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isTablet ? 6 : 3,
+                  ),
+                  itemBuilder: (context, index) {
+                    return Center(
+                      child: profileButtonItems[index].build(),
+                    );
+                  },
+                  itemCount: profileButtonItems.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                )),
+          ),
           const SizedBox(height: 16),
-          Padding(
-              padding: const EdgeInsets.all(24),
-              child: Card(
-                child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isTablet ? 6 : 3,
-                      ),
-                      itemBuilder: (context, index) {
-                        return Center(
-                          child: profileButtonItems[index].build(),
-                        );
-                      },
-                      itemCount: profileButtonItems.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                    )),
-              )),
           FutureBuilder(
               future: DataService.getInfoList(),
-              builder: (context, snapshot) => Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: snapshot.hasData
-                      ? ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: snapshot.data?.length,
-                          itemBuilder: (context, index) =>
-                              StudyCreditCard(data: snapshot.data![index]))
-                      : const CircularProgressIndicator())),
+              builder: (context, snapshot) => snapshot.hasData
+                  ? ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: snapshot.data?.length,
+                  itemBuilder: (context, index) =>
+                      StudyCreditCard(data: snapshot.data![index]))
+                  : const CircularProgressIndicator()),
         ],
       ),
     );

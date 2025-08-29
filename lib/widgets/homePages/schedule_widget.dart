@@ -8,6 +8,7 @@ import '../../PageModels/ScheduleItem.dart';
 import '../../Services/data_service.dart';
 import '../../Services/notification_service.dart';
 import '../../Services/time_service.dart';
+import '../ClubCard.dart';
 import '../empty_widget.dart';
 
 class ScheduleWidget extends StatefulWidget {
@@ -153,8 +154,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-          child: Card(
-            elevation: 4,
+          child: ClubCard(
             child: scheduleItems.isEmpty
                 ? Padding(
                     padding: EdgeInsets.all(16.0),

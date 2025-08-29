@@ -303,18 +303,21 @@ class _CourseIgnoreItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: Checkbox(
-          value: ignore.isCompleted,
-          onChanged: (v) => onChanged(ignore, v!),
+    return Column(
+      children: [
+        ListTile(
+          leading: Checkbox(
+            value: ignore.isCompleted,
+            onChanged: (v) => onChanged(ignore, v!),
+          ),
+          title: Text(
+            ignore.title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          onTap: () => onChanged(ignore, !ignore.isCompleted),
         ),
-        title: Text(
-          ignore.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
+        const Divider(),
+      ],
     );
   }
 }

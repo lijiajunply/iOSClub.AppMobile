@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
 import '../Services/data_service.dart';
+import '../widgets/ClubCard.dart';
 import '../widgets/empty_widget.dart';
 import '../widgets/page_header_delegate.dart';
 
@@ -351,7 +352,7 @@ class _ScorePageState extends State<ScorePage> {
     return SliverPadding(
       padding: const EdgeInsets.all(16.0),
       sliver: SliverToBoxAdapter(
-        child: Card(
+        child: ClubCard(
           child: _buildStatsPadding(),
         ),
       ),
@@ -511,7 +512,11 @@ class _ScorePageState extends State<ScorePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            EmptyWidget(title: '没有成绩', subtitle: '建议刷新或退出重进',icon: Icons.school,),
+            EmptyWidget(
+              title: '没有成绩',
+              subtitle: '建议刷新或退出重进',
+              icon: Icons.school,
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => refresh(isRefresh: true),
@@ -525,9 +530,8 @@ class _ScorePageState extends State<ScorePage> {
 
   Widget _buildSemesterCard(ScoreList score) {
     final semesterNames = score.semester.name.split('-');
-    return Card(
+    return ClubCard(
       margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4),
-      elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -552,52 +556,54 @@ class _ScorePageState extends State<ScorePage> {
 
     return GestureDetector(
       onTap: () => _showScoreDetails(item),
-      child: InkWell(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: CourseColorManager.generateSoftColor(item.name),
-                  borderRadius: BorderRadius.circular(2),
+      child: Material(
+        child: InkWell(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: CourseColorManager.generateSoftColor(item.name),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${item.name}${item.isMinor ? ' (辅修)' : ''}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              const SizedBox(height: 4),
-                              _buildScoreMeta(item),
-                            ]),
-                      ),
-                      if (isTablet)
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Expanded(
-                          child: Text(
-                            item.gradeDetail,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${item.name}${item.isMinor ? ' (辅修)' : ''}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                const SizedBox(height: 4),
+                                _buildScoreMeta(item),
+                              ]),
                         ),
-                    ]),
-              ),
-            ],
+                        if (isTablet)
+                          Expanded(
+                            child: Text(
+                              item.gradeDetail,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                      ]),
+                ),
+              ],
+            ),
           ),
         ),
       ),

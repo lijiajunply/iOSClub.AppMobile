@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Models/InfoModel.dart';
 
+import 'ClubCard.dart';
+
 class StudyCreditCard extends StatelessWidget {
   final InfoModel data;
 
@@ -13,7 +15,7 @@ class StudyCreditCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Card(
+      child: ClubCard(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -56,7 +58,7 @@ class StudyCreditCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -227,7 +229,7 @@ class StudyCreditCard extends StatelessWidget {
     return Container(
       height: 6,
       decoration: BoxDecoration(
-        color: theme.colorScheme.outline.withOpacity(0.2),
+        color: theme.colorScheme.outline.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Stack(
@@ -237,7 +239,7 @@ class StudyCreditCard extends StatelessWidget {
             curve: Curves.easeOutCubic,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: theme.colorScheme.outline.withOpacity(0.1),
+              color: theme.colorScheme.outline.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -252,7 +254,7 @@ class StudyCreditCard extends StatelessWidget {
                     colors: [
                       _getProgressColor(clampedProgress, theme),
                       _getProgressColor(clampedProgress, theme)
-                          .withOpacity(0.8),
+                          .withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(3),
@@ -260,7 +262,7 @@ class StudyCreditCard extends StatelessWidget {
                       ? [
                           BoxShadow(
                             color: _getProgressColor(clampedProgress, theme)
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

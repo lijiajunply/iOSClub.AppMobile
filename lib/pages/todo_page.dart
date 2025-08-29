@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../Models/TodoItem.dart';
 import '../services/todo_service.dart';
 import '../widgets/ClubAppBar.dart';
+import '../widgets/ClubCard.dart';
 import '../widgets/empty_widget.dart';
 
 class TodoPage extends StatefulWidget {
@@ -38,56 +39,57 @@ class _TodoPageState extends State<TodoPage> {
             child: _todos.isEmpty
                 ? SizedBox(
                     height: 240,
-                    child: Card(
-                        elevation: 4,
+                    child: ClubCard(
                         child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: EmptyWidget(
-                            title: '当前没有待办事务',
-                            subtitle: '右上角添加一个待办事务',
-                            icon: Icons.calendar_today_outlined,
-                          ),
-                        )),
+                      padding: EdgeInsets.all(16.0),
+                      child: EmptyWidget(
+                        title: '当前没有待办事务',
+                        subtitle: '右上角添加一个待办事务',
+                        icon: Icons.calendar_today_outlined,
+                      ),
+                    )),
                   )
                 : ListView.builder(
                     // 禁用 ListView 自身的滚动
                     itemCount: _todos.length,
                     itemBuilder: (context, index) {
                       final todo = _todos[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ListTile(
-                          leading: Checkbox(
-                            value: todo.isCompleted,
-                            onChanged: (value) {
-                              setState(() {
-                                todo.isCompleted = value!;
-                              });
+                      return Column(
+                        children: [
+                          ListTile(
+                            leading: Checkbox(
+                              value: todo.isCompleted,
+                              onChanged: (value) {
+                                setState(() {
+                                  todo.isCompleted = value!;
+                                });
 
-                              TodoService.setTodoList(_todos);
-                            },
-                          ),
-                          title: Text(
-                            todo.title,
-                            style: TextStyle(
-                              decoration: todo.isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
-                              fontWeight: FontWeight.bold,
+                                TodoService.setTodoList(_todos);
+                              },
+                            ),
+                            title: Text(
+                              todo.title,
+                              style: TextStyle(
+                                decoration: todo.isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text('截止日期: ${todo.deadline}'),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () async {
+                                setState(() {
+                                  _todos.removeAt(index);
+                                });
+
+                                await TodoService.setTodoList(_todos);
+                              },
                             ),
                           ),
-                          subtitle: Text('截止日期: ${todo.deadline}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: () async {
-                              setState(() {
-                                _todos.removeAt(index);
-                              });
-
-                              await TodoService.setTodoList(_todos);
-                            },
-                          ),
-                        ),
+                          const Divider()
+                        ],
                       );
                     },
                   )),

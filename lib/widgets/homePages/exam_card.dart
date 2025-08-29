@@ -3,6 +3,7 @@ import 'package:ios_club_app/PageModels/CourseColorManager.dart';
 
 import '../../models/ExamModel.dart';
 import '../../services/exam_service.dart';
+import '../ClubCard.dart';
 import '../empty_widget.dart';
 
 class ExamCard extends StatefulWidget {
@@ -117,8 +118,7 @@ class _ExamCardState extends State<ExamCard> {
 
   Widget examCard() {
     if (isLoading) {
-      return const Card(
-        elevation: 4,
+      return const ClubCard(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -133,8 +133,7 @@ class _ExamCardState extends State<ExamCard> {
     }
 
     return examItems.isEmpty
-        ? const Card(
-            elevation: 4,
+        ? const ClubCard(
             child: Padding(
               padding: EdgeInsets.all(16.0),
               child: Column(

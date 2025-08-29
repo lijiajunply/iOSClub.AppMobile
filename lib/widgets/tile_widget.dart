@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../Services/edu_service.dart';
 import '../Services/tile_service.dart';
 import '../services/turnover_analyzer.dart';
+import 'ClubCard.dart';
 
 Widget buildTile(String tile, BuildContext context) {
   Widget? content;
@@ -21,18 +22,7 @@ Widget buildTile(String tile, BuildContext context) {
 
   content ??= Container();
 
-  return Container(
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha:0.08),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ],
-    ),
+  return ClubCard(
     child: content,
   );
 }
@@ -58,12 +48,12 @@ Widget buildElectricity(BuildContext context) {
                   end: Alignment.bottomRight,
                   colors: isLow
                       ? [
-                          Colors.red.withValues(alpha:0.1),
-                          Colors.orange.withValues(alpha:0.05)
+                          Colors.red.withValues(alpha: 0.1),
+                          Colors.orange.withValues(alpha: 0.05)
                         ]
                       : [
-                          Colors.blue.withValues(alpha:0.1),
-                          Colors.indigo.withValues(alpha:0.05)
+                          Colors.blue.withValues(alpha: 0.1),
+                          Colors.indigo.withValues(alpha: 0.05)
                         ],
                 ),
                 borderRadius: BorderRadius.circular(20),
@@ -77,8 +67,8 @@ Widget buildElectricity(BuildContext context) {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: isLow
-                              ? Colors.red.withValues(alpha:0.15)
-                              : Colors.blue.withValues(alpha:0.15),
+                              ? Colors.red.withValues(alpha: 0.15)
+                              : Colors.blue.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -93,7 +83,7 @@ Widget buildElectricity(BuildContext context) {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha:0.15),
+                            color: Colors.red.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
@@ -154,8 +144,8 @@ Widget buildBus(BuildContext context) {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.green.withValues(alpha:0.1),
-                Colors.teal.withValues(alpha:0.05),
+                Colors.green.withValues(alpha: 0.1),
+                Colors.teal.withValues(alpha: 0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
@@ -168,7 +158,7 @@ Widget buildBus(BuildContext context) {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha:0.15),
+                      color: Colors.green.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -182,7 +172,7 @@ Widget buildBus(BuildContext context) {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha:0.15),
+                      color: Colors.green.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -215,7 +205,7 @@ Widget buildBus(BuildContext context) {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha:0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -284,12 +274,12 @@ Widget buildPayment(BuildContext context) {
                     end: Alignment.bottomRight,
                     colors: isLow
                         ? [
-                            Colors.red.withValues(alpha:0.1),
-                            Colors.orange.withValues(alpha:0.05)
+                            Colors.red.withValues(alpha: 0.1),
+                            Colors.orange.withValues(alpha: 0.05)
                           ]
                         : [
-                            Colors.yellow.withValues(alpha:0.1),
-                            Colors.green.withValues(alpha:0.05)
+                            Colors.yellow.withValues(alpha: 0.1),
+                            Colors.green.withValues(alpha: 0.05)
                           ],
                   ),
                   borderRadius: BorderRadius.circular(20),
@@ -303,8 +293,8 @@ Widget buildPayment(BuildContext context) {
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: isLow
-                                ? Colors.red.withValues(alpha:0.15)
-                                : Colors.orange.withValues(alpha:0.15),
+                                ? Colors.red.withValues(alpha: 0.15)
+                                : Colors.orange.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -319,7 +309,7 @@ Widget buildPayment(BuildContext context) {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha:0.15),
+                              color: Colors.red.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(
