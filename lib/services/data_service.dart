@@ -70,13 +70,35 @@ class DataService {
     if (time["startTime"] == null) {
       return {'week': 0, 'maxWeek': 0};
     }
-    final a =
-        DateTime.now().difference(DateTime.parse(time["startTime"]!)).inDays;
 
-    final week = a ~/ 7 + (a < 0 ? 0 : 1);
-    final maxWeek = DateTime.parse(time["endTime"]!)
-                .difference(DateTime.parse(time["startTime"]!))
-                .inDays ~/ 7 + 1;
+    final startTime = DateTime.parse(time["startTime"]!);
+    final endTime = DateTime.parse(time["endTime"]!);
+    final now = DateTime.now();
+
+    // 获取某个日期所在周的周日（一周的第一天）
+    DateTime getWeekStart(DateTime date) {
+      // DateTime.weekday: 1=Monday, 2=Tuesday, ..., 7=Sunday
+      // 我们需要调整为：0=Sunday, 1=Monday, ..., 6=Saturday
+      int daysSinceWeekStart = date.weekday == 7 ? 0 : date.weekday;
+      return DateTime(date.year, date.month, date.day)
+          .subtract(Duration(days: daysSinceWeekStart));
+    }
+
+    // 计算开学时间所在周的周日
+    final startWeekSunday = getWeekStart(startTime);
+
+    // 计算当前时间所在周的周日
+    final currentWeekSunday = getWeekStart(now);
+
+    // 计算周数差 + 1（第一周为第1周）
+    final weekDiff = currentWeekSunday.difference(startWeekSunday).inDays ~/ 7;
+    final week = weekDiff + 1;
+
+    // 计算最大周数
+    final endWeekSunday = getWeekStart(endTime);
+    final maxWeekDiff = endWeekSunday.difference(startWeekSunday).inDays ~/ 7;
+    final maxWeek = maxWeekDiff + 1;
+
     return {'week': week, 'maxWeek': maxWeek};
   }
 

@@ -172,66 +172,69 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
   }
 
   Widget _buildScheduleItem(ScheduleItem item) {
-    return InkWell(
-      onTap: () {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text(item.title),
-                  content: Wrap(
-                    children: [buildCourse(item)],
-                  ),
-                ));
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            const SizedBox(width: 16),
-            Container(
-              width: 4,
-              height: 40,
-              decoration: BoxDecoration(
-                color: CourseColorManager.generateSoftColor(item.location),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                    title: Text(item.title),
+                    content: Wrap(
+                      children: [buildCourse(item)],
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.access_time,
-                          size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(item.time,
-                          style: TextStyle(color: Colors.grey[600])),
-                    ],
-                  ),
-                  const SizedBox(width: 16),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on,
-                          size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
-                      Text(item.location,
-                          style: TextStyle(color: Colors.grey[600])),
-                    ],
-                  ),
-                ],
+                  ));
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              const SizedBox(width: 16),
+              Container(
+                width: 4,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: CourseColorManager.generateSoftColor(item.location),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time,
+                            size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text(item.time,
+                            style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on,
+                            size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text(item.location,
+                            style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

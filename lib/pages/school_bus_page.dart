@@ -202,78 +202,83 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                         itemCount: busData.length,
                         itemBuilder: (context, index) {
                           final bus = busData[index];
-                          return GestureDetector(
-                            child: ClubCard(
-                              margin: EdgeInsets.all(8),
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            bus.departureStation,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            bus.runTime,
-                                            style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
+                          return Padding(padding: EdgeInsets.only(top: 12),
+                          child: Material(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              child: ClubCard(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              bus.departureStation,
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              bus.runTime,
+                                              style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                          Text(bus.description,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold)),
-                                          Divider(
-                                            thickness: 1,
-                                          ),
-                                          Text(bus.arrivalStationTime,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold))
-                                        ])),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                          Text(
-                                            bus.arrivalStation,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            bus.totalTime,
-                                            style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ]))
-                                  ],
+                                      Expanded(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                              children: [
+                                                Text(bus.description,
+                                                    style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontWeight:
+                                                        FontWeight.bold)),
+                                                Divider(
+                                                  thickness: 1,
+                                                ),
+                                                Text(bus.arrivalStationTime,
+                                                    style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontWeight:
+                                                        FontWeight.bold))
+                                              ])),
+                                      Expanded(
+                                          child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  bus.arrivalStation,
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                                SizedBox(height: 8),
+                                                Text(
+                                                  bus.totalTime,
+                                                  style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                              ]))
+                                    ],
+                                  ),
                                 ),
                               ),
+                              onTap: () async {
+                                await _showModalBottomSheet(bus);
+                              },
                             ),
-                            onTap: () async {
-                              await _showModalBottomSheet(bus);
-                            },
-                          );
+                          ),);
                         }),
                   )
                 else if (selectedDate != null)

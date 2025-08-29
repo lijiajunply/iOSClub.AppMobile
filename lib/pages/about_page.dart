@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:ios_club_app/services/todo_service.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -83,8 +84,8 @@ class AboutPage extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -113,7 +114,7 @@ class AboutPage extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             color: isDark
-                ? Colors.white.withOpacity(0.6)
+                ? Colors.white.withValues(alpha: 0.6)
                 : CupertinoColors.secondaryLabel,
           ),
         ),
@@ -133,7 +134,7 @@ class AboutPage extends StatelessWidget {
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
             color: isDark
-                ? Colors.white.withOpacity(0.5)
+                ? Colors.white.withValues(alpha: 0.5)
                 : CupertinoColors.secondaryLabel,
           ),
         ),
@@ -142,27 +143,9 @@ class AboutPage extends StatelessWidget {
   }
 
   Widget _buildSettingsGroup(List<Widget> children, bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[900] : CupertinoColors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ClubCard(
       child: Column(
-        children: [
-          for (int i = 0; i < children.length; i++) ...[
-            children[i],
-            if (i < children.length - 1)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(
-                  height: 0.5,
-                  color: isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : CupertinoColors.separator,
-                ),
-              ),
-          ],
-        ],
+        children: children,
       ),
     );
   }
@@ -754,10 +737,8 @@ class _VersionSettingState extends State<VersionSetting> {
                           ),
                           const SizedBox(height: 2),
                           Text(version,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: Colors.grey))
+                              style:
+                                  TextStyle(fontSize: 13, color: Colors.grey))
                         ],
                       ),
                     ),
@@ -794,15 +775,6 @@ class _VersionSettingState extends State<VersionSetting> {
                       });
                 }
               }),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Divider(
-            height: 0.5,
-            color: isDark
-                ? Colors.white.withOpacity(0.1)
-                : CupertinoColors.separator,
-          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

@@ -9,6 +9,8 @@ import 'package:ios_club_app/services/download_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'BottomNavigation.dart';
+import 'ModernSidebar.dart';
 import 'Services/git_service.dart';
 import 'UnderMaintenanceScreen.dart';
 
@@ -106,36 +108,41 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
-  final List<NavigationDestination> _destinations = const [
-    NavigationDestination(
-      icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home),
+  final List<SidebarDestination> _destinations = const [
+    SidebarDestination(
+      icon: (CupertinoIcons.house),
+      selectedIcon: (CupertinoIcons.house_fill),
       label: '首页',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.schedule_outlined),
-      selectedIcon: Icon(Icons.schedule),
+    SidebarDestination(
+      icon: (Icons.schedule_outlined),
+      selectedIcon: (Icons.schedule),
       label: '课表',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.credit_score_outlined),
-      selectedIcon: Icon(Icons.credit_score),
+    SidebarDestination(
+      icon: (CupertinoIcons.creditcard),
+      selectedIcon: (CupertinoIcons.creditcard_fill),
       label: '成绩',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.person_outline),
-      selectedIcon: Icon(Icons.person),
+    SidebarDestination(
+      icon: (CupertinoIcons.person_alt_circle),
+      selectedIcon: (CupertinoIcons.person_crop_circle_fill),
       label: '我的',
     ),
-    NavigationDestination(
-      icon: Icon(CupertinoIcons.bolt),
-      selectedIcon: Icon(CupertinoIcons.bolt_fill),
+    SidebarDestination(
+      icon: (CupertinoIcons.bolt),
+      selectedIcon: (CupertinoIcons.bolt_fill),
       label: '电费',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.directions_bus_outlined),
-      selectedIcon: Icon(Icons.directions_bus_rounded),
+    SidebarDestination(
+      icon: (Icons.directions_bus_outlined),
+      selectedIcon: (Icons.directions_bus_rounded),
       label: '校车',
+    ),
+    SidebarDestination(
+      icon: (CupertinoIcons.money_dollar),
+      selectedIcon: (CupertinoIcons.money_dollar_circle_fill),
+      label: '饭卡',
     ),
   ];
 
@@ -145,7 +152,8 @@ class _MainAppState extends State<MainApp> {
     2: '/Score',
     3: '/Profile',
     4: '/Electricity',
-    5: '/SchoolBus'
+    5: '/SchoolBus',
+    6: '/Payment',
   };
 
   final GetMaterialApp _app = GetMaterialApp(
@@ -154,9 +162,9 @@ class _MainAppState extends State<MainApp> {
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
             // 为不同平台配置不同的转场动画
-            TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.android: CustomPageTransitionBuilder(),
             TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.windows: CustomPageTransitionBuilder(),
             TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
             TargetPlatform.linux: CustomPageTransitionBuilder(),
             TargetPlatform.fuchsia: const FadeUpwardsPageTransitionsBuilder(),
@@ -164,7 +172,27 @@ class _MainAppState extends State<MainApp> {
           },
         ),
       ),
-      darkTheme: ThemeData.dark(),
+      darkTheme: ThemeData(
+        fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        brightness: Brightness.dark,
+        appBarTheme: const AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        pageTransitionsTheme: PageTransitionsTheme(
+          builders: {
+            // 为不同平台配置不同的转场动画
+            TargetPlatform.android: CustomPageTransitionBuilder(),
+            TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: CustomPageTransitionBuilder(),
+            TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
+            TargetPlatform.linux: CustomPageTransitionBuilder(),
+            TargetPlatform.fuchsia: const FadeUpwardsPageTransitionsBuilder(),
+            // 其他平台也可以添加
+          },
+        ),
+      ),
       getPages: AppRouter.getPages,
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
@@ -182,35 +210,35 @@ class _MainAppState extends State<MainApp> {
         ? Scaffold(
             body: SafeArea(
                 child: Row(
-            children: [
-              // 左侧导航
-              NavigationRail(
-                labelType: NavigationRailLabelType.all,
-                destinations: _destinations.map((destination) {
-                  return NavigationRailDestination(
-                    icon: destination.icon,
-                    selectedIcon: destination.selectedIcon,
-                    label: Text(destination.label),
-                  );
-                }).toList(),
-                onDestinationSelected: (int index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                  Get.toNamed(_routeMap[index] ?? '/');
-                },
-                selectedIndex: _currentIndex,
-              ),
-              // 垂直分割线
-              const VerticalDivider(thickness: 1, width: 1),
-              // 主要内容区域
-              Expanded(child: _app),
-            ],
-          )))
+                  mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DesktopSidebar(
+                  items: _destinations,
+                  selectedIndex: _currentIndex,
+                  onItemSelected: (int index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                    Get.toNamed(_routeMap[index] ?? '/');
+                  },
+                ),
+                Expanded(
+                  child: _app,
+                ),
+              ],
+            )),
+          )
         : Scaffold(
             body: SafeArea(child: _app),
-            bottomNavigationBar: NavigationBar(
-              destinations: _destinations.sublist(0, 4),
+            bottomNavigationBar: BottomNavigation(
+              destinations: _destinations.sublist(0, 4).map((destination) {
+                return NavigationDestination(
+                  icon: Icon(destination.icon),
+                  selectedIcon: Icon(destination.selectedIcon),
+                  label: destination.label,
+                );
+              }).toList(),
               selectedIndex: _currentIndex,
               onDestinationSelected: (int index) {
                 setState(() {
@@ -218,6 +246,8 @@ class _MainAppState extends State<MainApp> {
                 });
                 Get.toNamed(_routeMap[index] ?? '/');
               },
+              backgroundColor:
+                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
             ),
           );
   }

@@ -552,56 +552,55 @@ class _ScorePageState extends State<ScorePage> {
   Widget _buildScoreItem(ScoreModel item) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
-    return GestureDetector(
-      onTap: () => _showScoreDetails(item),
-      child: Material(
-        child: InkWell(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: CourseColorManager.generateSoftColor(item.name),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showScoreDetails(item),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: CourseColorManager.generateSoftColor(item.name),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${item.name}${item.isMinor ? ' (辅修)' : ''}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${item.name}${item.isMinor ? ' (辅修)' : ''}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(height: 4),
-                                _buildScoreMeta(item),
-                              ]),
-                        ),
-                        if (isTablet)
-                          Expanded(
-                            child: Text(
-                              item.gradeDetail,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 4),
+                              _buildScoreMeta(item),
+                            ]),
+                      ),
+                      if (isTablet)
+                        Expanded(
+                          child: Text(
+                            item.gradeDetail,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                      ]),
-                ),
-              ],
-            ),
+                        ),
+                    ]),
+              ),
+            ],
           ),
         ),
       ),

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
 import 'package:ios_club_app/models/MemberModel.dart';
 
-import '../blur_widget.dart';
-
 class StaffDataPage extends StatefulWidget {
   const StaffDataPage({super.key});
 
@@ -45,7 +43,6 @@ class _StaffDataPageState extends State<StaffDataPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('成员数据'),
-        flexibleSpace: BlurWidget(child: SizedBox.expand()),
       ),
       body: SingleChildScrollView(
           child: Column(children: [

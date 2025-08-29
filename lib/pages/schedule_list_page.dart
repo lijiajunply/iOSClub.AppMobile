@@ -293,8 +293,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   child: Padding(
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Text(
-                                        currentPage == weekNow
-                                            ? '第$currentPage周'
+                                        currentPage <= 0 ||
+                                                currentPage == weekNow
+                                            ? '全部课表 $weekText'
                                             : currentPage <= 0
                                                 ? '全部课表 $weekText'
                                                 : '第$currentPage周 $weekText',

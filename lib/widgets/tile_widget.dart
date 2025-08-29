@@ -29,7 +29,7 @@ Widget buildTile(String tile, BuildContext context) {
 
 Widget buildElectricity(BuildContext context) {
   return Material(
-    borderRadius: BorderRadius.circular(20),
+    color: Colors.transparent,
     child: InkWell(
       onTap: () => Get.toNamed('/Electricity'),
       borderRadius: BorderRadius.circular(20),
@@ -257,8 +257,9 @@ Widget buildBus(BuildContext context) {
 
 Widget buildPayment(BuildContext context) {
   return Material(
-      borderRadius: BorderRadius.circular(20),
+      color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(20),
         child: FutureBuilder(
           future: TurnoverAnalyzer.getData(),
           builder: (context, snapshot) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/widgets/homePages/exam_card.dart';
+
+import '../widgets/homePages/exam_card.dart';
 import '../widgets/homePages/schedule_widget.dart';
 import '../widgets/homePages/tiles_widget.dart';
 import '../widgets/homePages/todo_widget.dart';
@@ -9,7 +10,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width - 250;
     final list = <Widget>[
       ScheduleWidget(),
       TilesWidget(),
@@ -23,13 +24,13 @@ class HomePage extends StatelessWidget {
             child: (width < 600)
                 ? Column(children: list)
                 : Wrap(
-                    children: List.generate(
-                        list.length,
+                children: List.generate(
+                    list.length,
                         (index) => SizedBox(
-                            width: width > 750
-                                ? (((width - 90) /
-                                    ((index + 1) % 4 < 2 ? 3 : (1.5))))
-                                : ((width - 90) / 2),
-                            child: list[index])))));
+                        width: width > 750
+                            ? (((width) /
+                            ((index + 1) % 4 < 2 ? 3 : (1.5))))
+                            : ((width) / 2),
+                        child: list[index])))));
   }
 }
