@@ -483,9 +483,8 @@ class _ScorePageState extends State<ScorePage> {
 
   Widget _buildYearCard(ScoreList score, int index) {
     const yearStringList = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
-    return Card(
+    return ClubCard(
         margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4),
-        elevation: 4,
         child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(children: [
@@ -506,8 +505,7 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildEmptyState() {
-    return Card(
-      elevation: 4,
+    return ClubCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Models/LinkModel.dart';
 import '../widgets/ClubAppBar.dart';
-import '../widgets/blur_widget.dart';
 import '../widgets/icon_font.dart';
 
 class LinkPage extends StatelessWidget {
@@ -17,33 +17,79 @@ class LinkPage extends StatelessWidget {
         title: '建大导航',
       ),
       body: FutureBuilder(
-          future: ClubService.getLinks(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                // 请求失败，显示错误
-                return Text("Error: ${snapshot.error}");
-              } else {
-                // 请求成功，显示数据
-                return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final categoryList = snapshot.data![index];
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ScoreBuilder(
-                          categoryList: categoryList,
-                        ),
-                      );
-                    });
-              }
+        future: ClubService.getLinks(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "加载失败",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "${snapshot.error}",
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
             } else {
-              // 请求未结束，显示loading
-              return const Center(
-                child: CircularProgressIndicator(),
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final categoryList = snapshot.data![index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: ScoreBuilder(
+                      categoryList: categoryList,
+                    ),
+                  );
+                },
               );
             }
-          }),
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF6366F1),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "加载中...",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
@@ -64,55 +110,133 @@ class ScoreBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
 
-    return Card(
-      elevation: 6,
+    return ClubCard(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              categoryList.name,
-              style: const TextStyle(fontSize: 24),
-            ),
-            GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: isTablet ? 6 : 3,
-                ),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: categoryList.links.length,
-                itemBuilder: (context, index) {
-                  final linkList = categoryList.links[index];
-                  return RawMaterialButton(
-                    onPressed: () async {
-                      await _launchURL(linkList.url);
-                    },
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          FutureBuilder(
-                              future: IconUtil.getIconFont(linkList),
-                              builder: (context, snapshot) {
-                                return snapshot.hasData
-                                    ? snapshot.data!
-                                    : const SizedBox();
-                              }),
-                          Text(
-                            linkList.name,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
-                          )
-                        ],
-                      ),
+            // 分类标题
+            Container(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6366F1),
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                  );
-                })
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    categoryList.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 链接网格
+            GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isTablet ? 6 : 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.0,
+              ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: categoryList.links.length,
+              itemBuilder: (context, index) {
+                final linkList = categoryList.links[index];
+                return _LinkItem(
+                  link: linkList,
+                  onTap: () => _launchURL(linkList.url),
+                );
+              },
+            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// 单独的链接项组件
+class _LinkItem extends StatelessWidget {
+  final dynamic link;
+  final VoidCallback onTap;
+
+  const _LinkItem({
+    required this.link,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          color: isDark ? theme.hoverColor : theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 图标
+                  FutureBuilder(
+                    future: IconUtil.getIconFont(link),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return IconTheme(
+                          data: const IconThemeData(
+                            size: 24,
+                          ),
+                          child: snapshot.data!,
+                        );
+                      }
+                      return Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  // 名称
+                  Text(
+                    link.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.2,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

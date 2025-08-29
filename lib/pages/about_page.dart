@@ -16,222 +16,451 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: ClubAppBar(
-        title: '设置/关于',
+        title: '设置',
       ),
-      body: SingleChildScrollView(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 16,
-              ),
-              const Image(
-                image: AssetImage('assets/icon.webp'),
-                width: 100,
-                height: 100,
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              const Center(
-                  child: Text(
-                'iOS Club App',
-                style:
-                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-              )),
-              const SizedBox(
-                height: 24,
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Text('基本设置',
-                        style: TextStyle(
-                            color: Colors.grey, fontWeight: FontWeight.bold))
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Card(
-                child: ListTile(
-                  title: const Text(
-                    '刷新数据',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  trailing: Icon(Icons.refresh),
-                  onTap: () async {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('正在刷新数据...')),
-                    );
-                    final re = await EduService.refresh();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('刷新数据${re ? '成功' : '失败'}')),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              ShowTomorrowSetting(),
-              const SizedBox(
-                height: 8,
-              ),
-              RemindSetting(),
-              const SizedBox(
-                height: 8,
-              ),
-              TodoListSetting(),
-              const SizedBox(
-                height: 8,
-              ),
-              HomePageSetting(),
-              const SizedBox(
-                height: 16,
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Text('版本',
-                        style: TextStyle(
-                            color: Colors.grey, fontWeight: FontWeight.bold))
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              VersionSetting(),
-              const SizedBox(
-                height: 16,
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Text('关于我们',
-                        style: TextStyle(
-                            color: Colors.grey, fontWeight: FontWeight.bold))
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              const Card(
-                child: ListTile(
-                  title: Text('制作团队',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  subtitle: Text(
-                    'LuckyFish & zealous',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.grey),
-                  ),
-                  trailing: Icon(Icons.people_rounded),
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              const Card(
-                child: ListTile(
-                  title: Text('开源协议',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  subtitle: Text(
-                    'MIT License',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.grey),
-                  ),
-                  trailing: Icon(Icons.abc),
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Card(
-                child: ListTile(
-                  title: Text('关于社团',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  trailing: Icon(Icons.apple),
-                  subtitle: Text(
-                    'iOS Club of XAUAT',
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    _showClubDescription(context);
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 8,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // 响应式布局 - 平板和手机适配
+          final isTablet = constraints.maxWidth > 600;
+          final horizontalPadding = isTablet ? 32.0 : 16.0;
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                // App 图标区域
+                _buildAppHeader(context, isDark),
+                const SizedBox(height: 32),
+                // 基本设置
+                _buildSectionTitle('基本设置', isDark),
+                const SizedBox(height: 12),
+                _buildSettingsGroup([
+                  _buildRefreshTile(context, isDark),
+                  const ShowTomorrowSetting(),
+                  const RemindSetting(),
+                  const TodoListSetting(),
+                  const HomePageSetting(),
+                ], isDark),
+                const SizedBox(height: 24),
+                // 版本信息
+                _buildSectionTitle('版本', isDark),
+                const SizedBox(height: 12),
+                _buildSettingsGroup([
+                  const VersionSetting(),
+                ], isDark),
+                const SizedBox(height: 24),
+                // 关于我们
+                _buildSectionTitle('关于', isDark),
+                const SizedBox(height: 12),
+                _buildSettingsGroup([
+                  _buildTeamTile(isDark),
+                  _buildLicenseTile(isDark),
+                  _buildClubTile(context, isDark),
+                ], isDark),
+                const SizedBox(height: 32),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAppHeader(BuildContext context, bool isDark) {
+    return Column(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                spreadRadius: 2,
               ),
             ],
-          )),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: const Image(
+              image: AssetImage('assets/icon.webp'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'iOS Club App',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '试着把建大囊括其中',
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark
+                ? Colors.white.withOpacity(0.6)
+                : CupertinoColors.secondaryLabel,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title, bool isDark) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+            color: isDark
+                ? Colors.white.withOpacity(0.5)
+                : CupertinoColors.secondaryLabel,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsGroup(List<Widget> children, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[900] : CupertinoColors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < children.length; i++) ...[
+            children[i],
+            if (i < children.length - 1)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Divider(
+                  height: 0.5,
+                  color: isDark
+                      ? Colors.white.withOpacity(0.1)
+                      : CupertinoColors.separator,
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRefreshTile(BuildContext context, bool isDark) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('正在刷新数据...'),
+              backgroundColor: isDark ? Colors.grey[800] : null,
+            ),
+          );
+          final re = await EduService.refresh();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('刷新数据${re ? '成功' : '失败'}'),
+                backgroundColor: isDark ? Colors.grey[800] : null,
+              ),
+            );
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                CupertinoIcons.refresh,
+                size: 20,
+                color: CupertinoColors.systemBlue,
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  '刷新数据',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              Icon(
+                CupertinoIcons.chevron_right,
+                size: 18,
+                color: isDark
+                    ? Colors.white.withOpacity(0.3)
+                    : CupertinoColors.tertiaryLabel,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeamTile(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(
+            CupertinoIcons.person_2_fill,
+            size: 20,
+            color: CupertinoColors.systemOrange,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '制作团队',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'LuckyFish & zealous',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? Colors.white.withOpacity(0.5)
+                        : CupertinoColors.secondaryLabel,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLicenseTile(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(
+            CupertinoIcons.doc_text_fill,
+            size: 20,
+            color: CupertinoColors.systemGreen,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '开源协议',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'MIT License',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? Colors.white.withOpacity(0.5)
+                        : CupertinoColors.secondaryLabel,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClubTile(BuildContext context, bool isDark) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _showClubDescription(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              GradientIcon(
+                size: 20,
+                icon: Icons.apple,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '关于社团',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'iOS Club of XAUAT',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark
+                            ? Colors.white.withOpacity(0.5)
+                            : CupertinoColors.secondaryLabel,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                CupertinoIcons.chevron_right,
+                size: 18,
+                color: isDark
+                    ? Colors.white.withOpacity(0.3)
+                    : CupertinoColors.tertiaryLabel,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Future<void> _showClubDescription(BuildContext context) {
-    final a = MediaQuery.of(context).size.width;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return showModalBottomSheet<void>(
-        context: context,
-        constraints: BoxConstraints(
-            maxWidth: a,
-            minWidth: a,
-            maxHeight: MediaQuery.of(context).size.height * 0.9),
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return SingleChildScrollView(
-              child: Padding(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey[900] : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 5,
+                margin: const EdgeInsets.only(top: 12),
+                decoration: BoxDecoration(
+                  color:
+                      isDark ? Colors.white.withOpacity(0.3) : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2.5),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
-                  child: Column(children: [
-                    const Text('关于社团',
+                  child: Column(
+                    children: [
+                      Text(
+                        '关于社团',
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
-                    Image(
-                      image: AssetImage('assets/iOS_Club_Logo.webp'),
-                      height: 150,
-                      width: 150,
-                    ),
-                    const SizedBox(height: 10),
-                    const Text('iOS Club of XAUAT',
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.white.withOpacity(0.1)
+                                  : Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: const Image(
+                            image: AssetImage('assets/iOS_Club_Logo.webp'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'iOS Club of XAUAT',
                         style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    const Text(
-                        '西建大iOS众创空间俱乐部（别称为西建大iOS Club），是苹果公司和学校共同创办的创新创业类社团。成立于2019年9月。目前是全校较大和较为知名的科技类社团。',
-                        style: TextStyle(fontSize: 16)),
-                    const SizedBox(height: 10),
-                    const Text(
-                        '西建大iOS众创空间俱乐部没有设备要求，或者说没有任何限制 —— 只要你喜欢数码，热爱编程，或者想要学习编程开发搞项目，就可以加入到西建大iOS众创空间俱乐部。',
-                        style: TextStyle(fontSize: 16)),
-                    const SizedBox(height: 10),
-                  ])));
-        });
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isDark
+                              ? Colors.white.withOpacity(0.6)
+                              : CupertinoColors.secondaryLabel,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.black.withOpacity(0.3)
+                              : CupertinoColors.systemGrey6,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '西建大iOS众创空间俱乐部（别称为西建大iOS Club），是苹果公司和学校共同创办的创新创业类社团。成立于2019年9月。目前是全校较大和较为知名的科技类社团。',
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.5,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '西建大iOS众创空间俱乐部没有设备要求，或者说没有任何限制 —— 只要你喜欢数码，热爱编程，或者想要学习编程开发搞项目，就可以加入到西建大iOS众创空间俱乐部。',
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.5,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
+// 更新 ShowTomorrowSetting 组件
 class ShowTomorrowSetting extends StatefulWidget {
   const ShowTomorrowSetting({super.key});
 
@@ -245,7 +474,6 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
   @override
   void initState() {
     super.initState();
-
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
@@ -255,26 +483,52 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: ListTile(
-      title: const Text('显示明日课程',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      subtitle: const Text(
-        '当今日无课时显示明日课程',
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Icon(
+            CupertinoIcons.calendar,
+            size: 20,
+            color: CupertinoColors.systemPurple,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '显示明日课程',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '当今日无课时显示明日课程',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? Colors.white.withOpacity(0.5)
+                        : CupertinoColors.secondaryLabel,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          CupertinoSwitch(
+            value: isShowTomorrow,
+            onChanged: (bool value) async {
+              setState(() {
+                isShowTomorrow = value;
+              });
+              final prefs = await SharedPreferences.getInstance();
+              prefs.setBool('is_show_tomorrow', value);
+            },
+          ),
+        ],
       ),
-      trailing: CupertinoSwitch(
-        value: isShowTomorrow,
-        onChanged: (bool value) async {
-          setState(() {
-            isShowTomorrow = value;
-          });
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool('is_show_tomorrow', value);
-        },
-      ),
-    ));
+    );
   }
 }
 
@@ -303,41 +557,87 @@ class _RemindSettingState extends State<RemindSetting> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: Column(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
       children: [
-        ListTile(
-          title: const Text('课程通知',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          subtitle: Text(
-            '上课前进行提醒',
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-          ),
-          trailing: CupertinoSwitch(
-            value: isRemind,
-            onChanged: (bool value) async {
-              setState(() {
-                isRemind = value;
-              });
-              final prefs = await SharedPreferences.getInstance();
-              prefs.setBool('is_remind', value);
-              if (value && context.mounted) {
-                await NotificationService.set(context);
-              }
-            },
-          ),
-        ),
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.schedule,
+                  size: 20,
+                  color: CupertinoColors.systemGreen,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '课程通知',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '上课前进行提醒',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark
+                              ? Colors.white.withOpacity(0.5)
+                              : CupertinoColors.secondaryLabel,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                CupertinoSwitch(
+                  value: isRemind,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      isRemind = value;
+                    });
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setBool('is_remind', value);
+                    if (value && context.mounted) {
+                      await NotificationService.set(context);
+                    }
+                  },
+                )
+              ],
+            )),
         if (isRemind)
-          ListTile(
-              title: const Text('提前几分钟提醒',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              onTap: () {
-                _show(context);
-              },
-              trailing: Text('$remindTime分钟'))
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 28),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '提前几分钟提醒',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text('$remindTime分钟')
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  _show(context);
+                }),
+          ),
       ],
-    ));
+    );
   }
 
   Future<void> _show(BuildContext context) async {
@@ -421,79 +721,132 @@ class _VersionSettingState extends State<VersionSetting> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            title: const Text(
-              '版本',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            subtitle: Text(version,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                    color: Colors.grey)),
-            trailing: isNeedUpdate
-                ? Badge(
-                    backgroundColor: Colors.red,
-                    child: Icon(Icons.update),
-                  )
-                : Icon(Icons.verified),
-            onTap: () async {
-              if (isNeedUpdate) {
-                await showDialog(
-                    context: context,
-                    builder: (b) {
-                      return AlertDialog(
-                        title: Text('是否更新最新版本: $newVersion'),
-                        actions: [
-                          TextButton(
-                            child: const Text('是的'),
-                            onPressed: () async {
-                              Navigator.of(b).pop();
-                              final a = await GiteeService.getReleases();
-                              if (context.mounted) {
-                                UpdateManager.showUpdateWithProgress(
-                                    context, a.name);
-                              }
-                            },
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                child: Row(
+                  children: [
+                    isNeedUpdate
+                        ? Badge(
+                            backgroundColor: Colors.red,
+                            child: Icon(
+                              Icons.update,
+                              size: 20,
+                            ),
+                          )
+                        : Icon(Icons.verified, size: 20, color: Colors.green),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '版本',
+                            style: TextStyle(fontSize: 16),
                           ),
-                          TextButton(
-                            child: const Text('不要'),
-                            onPressed: () {
-                              Navigator.of(b).pop();
-                            },
-                          ),
+                          const SizedBox(height: 2),
+                          Text(version,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.grey))
                         ],
-                      );
-                    });
-              }
-            },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () async {
+                if (isNeedUpdate) {
+                  await showDialog(
+                      context: context,
+                      builder: (b) {
+                        return AlertDialog(
+                          title: Text('是否更新最新版本: $newVersion'),
+                          actions: [
+                            TextButton(
+                              child: const Text('是的'),
+                              onPressed: () async {
+                                Navigator.of(b).pop();
+                                final a = await GiteeService.getReleases();
+                                if (context.mounted) {
+                                  UpdateManager.showUpdateWithProgress(
+                                      context, a.name);
+                                }
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('不要'),
+                              onPressed: () {
+                                Navigator.of(b).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      });
+                }
+              }),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Divider(
+            height: 0.5,
+            color: isDark
+                ? Colors.white.withOpacity(0.1)
+                : CupertinoColors.separator,
           ),
-          ListTile(
-            title: const Text('更新日志',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            subtitle: const Text(
-              '忽略版本更新',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  color: Colors.grey),
-            ),
-            trailing: CupertinoSwitch(
-              value: updateIgnored,
-              onChanged: (bool value) async {
-                setState(() {
-                  updateIgnored = value;
-                });
-                final prefs = await SharedPreferences.getInstance();
-                prefs.setBool('update_ignored', value);
-              },
-            ),
-          )
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Row(
+            children: [
+              Icon(
+                Icons.update,
+                size: 20,
+                color: Colors.amber,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '更新日志',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '忽略版本更新',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              CupertinoSwitch(
+                value: updateIgnored,
+                onChanged: (bool value) async {
+                  setState(() {
+                    updateIgnored = value;
+                  });
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.setBool('update_ignored', value);
+                },
+              )
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -521,29 +874,53 @@ class _TodoListSettingState extends State<TodoListSetting> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: ListTile(
-      title: const Text('是否将待办保存至云端',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      subtitle: const Text(
-        '将待办事务保存至社团官网',
-        style: TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
-      ),
-      trailing: CupertinoSwitch(
-        value: isUpdateToClub,
-        onChanged: (bool value) async {
-          setState(() {
-            isUpdateToClub = value;
-          });
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setBool('is_update_club', value);
-          if (value) {
-            await TodoService.nowToUpdate();
-          }
-        },
-      ),
-    ));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.cloud_upload_fill,
+              size: 20,
+              color: Colors.grey,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '是否将待办保存至云端',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '将待办事务保存至社团官网',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? Colors.white.withOpacity(0.5)
+                          : CupertinoColors.secondaryLabel,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            CupertinoSwitch(
+              value: isUpdateToClub,
+              onChanged: (bool value) async {
+                setState(() {
+                  isUpdateToClub = value;
+                });
+                final prefs = await SharedPreferences.getInstance();
+                prefs.setBool('is_update_club', value);
+                if (value) {
+                  await TodoService.nowToUpdate();
+                }
+              },
+            )
+          ],
+        ));
   }
 }
 
@@ -576,11 +953,35 @@ class _HomePageSettingState extends State<HomePageSetting> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: const Text('打开应用的第一个页面',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        trailing: Text(_pageNames[_pageIndex]),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.pageview,
+                  size: 20,
+                  color: Colors.blue,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '打开应用的第一个页面',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(_pageNames[_pageIndex]),
+                const SizedBox(width: 4),
+              ],
+            )),
         onTap: () => _showDialog(CupertinoPicker(
           magnification: 1.22,
           squeeze: 1.2,
@@ -620,6 +1021,46 @@ class _HomePageSettingState extends State<HomePageSetting> {
         color: CupertinoColors.systemBackground.resolveFrom(context),
         // Use a SafeArea widget to avoid system overlaps.
         child: SafeArea(top: false, child: child),
+      ),
+    );
+  }
+}
+
+class GradientIcon extends StatelessWidget {
+  final IconData icon;
+  final double size;
+  final List<Color> gradientColors;
+
+  const GradientIcon({
+    super.key,
+    required this.icon,
+    this.size = 24.0,
+    this.gradientColors = const [
+      Color(0xFFF9BF65),
+      Color(0xFFFFAB6B),
+      Color(0xFFFC8986),
+      Color(0xFFEF7E95),
+      Color(0xFFBF83C1),
+      Color(0xFFAB8DCF),
+      Color(0xFF7FA0DC),
+    ],
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          transform: const GradientRotation(-64 * 3.14159 / 180), // 转换角度为弧度
+          colors: gradientColors,
+        ).createShader(bounds);
+      },
+      child: Icon(
+        icon,
+        size: size,
+        color: Colors.white, // 使用白色作为基础颜色
       ),
     );
   }

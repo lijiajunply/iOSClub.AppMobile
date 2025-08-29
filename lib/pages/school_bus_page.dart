@@ -5,6 +5,7 @@ import 'package:ios_club_app/Models/BusModel.dart';
 
 import '../Services/edu_service.dart';
 import '../Services/tile_service.dart';
+import '../widgets/ClubCard.dart';
 import '../widgets/empty_widget.dart';
 
 class SchoolBusPage extends StatefulWidget {
@@ -177,7 +178,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
               children: [
                 if (isLoading)
                   Center(
-                    child: Card(
+                    child: ClubCard(
                       margin: EdgeInsets.only(top: 40),
                       child: Padding(
                           padding: EdgeInsets.all(16.0),
@@ -186,7 +187,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                   )
                 else if (errorMessage != null)
                   Center(
-                    child: Card(
+                    child: ClubCard(
                       margin: EdgeInsets.only(top: 40),
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
@@ -202,7 +203,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                         itemBuilder: (context, index) {
                           final bus = busData[index];
                           return GestureDetector(
-                            child: Card(
+                            child: ClubCard(
                               margin: EdgeInsets.all(8),
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),

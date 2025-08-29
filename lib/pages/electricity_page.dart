@@ -7,6 +7,7 @@ import 'dart:math';
 import '../Services/tile_service.dart';
 import '../pageModels/ElectricData.dart';
 import '../widgets/ClubAppBar.dart';
+import '../widgets/ClubCard.dart';
 import '../widgets/empty_widget.dart';
 
 class ElectricityPage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   Widget _buildCurrentElectricityCard() {
-    return Card(
+    return ClubCard(
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
@@ -154,7 +155,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   Widget _buildChartCard() {
-    return Card(
+    return ClubCard(
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
@@ -298,7 +299,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   Widget _buildSettingsSection() {
-    return Card(
+    return ClubCard(
       child: Column(
         children: [
           if (isHasData) ...[
