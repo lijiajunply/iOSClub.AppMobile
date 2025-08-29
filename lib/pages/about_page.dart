@@ -397,6 +397,7 @@ class _VersionSettingState extends State<VersionSetting> {
   late bool updateIgnored = false;
   late bool isNeedUpdate = false;
   late String version = '';
+  late String newVersion = '';
 
   @override
   void initState() {
@@ -409,7 +410,10 @@ class _VersionSettingState extends State<VersionSetting> {
           updateIgnored = prefs.getBool('update_ignored') ?? false;
         });
         GiteeService.getReleases().then((release) {
-          isNeedUpdate = release.name != version;
+          if (release.name != '0.0.0') {
+            isNeedUpdate = release.name != version;
+            newVersion = release.name;
+          }
         });
       });
     });
@@ -436,13 +440,13 @@ class _VersionSettingState extends State<VersionSetting> {
                     child: Icon(Icons.update),
                   )
                 : Icon(Icons.verified),
-            onTap: () {
+            onTap: () async {
               if (isNeedUpdate) {
-                showDialog(
+                await showDialog(
                     context: context,
                     builder: (b) {
                       return AlertDialog(
-                        title: const Text('是否更新新版本'),
+                        title: Text('是否更新最新版本: $newVersion'),
                         actions: [
                           TextButton(
                             child: const Text('是的'),

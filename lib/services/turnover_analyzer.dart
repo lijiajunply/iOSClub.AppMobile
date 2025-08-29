@@ -40,12 +40,27 @@ class PaymentModel {
       turnoverType: json['turnoverType'],
       datetimeStr: json['datetimeStr'],
       resume: json['resume'],
-      tranamt:  (json['tranamt'] as num).toDouble(),
+      tranamt: (json['tranamt'] as num).toDouble(),
     );
   }
 }
 
 class TurnoverAnalyzer {
+  static Future<PaymentData> getData() async {
+    final cardId = await TurnoverAnalyzer.getPayment();
+    if (cardId.isEmpty) {
+      return PaymentData([], 0);
+    }
+    final response = await http
+        .get(Uri.parse('https://xauatapi.xauat.site/Payment/$cardId/turnover'));
+    if (response.statusCode == 200) {
+      var a = jsonDecode(response.body);
+      return PaymentData.fromJson(a);
+    }
+
+    return PaymentData([], 0);
+  }
+
   static Future<PaymentData> fetchData(String cardId) async {
     final response = await http
         .get(Uri.parse('https://xauatapi.xauat.site/Payment/$cardId/turnover'));

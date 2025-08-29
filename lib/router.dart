@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'package:ios_club_app/pages/electricity_page.dart';
 import 'package:ios_club_app/pages/payment_page.dart';
 import 'package:ios_club_app/pages/program_page.dart';
@@ -15,19 +15,58 @@ import 'Pages/score_page.dart';
 import 'Pages/todo_page.dart';
 
 class AppRouter {
-  static Map<String, Widget Function(BuildContext)> get routes => {
-        '/': (context) => const HomePage(),
-        '/Schedule': (context) => const ScheduleListPage(),
-        '/Score': (context) => const ScorePage(),
-        '/Profile': (context) => const ProfilePage(),
-        '/Link': (context) => const LinkPage(),
-        '/Todo': (context) => const TodoPage(),
-        '/About': (context) => const AboutPage(),
-        '/ScheduleSetting': (context) => const ScheduleSettingPage(),
-        '/SchoolBus': (context) => const SchoolBusPage(),
-        '/iMember': (context) => const MemberPage(),
-        '/Program': (context) => const ProgramPage(),
-        '/Electricity': (context) => const ElectricityPage(),
-        '/Payment': (context) => const PaymentPage(),
-      };
+  static List<GetPage> get getPages => [
+        GetPage(
+          name: '/',
+          page: () => const HomePage(),
+        ),
+        GetPage(
+          name: '/Schedule',
+          page: () => const ScheduleListPage(),
+        ),
+        GetPage(
+          name: '/Score',
+          page: () => const ScorePage(),
+        ),
+        GetPage(
+          name: '/Profile',
+          page: () => const ProfilePage(),
+        ),
+        GetPage(
+          name: '/Link',
+          page: () => const LinkPage(),
+        ),
+        GetPage(
+          name: '/Todo',
+          page: () => const TodoPage(),
+        ),
+        GetPage(
+          name: '/About',
+          page: () => const AboutPage(),
+        ),
+        GetPage(
+          name: '/ScheduleSetting',
+          page: () => const ScheduleSettingPage(),
+        ),
+        GetPage(
+          name: '/SchoolBus',
+          page: () => const SchoolBusPage(),
+        ),
+        GetPage(
+          name: '/iMember',
+          page: () => const MemberPage(),
+        ),
+        GetPage(
+          name: '/Program',
+          page: () => const ProgramPage(),
+        ),
+        GetPage(
+          name: '/Electricity',
+          page: () => const ElectricityPage(),
+        ),
+        GetPage(
+          name: '/Payment',
+          page: () => PaymentPage(),
+        ),
+      ];
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../Services/edu_service.dart';
 import '../Services/tile_service.dart';
+import '../services/turnover_analyzer.dart';
 
 Widget buildTile(String tile, BuildContext context) {
   Widget? content;
@@ -13,6 +15,10 @@ Widget buildTile(String tile, BuildContext context) {
     content = buildBus(context);
   }
 
+  if (tile == '饭卡') {
+    content = buildPayment(context);
+  }
+
   content ??= Container();
 
   return Container(
@@ -21,7 +27,7 @@ Widget buildTile(String tile, BuildContext context) {
       borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.08),
+          color: Colors.black.withValues(alpha:0.08),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),
@@ -32,93 +38,105 @@ Widget buildTile(String tile, BuildContext context) {
 }
 
 Widget buildElectricity(BuildContext context) {
-  return InkWell(
-    onTap: () => Navigator.pushNamed(context, '/Electricity'),
+  return Material(
     borderRadius: BorderRadius.circular(20),
-    child: FutureBuilder(
-      future: TileService.getTextAfterKeyword(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final amount = snapshot.data ?? 0.0;
-          final isLow = amount <= 10;
+    child: InkWell(
+      onTap: () => Get.toNamed('/Electricity'),
+      borderRadius: BorderRadius.circular(20),
+      child: FutureBuilder(
+        future: TileService.getTextAfterKeyword(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final amount = snapshot.data ?? 0.0;
+            final isLow = amount <= 10;
+
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isLow
+                      ? [
+                          Colors.red.withValues(alpha:0.1),
+                          Colors.orange.withValues(alpha:0.05)
+                        ]
+                      : [
+                          Colors.blue.withValues(alpha:0.1),
+                          Colors.indigo.withValues(alpha:0.05)
+                        ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isLow
+                              ? Colors.red.withValues(alpha:0.15)
+                              : Colors.blue.withValues(alpha:0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.electric_bolt_rounded,
+                          color: isLow ? Colors.red : Colors.blue,
+                          size: 24,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (isLow)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withValues(alpha:0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            '余额不足',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '当前电费',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '¥${amount.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: isLow ? Colors.red : Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
 
           return Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isLow
-                    ? [Colors.red.withOpacity(0.1), Colors.orange.withOpacity(0.05)]
-                    : [Colors.blue.withOpacity(0.1), Colors.indigo.withOpacity(0.05)],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: isLow ? Colors.red.withOpacity(0.15) : Colors.blue.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.electric_bolt_rounded,
-                        color: isLow ? Colors.red : Colors.blue,
-                        size: 24,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (isLow)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          '余额不足',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  '当前电费',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '¥${amount.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: isLow ? Colors.red : Colors.blue,
-                  ),
-                ),
-              ],
+            child: const Center(
+              child: CircularProgressIndicator(),
             ),
           );
-        }
-
-        return Container(
-          padding: const EdgeInsets.all(20),
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      },
+        },
+      ),
     ),
   );
 }
@@ -136,8 +154,8 @@ Widget buildBus(BuildContext context) {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.green.withOpacity(0.1),
-                Colors.teal.withOpacity(0.05),
+                Colors.green.withValues(alpha:0.1),
+                Colors.teal.withValues(alpha:0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
@@ -150,7 +168,7 @@ Widget buildBus(BuildContext context) {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.15),
+                      color: Colors.green.withValues(alpha:0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -161,9 +179,10 @@ Widget buildBus(BuildContext context) {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.15),
+                      color: Colors.green.withValues(alpha:0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -196,7 +215,7 @@ Widget buildBus(BuildContext context) {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha:0.7),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -244,4 +263,108 @@ Widget buildBus(BuildContext context) {
       );
     },
   );
+}
+
+Widget buildPayment(BuildContext context) {
+  return Material(
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        child: FutureBuilder(
+          future: TurnoverAnalyzer.getData(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final amount = snapshot.data?.total ?? 0.0;
+              final isLow = amount <= 10;
+
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: isLow
+                        ? [
+                            Colors.red.withValues(alpha:0.1),
+                            Colors.orange.withValues(alpha:0.05)
+                          ]
+                        : [
+                            Colors.yellow.withValues(alpha:0.1),
+                            Colors.green.withValues(alpha:0.05)
+                          ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isLow
+                                ? Colors.red.withValues(alpha:0.15)
+                                : Colors.orange.withValues(alpha:0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.monetization_on_outlined,
+                            color: isLow ? Colors.red : Colors.orange,
+                            size: 24,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isLow)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha:0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              '余额不足',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '当前余额',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '¥${amount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isLow ? Colors.red : Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Container(
+              padding: const EdgeInsets.all(20),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          },
+        ),
+        onTap: () {
+          Get.toNamed('/Payment');
+        },
+      ));
 }

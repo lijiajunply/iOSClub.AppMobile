@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -468,7 +469,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       itemBuilder: (context, index) {
                         return Center(
-                          child: profileButtonItems[index].build(context),
+                          child: profileButtonItems[index].build(),
                         );
                       },
                       itemCount: profileButtonItems.length,
@@ -513,13 +514,13 @@ class ProfileButtonItem {
       this.route = '',
       this.onPressed});
 
-  RawMaterialButton build(BuildContext context) {
+  RawMaterialButton build() {
     return RawMaterialButton(
       onPressed: () {
         if (route.isEmpty) {
           onPressed?.call();
         } else {
-          Navigator.pushNamed(context, route);
+          Get.toNamed(route);
         }
       },
       child: Center(

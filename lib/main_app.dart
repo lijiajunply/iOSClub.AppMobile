@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:ios_club_app/router.dart';
 import 'package:ios_club_app/services/download_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -10,8 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Services/git_service.dart';
 import 'UnderMaintenanceScreen.dart';
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -39,7 +38,7 @@ class _MainAppState extends State<MainApp> {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         _currentIndex = prefs.getInt('page_index') ?? 0;
-        navigatorKey.currentState?.pushNamed(_routeMap[_currentIndex] ?? '/');
+        Get.toNamed(_routeMap[_currentIndex] ?? '/');
       });
     });
   }
@@ -149,8 +148,7 @@ class _MainAppState extends State<MainApp> {
     5: '/SchoolBus'
   };
 
-  final MaterialApp _app = MaterialApp(
-      navigatorKey: navigatorKey,
+  final GetMaterialApp _app = GetMaterialApp(
       theme: ThemeData(
         fontFamily: Platform.isWindows ? '微软雅黑' : null,
         pageTransitionsTheme: PageTransitionsTheme(
@@ -167,7 +165,7 @@ class _MainAppState extends State<MainApp> {
         ),
       ),
       darkTheme: ThemeData.dark(),
-      routes: AppRouter.routes,
+      getPages: AppRouter.getPages,
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
           builder: (context) => UnderMaintenanceScreen(),
@@ -199,7 +197,7 @@ class _MainAppState extends State<MainApp> {
                   setState(() {
                     _currentIndex = index;
                   });
-                  navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
+                  Get.toNamed(_routeMap[index] ?? '/');
                 },
                 selectedIndex: _currentIndex,
               ),
@@ -218,7 +216,7 @@ class _MainAppState extends State<MainApp> {
                 setState(() {
                   _currentIndex = index;
                 });
-                navigatorKey.currentState?.pushNamed(_routeMap[index] ?? '/');
+                Get.toNamed(_routeMap[index] ?? '/');
               },
             ),
           );

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -156,7 +157,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             icon: const Icon(Icons.refresh)),
         IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/ScheduleSetting');
+              Get.toNamed('/ScheduleSetting');
             },
             icon: const Icon(Icons.more_vert))
       ],

@@ -1,129 +1,61 @@
+// payment_page.dart
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/services/turnover_analyzer.dart';
-import 'dart:math' as math;
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
-import 'package:ios_club_app/widgets/ClubAppBar.dart';
+import '../controllers/PaymentController.dart';
+import '../services/turnover_analyzer.dart';
+import '../widgets/ClubAppBar.dart';
 
-class PaymentPage extends StatefulWidget {
-  const PaymentPage({super.key});
+class PaymentPage extends StatelessWidget {
+  final PaymentController controller = Get.put(PaymentController());
 
-  @override
-  State<PaymentPage> createState() => _PaymentPageState();
-}
-
-class _PaymentPageState extends State<PaymentPage> {
-  bool _isLoading = true;
-  String _errorMessage = '';
-  late List<PaymentModel> records;
-
-  double totalRecharge = 0;
-  String num = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = '';
-    });
-
-    num = await TurnoverAnalyzer.getPayment();
-
-    if (num.isEmpty) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = '请先绑定饭卡';
-      });
-      return;
-    }
-
-    final recordsResult = await TurnoverAnalyzer.fetchData(num);
-    if (recordsResult.payments.isNotEmpty) {
-      setState(() {
-        records = recordsResult.payments;
-        totalRecharge = recordsResult.total;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = '数据加载失败';
-      });
-    }
-  }
+  PaymentPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: _isLoading
-          ? _buildLoadingIndicator()
-          : _errorMessage.isNotEmpty
-              ? _buildErrorView()
-              : _buildContent(),
+      appBar: _buildAppBar(context),
+      body: Obx(() => _buildBody()),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return ClubAppBar(
       title: '饭卡余额',
       actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: _loadData,
-        ),
-        IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: () {
-            // 饭卡数额设置，拿个弹窗
-            showDialog(
-              context: context,
-              builder: (contextDialog) {
-                final controller = TextEditingController(text: num);
-                return AlertDialog(
-                  title: const Text('设置饭卡卡号'),
-                  content: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: '请输入饭卡卡号',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(contextDialog).pop();
-                      },
-                      child: const Text('取消'),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        await TurnoverAnalyzer.setPayment(controller.text);
-                        if (contextDialog.mounted){
-                          Navigator.of(contextDialog).pop();
-                        }
-                        _loadData();
-                      },
-                      child: const Text('确定'),
-                    ),
-                  ],
-                );
-              }
-            );
-          },
-        )
+        _buildRefreshButton(),
+        _buildSettingButton(context),
       ],
     );
   }
 
-  Widget _buildLoadingIndicator() {
-    return const Center(
-      child: CircularProgressIndicator(),
+  Widget _buildRefreshButton() {
+    return IconButton(
+      icon: const Icon(Icons.refresh),
+      onPressed: controller.loadData,
     );
+  }
+
+  Widget _buildSettingButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.settings),
+      onPressed: () => _showSettingDialog(context),
+    );
+  }
+
+  Widget _buildBody() {
+    if (controller.isLoading.value) {
+      return _buildLoadingIndicator();
+    } else if (controller.errorMessage.isNotEmpty) {
+      return _buildErrorView();
+    } else {
+      return _buildContent();
+    }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return const Center(child: CircularProgressIndicator());
   }
 
   Widget _buildErrorView() {
@@ -131,30 +63,22 @@ class _PaymentPageState extends State<PaymentPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 60,
-            color: Colors.red,
-          ),
+          const Icon(Icons.error_outline, size: 60, color: Colors.red),
           const SizedBox(height: 16),
           Text(
-            _errorMessage,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
+            controller.errorMessage.value,
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: _loadData,
+            onPressed: controller.loadData,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: const Text(
-              '重新加载',
-            ),
+            child: const Text('重新加载'),
           ),
         ],
       ),
@@ -166,10 +90,7 @@ class _PaymentPageState extends State<PaymentPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 统计信息
           _buildStatisticsSection(),
-
-          // 最近交易
           _buildRecentTransactionsSection(),
         ],
       ),
@@ -184,21 +105,26 @@ class _PaymentPageState extends State<PaymentPage> {
         children: [
           const Text(
             '统计信息',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           _buildStatCard(
-              '余额', totalRecharge, Icons.add_circle_outline, Colors.green),
+            '余额',
+            controller.totalRecharge.value,
+            Icons.add_circle_outline,
+            Colors.green,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildStatCard(
-      String title, double amount, IconData icon, Color color) {
+    String title,
+    double amount,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -230,7 +156,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '¥${(amount).toStringAsFixed(2)}',
+                  '¥${amount.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -245,7 +171,8 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildRecentTransactionsSection() {
-    final recentRecords = records.where((r) => r.turnoverType == '消费').toList();
+    final recentRecords =
+        controller.records.where((r) => r.turnoverType == '消费').toList();
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -254,32 +181,24 @@ class _PaymentPageState extends State<PaymentPage> {
         children: [
           const Text(
             '最近消费',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           if (recentRecords.isEmpty)
             const Center(
               child: Text(
                 '暂无消费记录',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: Colors.grey, fontSize: 16),
               ),
             )
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: math.min(recentRecords.length, 5),
+              itemCount: recentRecords.length.clamp(0, 5),
               separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final record = recentRecords[index];
-                return _buildTransactionItem(record);
-              },
+              itemBuilder: (context, index) =>
+                  _buildTransactionItem(recentRecords[index]),
             ),
         ],
       ),
@@ -308,10 +227,82 @@ class _PaymentPageState extends State<PaymentPage> {
         ),
       ),
       trailing: Text(
-        '${isRecharge ? '+' : '-'}${(amount).toStringAsFixed(2)}',
+        '${isRecharge ? '+' : '-'}${amount.toStringAsFixed(2)}',
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSettingDialog(BuildContext context) async {
+    final controller = Get.find<PaymentController>();
+    final TextEditingController textController =
+        TextEditingController(text: controller.num.value);
+
+    await showDialog(
+      context: context,
+      builder: (contextDialog) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('设置饭卡卡号'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: textController,
+                decoration: InputDecoration(
+                  hintText: '请输入饭卡卡号',
+                  filled: true,
+                  border: InputBorder.none,
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.numbers,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,19}')),
+                ],
+              ),
+              if (controller.num.value.isNotEmpty)
+                ListTile(
+                  title: Text('是否显示饭卡磁贴'),
+                  trailing: Obx(() => Switch(
+                        value: controller.isShowTile.value,
+                        onChanged: (value) => controller.toggleTileShow(value),
+                      )),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(contextDialog),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final cardNumber = textController.text.trim();
+                if (cardNumber.isEmpty) {
+                  ScaffoldMessenger.of(contextDialog).showSnackBar(
+                    const SnackBar(content: Text('请输入饭卡卡号')),
+                  );
+                  return;
+                }
+                await controller.setPayment(cardNumber);
+                if (contextDialog.mounted) {
+                  Navigator.pop(contextDialog);
+                }
+              },
+              child: const Text('确定'),
+            ),
+          ],
         ),
       ),
     );

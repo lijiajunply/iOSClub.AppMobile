@@ -26,8 +26,10 @@ class HomePage extends StatelessWidget {
                     children: List.generate(
                         list.length,
                         (index) => SizedBox(
-                            width:
-                                width > 750 ? (((width - 90) / ((index + 1) % 4 < 2 ? 3 : (1.5)))) : ((width - 90) / 2),
+                            width: width > 750
+                                ? (((width - 90) /
+                                    ((index + 1) % 4 < 2 ? 3 : (1.5))))
+                                : ((width - 90) / 2),
                             child: list[index])))));
   }
 }
