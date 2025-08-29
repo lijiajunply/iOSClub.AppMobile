@@ -70,12 +70,7 @@ class LinkPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Color(0xFF6366F1),
-                    ),
-                  ),
+                  const CircularProgressIndicator(),
                   const SizedBox(height: 16),
                   Text(
                     "加载中...",

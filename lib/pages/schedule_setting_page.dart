@@ -1,9 +1,11 @@
 import 'dart:io' show Platform;
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/Services/data_service.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -203,17 +205,21 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _CourseIgnoreItem(
-                  ignore: _ignores[index],
-                  onChanged: _handleIgnoreChange,
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverToBoxAdapter(
+                child: ClubCard(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: _ignores.length,
+                    itemBuilder: (BuildContext context, int index) =>
+                        _CourseIgnoreItem(
+                      ignore: _ignores[index],
+                      onChanged: _handleIgnoreChange,
+                    ),
+                  ),
                 ),
-                childCount: _ignores.length,
-              ),
-            ),
-          ),
+              )),
         ],
       ),
     );
@@ -303,21 +309,29 @@ class _CourseIgnoreItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Checkbox(
-            value: ignore.isCompleted,
-            onChanged: (v) => onChanged(ignore, v!),
-          ),
-          title: Text(
-            ignore.title,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          onTap: () => onChanged(ignore, !ignore.isCompleted),
-        ),
-        const Divider(),
-      ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: ignore.isCompleted,
+                  onChanged: (v) => onChanged(ignore, v!),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    ignore.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            )),
+        onTap: () => onChanged(ignore, !ignore.isCompleted),
+      ),
     );
   }
 }

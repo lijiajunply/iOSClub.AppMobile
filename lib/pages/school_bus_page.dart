@@ -204,6 +204,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                           final bus = busData[index];
                           return Padding(padding: EdgeInsets.only(top: 12),
                           child: Material(
+                            borderRadius: BorderRadius.circular(20),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(20),
                               child: ClubCard(

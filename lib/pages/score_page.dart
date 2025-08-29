@@ -329,7 +329,7 @@ class _ScorePageState extends State<ScorePage> {
   void _changeScoreList() {
     setState(() {
       _isYear = !_isYear;
-      if (_isYear && _scoreList.isNotEmpty) {
+      if (_isYear && _scoreList.isNotEmpty && _yearList.isEmpty) {
         for (var i = _scoreList.length - 1; i >= 0; i--) {
           var j = _scoreList.length - 1 - i;
           if (j % 2 == 0) {
@@ -529,7 +529,7 @@ class _ScorePageState extends State<ScorePage> {
   Widget _buildSemesterCard(ScoreList score) {
     final semesterNames = score.semester.name.split('-');
     return ClubCard(
-      margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4),
+      margin: const EdgeInsets.symmetric(vertical: 16.0),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

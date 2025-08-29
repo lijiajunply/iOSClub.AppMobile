@@ -154,7 +154,7 @@ class AboutPage extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         onTap: () async {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -280,7 +280,7 @@ class AboutPage extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         onTap: () => _showClubDescription(context),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -593,7 +593,6 @@ class _RemindSettingState extends State<RemindSetting> {
           Material(
             color: Colors.transparent,
             child: InkWell(
-                borderRadius: BorderRadius.circular(12),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -704,14 +703,12 @@ class _VersionSettingState extends State<VersionSetting> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       children: [
         Material(
           color: Colors.transparent,
           child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -798,7 +795,6 @@ class _VersionSettingState extends State<VersionSetting> {
                     Text(
                       '忽略版本更新',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
                           fontSize: 12,
                           color: Colors.grey),
                     ),
@@ -928,7 +924,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
