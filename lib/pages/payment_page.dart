@@ -1,7 +1,9 @@
 // payment_page.dart
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 
 import '../controllers/PaymentController.dart';
 import '../services/turnover_analyzer.dart';
@@ -111,7 +113,7 @@ class PaymentPage extends StatelessWidget {
           _buildStatCard(
             '余额',
             controller.totalRecharge.value,
-            Icons.add_circle_outline,
+            CupertinoIcons.money_dollar,
             Colors.green,
           ),
         ],
@@ -128,15 +130,15 @@ class PaymentPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -192,13 +194,17 @@ class PaymentPage extends StatelessWidget {
               ),
             )
           else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: recentRecords.length.clamp(0, 5),
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) =>
-                  _buildTransactionItem(recentRecords[index]),
+            ClubCard(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: recentRecords.length.clamp(0, 5),
+                  itemBuilder: (context, index) =>
+                      _buildTransactionItem(recentRecords[index]),
+                ),
+              ),
             ),
         ],
       ),

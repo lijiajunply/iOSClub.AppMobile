@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:ios_club_app/services/todo_service.dart';
 import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/widgets/ClubModalBottomSheet.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -326,120 +327,88 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Future<void> _showClubDescription(BuildContext context) {
+  Future<void> _showClubDescription(BuildContext context) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: BoxDecoration(
-            color: isDark ? Colors.grey[900] : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                width: 40,
-                height: 5,
-                margin: const EdgeInsets.only(top: 12),
-                decoration: BoxDecoration(
-                  color:
-                      isDark ? Colors.white.withOpacity(0.3) : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2.5),
-                ),
+    showClubModalBottomSheet(
+        context,
+        Column(
+          children: [
+            Text(
+              '关于社团',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black,
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      Text(
-                        '关于社团',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.white.withOpacity(0.1)
-                                  : Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: const Image(
-                            image: AssetImage('assets/iOS_Club_Logo.webp'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'iOS Club of XAUAT',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: isDark
-                              ? Colors.white.withOpacity(0.6)
-                              : CupertinoColors.secondaryLabel,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.black.withOpacity(0.3)
-                              : CupertinoColors.systemGrey6,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '西建大iOS众创空间俱乐部（别称为西建大iOS Club），是苹果公司和学校共同创办的创新创业类社团。成立于2019年9月。目前是全校较大和较为知名的科技类社团。',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.5,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              '西建大iOS众创空间俱乐部没有设备要求，或者说没有任何限制 —— 只要你喜欢数码，热爱编程，或者想要学习编程开发搞项目，就可以加入到西建大iOS众创空间俱乐部。',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.5,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+            ),
+            const SizedBox(height: 24),
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    spreadRadius: 2,
                   ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: const Image(
+                  image: AssetImage('assets/iOS_Club_Logo.webp'),
+                  fit: BoxFit.cover,
                 ),
               ),
-            ],
-          ),
-        );
-      },
-    );
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'iOS Club of XAUAT',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isDark
+                    ? Colors.white.withOpacity(0.6)
+                    : CupertinoColors.secondaryLabel,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.black.withOpacity(0.3)
+                    : CupertinoColors.systemGrey6,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '西建大iOS众创空间俱乐部（别称为西建大iOS Club），是苹果公司和学校共同创办的创新创业类社团。成立于2019年9月。目前是全校较大和较为知名的科技类社团。',
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '西建大iOS众创空间俱乐部没有设备要求，或者说没有任何限制 —— 只要你喜欢数码，热爱编程，或者想要学习编程开发搞项目，就可以加入到西建大iOS众创空间俱乐部。',
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 }
 
@@ -544,7 +513,7 @@ class _RemindSettingState extends State<RemindSetting> {
     return Column(
       children: [
         Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 Icon(
@@ -594,8 +563,7 @@ class _RemindSettingState extends State<RemindSetting> {
             color: Colors.transparent,
             child: InkWell(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
                     children: [
                       const SizedBox(width: 28),
@@ -794,9 +762,7 @@ class _VersionSettingState extends State<VersionSetting> {
                     const SizedBox(height: 2),
                     Text(
                       '忽略版本更新',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey),
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -926,7 +892,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 Icon(

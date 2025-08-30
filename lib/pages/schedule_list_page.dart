@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
 import '../Services/data_service.dart';
+import '../widgets/ClubModalBottomSheet.dart';
 
 class ScheduleListPage extends StatefulWidget {
   const ScheduleListPage({super.key});
@@ -618,14 +619,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           });
     }
 
-    final a = MediaQuery.of(context).size.width;
-
-    return showModalBottomSheet<void>(
-        context: context,
-        constraints: BoxConstraints(maxWidth: a, minWidth: a),
-        builder: (BuildContext context) {
-          return Padding(padding: const EdgeInsets.all(10), child: content);
-        });
+    return showClubModalBottomSheet(context, content);
   }
 }
 

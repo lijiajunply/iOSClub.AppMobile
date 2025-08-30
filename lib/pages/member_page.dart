@@ -14,8 +14,6 @@ class MemberPage extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDarkMode ? const Color(0xFF000000) : const Color(0xFFF2F2F7),
       body: CustomScrollView(
         slivers: [
           // 苹果风格的导航栏
@@ -23,9 +21,6 @@ class MemberPage extends StatelessWidget {
             expandedHeight: 120,
             floating: false,
             pinned: true,
-            backgroundColor: isDarkMode
-                ? const Color(0xFF1C1C1E)
-                : Colors.white.withOpacity(0.94),
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
@@ -37,17 +32,6 @@ class MemberPage extends StatelessWidget {
                 ),
               ),
               centerTitle: true,
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: isDarkMode
-                        ? [const Color(0xFF1C1C1E), const Color(0xFF000000)]
-                        : [Colors.white, const Color(0xFFF2F2F7)],
-                  ),
-                ),
-              ),
             ),
             leading: IconButton(
               icon: Icon(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
 import 'package:ios_club_app/models/MemberModel.dart';
 import 'package:ios_club_app/widgets/ClubAppBar.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 
 class MemberDataPage extends StatefulWidget {
   const MemberDataPage({super.key});
@@ -44,43 +45,38 @@ class _MemberDataPageState extends State<MemberDataPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ClubAppBar(title: '成员数据'),
-      body: Container(
-        color: CupertinoColors.systemGroupedBackground,
-        child: SafeArea(
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              if (isLoading)
-                const SliverFillRemaining(
-                  child: Center(
-                    child: CupertinoActivityIndicator(
-                      radius: 14,
-                    ),
-                  ),
-                )
-              else ...[
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final member = _members[index];
-                        return _buildMemberCard(member);
-                      },
-                      childCount: _members.length,
-                    ),
-                  ),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          if (isLoading)
+            const SliverFillRemaining(
+              child: Center(
+                child: CupertinoActivityIndicator(
+                  radius: 14,
                 ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _buildPaginationWidget(),
-                  ),
+              ),
+            )
+          else ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final member = _members[index];
+                    return _buildMemberCard(member);
+                  },
+                  childCount: _members.length,
                 ),
-              ],
-            ],
-          ),
-        ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: _buildPaginationWidget(),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -88,18 +84,7 @@ class _MemberDataPageState extends State<MemberDataPage> {
   Widget _buildMemberCard(MemberModel model) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: CupertinoColors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: CupertinoColors.systemGrey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+      child: ClubCard(
         child: Column(
           children: [
             // 头部信息
@@ -137,7 +122,6 @@ class _MemberDataPageState extends State<MemberDataPage> {
                       child: Text(
                         model.userName.isNotEmpty ? model.userName[0] : '?',
                         style: const TextStyle(
-                          color: CupertinoColors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
@@ -154,7 +138,6 @@ class _MemberDataPageState extends State<MemberDataPage> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: CupertinoColors.label,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -276,7 +259,6 @@ class _MemberDataPageState extends State<MemberDataPage> {
               value,
               style: const TextStyle(
                 fontSize: 14,
-                color: CupertinoColors.label,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -293,156 +275,132 @@ class _MemberDataPageState extends State<MemberDataPage> {
   }
 
   Widget _buildPaginationWidget() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-        color: CupertinoColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: CupertinoColors.systemGrey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // 上一页按钮
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _pageNum > 1
-                ? () {
-                    setState(() {
-                      _pageNum--;
-                    });
-                    _getMembers();
-                  }
-                : null,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: _pageNum > 1
-                    ? CupertinoColors.systemBlue
-                    : CupertinoColors.systemGrey4,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                CupertinoIcons.chevron_left,
-                color: CupertinoColors.white,
-                size: 18,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          // 页码显示
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey6,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '$_pageNum / $_totalPages',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: CupertinoColors.label,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          // 下一页按钮
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _pageNum < _totalPages
-                ? () {
-                    setState(() {
-                      _pageNum++;
-                    });
-                    _getMembers();
-                  }
-                : null,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: _pageNum < _totalPages
-                    ? CupertinoColors.systemBlue
-                    : CupertinoColors.systemGrey4,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                CupertinoIcons.chevron_right,
-                color: CupertinoColors.white,
-                size: 18,
-              ),
-            ),
-          ),
-          const SizedBox(width: 24),
-          // 每页数量选择
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              _showPageSizePicker(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: CupertinoColors.systemGrey4,
-                  width: 1,
+    return ClubCard(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 上一页按钮
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _pageNum > 1
+                  ? () {
+                      setState(() {
+                        _pageNum--;
+                      });
+                      _getMembers();
+                    }
+                  : null,
+              child: SizedBox(
+                width: 36,
+                height: 36,
+                child: const Icon(
+                  CupertinoIcons.chevron_left,
+                  size: 18,
                 ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    '$_pageSize 条/页',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: CupertinoColors.label,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    CupertinoIcons.chevron_down,
-                    size: 12,
-                    color: CupertinoColors.systemGrey,
-                  ),
-                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            // 页码显示
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '$_pageNum / $_totalPages',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // 下一页按钮
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _pageNum < _totalPages
+                  ? () {
+                      setState(() {
+                        _pageNum++;
+                      });
+                      _getMembers();
+                    }
+                  : null,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 18,
+                ),
+              ),
+            ),
+            const SizedBox(width: 24),
+            // 每页数量选择
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                _showPageSizePicker();
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      '$_pageSize 条/页',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      CupertinoIcons.chevron_down,
+                      size: 12,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _showPageSizePicker(BuildContext context) {
-    showCupertinoModalPopup(
+  void _showPageSizePicker() {
+    showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
+        int selectedIndex = [10, 20, 50].indexOf(_pageSize);
+        if (selectedIndex == -1) selectedIndex = 0;
+
         return Container(
-          height: 260,
-          decoration: const BoxDecoration(
-            color: CupertinoColors.systemBackground,
-            borderRadius: BorderRadius.only(
+          height: 280,
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
           ),
           child: Column(
             children: [
+              // 标题栏
               Container(
                 height: 60,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: CupertinoColors.separator,
+                      color: Theme.of(context).dividerColor,
                       width: 0.5,
                     ),
                   ),
@@ -450,29 +408,45 @@ class _MemberDataPageState extends State<MemberDataPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
+                    TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('取消'),
+                      child: Text(
+                        '取消',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    const Text(
+                    Text(
                       '每页显示数量',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
+                    TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('完成'),
+                      child: Text(
+                        '完成',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+              // 选择器
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 40,
+                child: ListWheelScrollView.useDelegate(
+                  itemExtent: 50,
+                  physics: const FixedExtentScrollPhysics(),
+                  controller:
+                      FixedExtentScrollController(initialItem: selectedIndex),
                   onSelectedItemChanged: (index) {
                     final options = [10, 20, 50];
                     setState(() {
@@ -481,11 +455,23 @@ class _MemberDataPageState extends State<MemberDataPage> {
                     });
                     _getMembers();
                   },
-                  children: [10, 20, 50]
-                      .map((e) => Center(
-                            child: Text('$e 条/页'),
-                          ))
-                      .toList(),
+                  childDelegate: ListWheelChildBuilderDelegate(
+                    childCount: 3,
+                    builder: (context, index) {
+                      final options = [10, 20, 50];
+                      return Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${options[index]} 条/页',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

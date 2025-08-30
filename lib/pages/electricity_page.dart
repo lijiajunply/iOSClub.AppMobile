@@ -331,7 +331,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
                 url = url.replaceAll('wxAccount', 'wxCharge');
                 await TileService.openInWeChat(url);
               },
-            ),
+            )
           ],
         ],
       ),

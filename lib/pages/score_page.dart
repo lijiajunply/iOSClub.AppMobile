@@ -12,6 +12,7 @@ import '../Models/ScoreModel.dart';
 import '../Models/UserData.dart';
 import '../Services/data_service.dart';
 import '../widgets/ClubCard.dart';
+import '../widgets/ClubModalBottomSheet.dart';
 import '../widgets/empty_widget.dart';
 import '../widgets/page_header_delegate.dart';
 
@@ -635,16 +636,7 @@ class _ScorePageState extends State<ScorePage> {
         builder: (context) => SimpleDialog(children: [content]),
       );
     } else {
-      await showModalBottomSheet<void>(
-        context: context,
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width,
-        ),
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(10),
-          child: content,
-        ),
-      );
+      await showClubModalBottomSheet(context, content);
     }
   }
 

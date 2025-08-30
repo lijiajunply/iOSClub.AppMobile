@@ -210,7 +210,7 @@ class _MainAppState extends State<MainApp> {
         ? Scaffold(
             body: SafeArea(
                 child: Row(
-                  mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DesktopSidebar(
@@ -246,10 +246,11 @@ class _MainAppState extends State<MainApp> {
                 });
                 Get.toNamed(_routeMap[index] ?? '/');
               },
-              backgroundColor:
-                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
-            ),
-          );
+              backgroundColor: Theme.of(context)
+                  .scaffoldBackgroundColor
+                  .withValues(alpha: 0.95),
+            ) // 不显示底部导航,
+            );
   }
 }
 

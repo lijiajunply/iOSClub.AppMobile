@@ -6,6 +6,7 @@ import 'package:ios_club_app/Models/BusModel.dart';
 import '../Services/edu_service.dart';
 import '../Services/tile_service.dart';
 import '../widgets/ClubCard.dart';
+import '../widgets/ClubModalBottomSheet.dart';
 import '../widgets/empty_widget.dart';
 
 class SchoolBusPage extends StatefulWidget {
@@ -392,13 +393,6 @@ class _SchoolBusPageState extends State<SchoolBusPage>
           });
     }
 
-    final a = MediaQuery.of(context).size.width;
-
-    return showModalBottomSheet<void>(
-        context: context,
-        constraints: BoxConstraints(maxWidth: a, minWidth: a),
-        builder: (BuildContext context) {
-          return Padding(padding: const EdgeInsets.all(10), child: content);
-        });
+    return showClubModalBottomSheet(context, content);
   }
 }
