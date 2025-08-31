@@ -26,7 +26,7 @@ class EmptyWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -50,7 +50,7 @@ class EmptyWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
           ],

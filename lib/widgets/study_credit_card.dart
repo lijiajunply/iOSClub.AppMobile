@@ -99,19 +99,32 @@ class StudyCreditCard extends StatelessWidget {
         data.total.full > 0 ? data.total.actual / data.total.full : 0.0;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(left: 0, right: 20, top: 20, bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                data.total.name,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface,
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.error,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    data.total.name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
               ),
               Text(
                 "${data.total.actual.toStringAsFixed(1)} / ${data.total.full.toStringAsFixed(1)}",
@@ -125,17 +138,23 @@ class StudyCreditCard extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 进度条
-          _buildProgressBar(context, progress),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: _buildProgressBar(context, progress),
+          ),
 
           const SizedBox(height: 8),
 
           // 进度文字
-          Text(
-            '完成度: ${(progress * 100).toStringAsFixed(1)}%',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(
+              '完成度: ${(progress * 100).toStringAsFixed(1)}%',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
+          )
         ],
       ),
     );

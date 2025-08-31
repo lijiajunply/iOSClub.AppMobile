@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/router.dart';
 import 'package:ios_club_app/services/download_service.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'BottomNavigation.dart';
@@ -29,10 +28,9 @@ class _MainAppState extends State<MainApp> {
     super.initState();
 
     if (Platform.isAndroid) {
-      GiteeService.getReleases().then((result) async {
-        final packageInfo = await PackageInfo.fromPlatform();
-        if (result.name != '0.0.0' && result.name != packageInfo.version) {
-          showUpdateDialog(result);
+      GiteeService.isNeedUpdate().then((result) async {
+        if (result.$1) {
+          showUpdateDialog(result.$2);
         }
       });
     }

@@ -56,7 +56,7 @@ class ProgramPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -72,7 +72,7 @@ class ProgramPage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: accentColor.withOpacity(0.1),
+                              color: accentColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -148,7 +148,7 @@ class ProgramPage extends StatelessWidget {
                                         vertical: 5.0,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: courseColor.withOpacity(0.15),
+                                        color: courseColor.withValues(alpha: 0.15),
                                         borderRadius:
                                             BorderRadius.circular(6.0),
                                       ),

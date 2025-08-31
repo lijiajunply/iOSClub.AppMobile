@@ -31,6 +31,7 @@ Future<void> showClubModalBottomSheet(BuildContext context, Widget child) {
                 borderRadius: BorderRadius.circular(2.5),
               ),
             ),
+            const SizedBox(height: 8),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),

@@ -26,7 +26,7 @@ class GiteeService {
       final a = jsonDecode(jsonResponse);
       final re = ReleaseModel.fromJson(a[0] as Map<String, dynamic>);
 
-      if(re.body.contains('[强制更新]')){
+      if (re.body.contains('[强制更新]')) {
         return re;
       }
 
@@ -42,10 +42,22 @@ class GiteeService {
     }
   }
 
-  static Future<bool> isNeedUpdate() async {
+  static Future<(bool, ReleaseModel)> isNeedUpdate() async {
     final result = await getReleases();
     final packageInfo = await PackageInfo.fromPlatform();
-    return result.name != '0.0.0' && result.name != packageInfo.version;
+    if (result.name == '0.0.0') {
+      return (false, result);
+    }
+
+    final resultList = result.name.split('.').map((e) => int.parse(e)).toList();
+    final currentList =
+        packageInfo.version.split('.').map((e) => int.parse(e)).toList();
+    for (int i = 0; i < resultList.length; i++) {
+      if (resultList[i] > currentList[i]) {
+        return (true, result);
+      }
+    }
+    return (false, result);
   }
 
   static Future<void> updateApp(String name) async {
@@ -68,17 +80,16 @@ class GiteeService {
 
           // 保存文件到本地
           final file = File(filePath);
-          if(file.existsSync()){
+          if (file.existsSync()) {
             await file.delete();
-          }else{
+          } else {
             await file.create();
           }
           await file.writeAsBytes(response.bodyBytes);
 
-          try{
+          try {
             await OpenFile.open(filePath);
-          }
-          catch (e) {
+          } catch (e) {
             if (kDebugMode) {
               print('无法打开APK: $e');
             }

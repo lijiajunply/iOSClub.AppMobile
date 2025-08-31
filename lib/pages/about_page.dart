@@ -27,7 +27,6 @@ class AboutPage extends StatelessWidget {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // 响应式布局 - 平板和手机适配
           final isTablet = constraints.maxWidth > 600;
           final horizontalPadding = isTablet ? 32.0 : 16.0;
 
@@ -48,6 +47,7 @@ class AboutPage extends StatelessWidget {
                   const RemindSetting(),
                   const TodoListSetting(),
                   const HomePageSetting(),
+                  // const ThemeSettingsPage()
                 ], isDark),
                 const SizedBox(height: 24),
                 // 版本信息
@@ -174,7 +174,7 @@ class AboutPage extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           child: Row(
             children: [
               Icon(
@@ -193,7 +193,7 @@ class AboutPage extends StatelessWidget {
                 CupertinoIcons.chevron_right,
                 size: 18,
                 color: isDark
-                    ? Colors.white.withOpacity(0.3)
+                    ? Colors.white.withValues(alpha: 0.3)
                     : CupertinoColors.tertiaryLabel,
               ),
             ],
@@ -228,7 +228,7 @@ class AboutPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark
-                        ? Colors.white.withOpacity(0.5)
+                        ? Colors.white.withValues(alpha: 0.5)
                         : CupertinoColors.secondaryLabel,
                   ),
                 ),
@@ -265,7 +265,7 @@ class AboutPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark
-                        ? Colors.white.withOpacity(0.5)
+                        ? Colors.white.withValues(alpha: 0.5)
                         : CupertinoColors.secondaryLabel,
                   ),
                 ),
@@ -306,7 +306,7 @@ class AboutPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark
-                            ? Colors.white.withOpacity(0.5)
+                            ? Colors.white.withValues(alpha: 0.5)
                             : CupertinoColors.secondaryLabel,
                       ),
                     ),
@@ -317,7 +317,7 @@ class AboutPage extends StatelessWidget {
                 CupertinoIcons.chevron_right,
                 size: 18,
                 color: isDark
-                    ? Colors.white.withOpacity(0.3)
+                    ? Colors.white.withValues(alpha: 0.3)
                     : CupertinoColors.tertiaryLabel,
               ),
             ],
@@ -350,8 +350,8 @@ class AboutPage extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: isDark
-                        ? Colors.white.withOpacity(0.1)
-                        : Colors.black.withOpacity(0.1),
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -372,7 +372,7 @@ class AboutPage extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: isDark
-                    ? Colors.white.withOpacity(0.6)
+                    ? Colors.white.withValues(alpha: 0.6)
                     : CupertinoColors.secondaryLabel,
               ),
             ),
@@ -381,7 +381,7 @@ class AboutPage extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: isDark
-                    ? Colors.black.withOpacity(0.3)
+                    ? Colors.black.withValues(alpha: 0.3)
                     : CupertinoColors.systemGrey6,
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -461,7 +461,7 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
                   style: TextStyle(
                     fontSize: 13,
                     color: isDark
-                        ? Colors.white.withOpacity(0.5)
+                        ? Colors.white.withValues(alpha: 0.5)
                         : CupertinoColors.secondaryLabel,
                   ),
                 ),
@@ -536,7 +536,7 @@ class _RemindSettingState extends State<RemindSetting> {
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark
-                              ? Colors.white.withOpacity(0.5)
+                              ? Colors.white.withValues(alpha: 0.5)
                               : CupertinoColors.secondaryLabel,
                         ),
                       ),
@@ -563,7 +563,8 @@ class _RemindSettingState extends State<RemindSetting> {
             color: Colors.transparent,
             child: InkWell(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   child: Row(
                     children: [
                       const SizedBox(width: 28),
@@ -659,10 +660,10 @@ class _VersionSettingState extends State<VersionSetting> {
         SharedPreferences.getInstance().then((prefs) {
           updateIgnored = prefs.getBool('update_ignored') ?? false;
         });
-        GiteeService.getReleases().then((release) {
-          if (release.name != '0.0.0') {
-            isNeedUpdate = release.name != version;
-            newVersion = release.name;
+        GiteeService.isNeedUpdate().then((res) {
+          isNeedUpdate = res.$1;
+          if (res.$1) {
+            newVersion = res.$2.name;
           }
         });
       });
@@ -833,7 +834,7 @@ class _TodoListSettingState extends State<TodoListSetting> {
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark
-                          ? Colors.white.withOpacity(0.5)
+                          ? Colors.white.withValues(alpha: 0.5)
                           : CupertinoColors.secondaryLabel,
                     ),
                   ),
@@ -892,7 +893,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             child: Row(
               children: [
                 Icon(
@@ -916,45 +917,31 @@ class _HomePageSettingState extends State<HomePageSetting> {
                 const SizedBox(width: 4),
               ],
             )),
-        onTap: () => _showDialog(CupertinoPicker(
-          magnification: 1.22,
-          squeeze: 1.2,
-          useMagnifier: true,
-          itemExtent: 32.0,
-          // This sets the initial item.
-          scrollController:
-              FixedExtentScrollController(initialItem: _pageIndex),
-          // This is called when selected item is changed.
-          onSelectedItemChanged: (int selectedItem) {
-            setState(() {
-              _pageIndex = selectedItem;
-            });
-            SharedPreferences.getInstance().then((prefs) {
-              prefs.setInt('page_index', selectedItem);
-            });
-          },
-          children: List.generate(_pageNames.length, (int index) {
-            return Center(child: Text(_pageNames[index]));
-          }),
-        )),
-      ),
-    );
-  }
-
-  // This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoPicker.
-  void _showDialog(Widget child) {
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (BuildContext context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
-        // The Bottom margin is provided to align the popup above the system navigation bar.
-        margin:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        // Provide a background color for the popup.
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        // Use a SafeArea widget to avoid system overlaps.
-        child: SafeArea(top: false, child: child),
+        onTap: () => showClubModalBottomSheet(
+          context,
+          SizedBox(
+            height: 200, // 给 CupertinoPicker 固定高度
+            child: CupertinoPicker(
+              magnification: 1.22,
+              squeeze: 1.2,
+              useMagnifier: true,
+              itemExtent: 32.0,
+              scrollController:
+                  FixedExtentScrollController(initialItem: _pageIndex),
+              onSelectedItemChanged: (int selectedItem) {
+                setState(() {
+                  _pageIndex = selectedItem;
+                });
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.setInt('page_index', selectedItem);
+                });
+              },
+              children: List.generate(_pageNames.length, (int index) {
+                return Center(child: Text(_pageNames[index]));
+              }),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -996,6 +983,334 @@ class GradientIcon extends StatelessWidget {
         size: size,
         color: Colors.white, // 使用白色作为基础颜色
       ),
+    );
+  }
+}
+
+class ThemeSettingTile extends StatefulWidget {
+  final Function(ThemeMode) onThemeChanged;
+  final ThemeMode currentTheme;
+
+  const ThemeSettingTile({
+    super.key,
+    required this.onThemeChanged,
+    required this.currentTheme,
+  });
+
+  @override
+  State<ThemeSettingTile> createState() => _ThemeSettingTileState();
+}
+
+class _ThemeSettingTileState extends State<ThemeSettingTile> {
+  late ThemeMode _selectedTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTheme = widget.currentTheme;
+  }
+
+  @override
+  void didUpdateWidget(ThemeSettingTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentTheme != widget.currentTheme) {
+      _selectedTheme = widget.currentTheme;
+    }
+  }
+
+  String _getThemeText(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return '跟随系统';
+      case ThemeMode.light:
+        return '浅色模式';
+      case ThemeMode.dark:
+        return '深色模式';
+    }
+  }
+
+  IconData _getThemeIcon(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return CupertinoIcons.device_phone_portrait;
+      case ThemeMode.light:
+        return CupertinoIcons.sun_max_fill;
+      case ThemeMode.dark:
+        return CupertinoIcons.moon_fill;
+    }
+  }
+
+  void _showThemeSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 320,
+          decoration: BoxDecoration(
+            color: isDark
+                ? CupertinoColors.darkBackgroundGray
+                : CupertinoColors.systemBackground,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              Container(
+                height: 60,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : CupertinoColors.separator,
+                      width: 0.5,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        '取消',
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      '选择主题',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        widget.onThemeChanged(_selectedTheme);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        '确定',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: ThemeMode.values.map((mode) {
+                    final isSelected = _selectedTheme == mode;
+                    return _buildThemeOption(mode, isSelected, isDark);
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption(ThemeMode mode, bool isSelected, bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTheme = mode;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
+              : isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : CupertinoColors.systemGrey6,
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected
+              ? Border.all(
+                  color: CupertinoColors.systemBlue,
+                  width: 2,
+                )
+              : null,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? CupertinoColors.systemBlue
+                    : isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : CupertinoColors.systemGrey5,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                _getThemeIcon(mode),
+                size: 20,
+                color: isSelected
+                    ? Colors.white
+                    : isDark
+                        ? Colors.white.withValues(alpha: 0.7)
+                        : CupertinoColors.systemGrey,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _getThemeText(mode),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? CupertinoColors.systemBlue : null,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _getThemeDescription(mode),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.5)
+                          : CupertinoColors.secondaryLabel,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(
+                CupertinoIcons.checkmark_circle_fill,
+                color: CupertinoColors.systemBlue,
+                size: 24,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getThemeDescription(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return '自动适应系统设置';
+      case ThemeMode.light:
+        return '始终使用浅色界面';
+      case ThemeMode.dark:
+        return '始终使用深色界面';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: _showThemeSelector,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    CupertinoColors.systemIndigo,
+                    CupertinoColors.systemPurple,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                _getThemeIcon(_selectedTheme),
+                size: 18,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '主题设置',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _getThemeText(_selectedTheme),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.5)
+                          : CupertinoColors.secondaryLabel,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              size: 16,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.3)
+                  : CupertinoColors.tertiaryLabel,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 使用示例
+class ThemeSettingsPage extends StatefulWidget {
+  const ThemeSettingsPage({super.key});
+
+  @override
+  State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
+}
+
+class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemeSettingTile(
+      currentTheme: _themeMode,
+      onThemeChanged: (ThemeMode mode) {
+        setState(() {
+          _themeMode = mode;
+        });
+        // 这里可以调用实际的主题切换逻辑
+        // 例如: context.read<ThemeProvider>().setTheme(mode);
+      },
     );
   }
 }

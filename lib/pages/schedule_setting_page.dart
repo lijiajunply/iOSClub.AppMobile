@@ -1,7 +1,6 @@
 import 'dart:io' show Platform;
 
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/Services/data_service.dart';

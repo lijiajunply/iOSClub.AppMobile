@@ -110,16 +110,16 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
             ),
             decoration: BoxDecoration(
               color: isSelected
-                  ? Theme.of(context).primaryColor.withOpacity(0.1)
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                   : isHovered
                       ? (isDark
-                          ? Colors.white.withOpacity(0.05)
-                          : Colors.black.withOpacity(0.05))
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.black.withValues(alpha: 0.05))
                       : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
               border: isSelected
                   ? Border.all(
-                      color: Theme.of(context).primaryColor.withOpacity(0.3),
+                      color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
                       width: 1,
                     )
                   : null,

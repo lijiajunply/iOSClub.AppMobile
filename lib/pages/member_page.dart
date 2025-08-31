@@ -143,7 +143,7 @@ class MemberPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 2),
           ),
@@ -191,7 +191,7 @@ class MemberPage extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   CupertinoColors.activeBlue,
-                  CupertinoColors.activeBlue.withOpacity(0.8),
+                  CupertinoColors.activeBlue.withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
@@ -270,7 +270,7 @@ class MemberPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 2),
           ),
@@ -352,7 +352,7 @@ class MemberPage extends StatelessWidget {
         border: Border(
           top: BorderSide(
             color: isDarkMode
-                ? Colors.white.withOpacity(0.1)
+                ? Colors.white.withValues(alpha: 0.1)
                 : CupertinoColors.systemGrey6,
             width: 0.5,
           ),
@@ -390,7 +390,7 @@ class MemberPage extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            CupertinoColors.activeBlue.withOpacity(0.9),
+            CupertinoColors.activeBlue.withValues(alpha: 0.9),
             CupertinoColors.activeBlue,
           ],
           begin: Alignment.topLeft,
@@ -399,7 +399,7 @@ class MemberPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.activeBlue.withOpacity(0.3),
+            color: CupertinoColors.activeBlue.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -478,7 +478,7 @@ class MemberPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -498,7 +498,7 @@ class MemberPage extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
           ],
@@ -517,7 +517,7 @@ class MemberPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 2),
           ),
@@ -598,7 +598,7 @@ class MemberPage extends StatelessWidget {
         border: Border(
           top: BorderSide(
             color: isDarkMode
-                ? Colors.white.withOpacity(0.1)
+                ? Colors.white.withValues(alpha: 0.1)
                 : CupertinoColors.systemGrey6,
             width: 0.5,
           ),
