@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 class ClubCard extends StatelessWidget {
-  const ClubCard({super.key, this.child, this.margin});
+  const ClubCard({super.key, this.child, this.margin, this.padding});
 
   final Widget? child;
   final EdgeInsets? margin;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Container(
+      padding: padding,
       margin: margin,
       decoration: BoxDecoration(
         color: isDark ? theme.hoverColor : theme.colorScheme.surface,

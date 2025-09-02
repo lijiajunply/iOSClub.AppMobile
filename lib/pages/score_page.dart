@@ -15,6 +15,7 @@ import '../widgets/ClubCard.dart';
 import '../widgets/ClubModalBottomSheet.dart';
 import '../widgets/empty_widget.dart';
 import '../widgets/page_header_delegate.dart';
+import '../widgets/showClubSnackBar.dart';
 
 class ScorePage extends StatefulWidget {
   const ScorePage({super.key});
@@ -103,9 +104,7 @@ class _ScorePageState extends State<ScorePage> {
       final cookieData = await EduService.getUserData();
       if (cookieData == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('获取用户凭证失败，请重新登录')),
-          );
+          showClubSnackBar(context,Text('获取用户凭证失败，请重新登录'));
         }
         return;
       }
@@ -145,9 +144,7 @@ class _ScorePageState extends State<ScorePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('获取数据失败: ${e.toString()}')),
-        );
+        showClubSnackBar(context,Text('获取数据失败: ${e.toString()}'));
       }
       if (kDebugMode) {
         print('Error fetching data: $e');

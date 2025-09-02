@@ -55,7 +55,7 @@ class BottomNavigation extends StatelessWidget {
                 isSelected: selectedIndex == index,
                 onTap: () {
                   if (enableHapticFeedback) {
-                    // 可以添加触觉反馈
+                    Feedback.forLongPress(context);
                   }
                   onDestinationSelected(index);
                 },

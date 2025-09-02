@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:ios_club_app/services/todo_service.dart';
 import 'package:ios_club_app/widgets/ClubCard.dart';
@@ -12,6 +14,7 @@ import '../Services/git_service.dart';
 import '../Services/notification_service.dart';
 import '../services/download_service.dart';
 import '../widgets/ClubAppBar.dart';
+import '../widgets/showClubSnackBar.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -47,15 +50,14 @@ class AboutPage extends StatelessWidget {
                   const RemindSetting(),
                   const TodoListSetting(),
                   const HomePageSetting(),
-                  // const ThemeSettingsPage()
-                ], isDark),
+                ]),
                 const SizedBox(height: 24),
                 // 版本信息
                 _buildSectionTitle('版本', isDark),
                 const SizedBox(height: 12),
                 _buildSettingsGroup([
                   const VersionSetting(),
-                ], isDark),
+                ]),
                 const SizedBox(height: 24),
                 // 关于我们
                 _buildSectionTitle('关于', isDark),
@@ -64,7 +66,14 @@ class AboutPage extends StatelessWidget {
                   _buildTeamTile(isDark),
                   _buildLicenseTile(isDark),
                   _buildClubTile(context, isDark),
-                ], isDark),
+                ]),
+                const SizedBox(height: 24),
+                // 关于我们
+                _buildSectionTitle('其他', isDark),
+                const SizedBox(height: 12),
+                _buildSettingsGroup([
+                  _buildLogoutTile(context, isDark),
+                ]),
                 const SizedBox(height: 32),
               ],
             ),
@@ -131,7 +140,7 @@ class AboutPage extends StatelessWidget {
         child: Text(
           title.toUpperCase(),
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
             color: isDark
@@ -143,7 +152,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsGroup(List<Widget> children, bool isDark) {
+  Widget _buildSettingsGroup(List<Widget> children) {
     return ClubCard(
       child: Column(
         children: children,
@@ -157,24 +166,14 @@ class AboutPage extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('正在刷新数据...'),
-              backgroundColor: isDark ? Colors.grey[800] : null,
-            ),
-          );
+          showClubSnackBar(context, const Text('正在刷新数据...'));
           final re = await EduService.refresh();
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('刷新数据${re ? '成功' : '失败'}'),
-                backgroundColor: isDark ? Colors.grey[800] : null,
-              ),
-            );
+            showClubSnackBar(context, Text('刷新数据${re ? '成功' : '失败'}'));
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Row(
             children: [
               Icon(
@@ -409,6 +408,80 @@ class AboutPage extends StatelessWidget {
             ),
           ],
         ));
+  }
+
+  Widget _buildLogoutTile(BuildContext context, bool isDark) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () async {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("确定退出登录吗？"),
+              content: Text("会删除所有数据"),
+              actions: [
+                Wrap(
+                  children: [
+                    TextButton(
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.clear();
+                        Get.toNamed("Profile");
+                      },
+                      child: const Text('退出登录'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('取消'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                Icons.logout_outlined,
+                size: 20,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.5)
+                    : CupertinoColors.tertiaryLabel,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '退出登录',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '会删除所有数据',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.5)
+                            : CupertinoColors.secondaryLabel,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -893,7 +966,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Row(
               children: [
                 Icon(
@@ -983,334 +1056,6 @@ class GradientIcon extends StatelessWidget {
         size: size,
         color: Colors.white, // 使用白色作为基础颜色
       ),
-    );
-  }
-}
-
-class ThemeSettingTile extends StatefulWidget {
-  final Function(ThemeMode) onThemeChanged;
-  final ThemeMode currentTheme;
-
-  const ThemeSettingTile({
-    super.key,
-    required this.onThemeChanged,
-    required this.currentTheme,
-  });
-
-  @override
-  State<ThemeSettingTile> createState() => _ThemeSettingTileState();
-}
-
-class _ThemeSettingTileState extends State<ThemeSettingTile> {
-  late ThemeMode _selectedTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedTheme = widget.currentTheme;
-  }
-
-  @override
-  void didUpdateWidget(ThemeSettingTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentTheme != widget.currentTheme) {
-      _selectedTheme = widget.currentTheme;
-    }
-  }
-
-  String _getThemeText(ThemeMode mode) {
-    switch (mode) {
-      case ThemeMode.system:
-        return '跟随系统';
-      case ThemeMode.light:
-        return '浅色模式';
-      case ThemeMode.dark:
-        return '深色模式';
-    }
-  }
-
-  IconData _getThemeIcon(ThemeMode mode) {
-    switch (mode) {
-      case ThemeMode.system:
-        return CupertinoIcons.device_phone_portrait;
-      case ThemeMode.light:
-        return CupertinoIcons.sun_max_fill;
-      case ThemeMode.dark:
-        return CupertinoIcons.moon_fill;
-    }
-  }
-
-  void _showThemeSelector() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          height: 320,
-          decoration: BoxDecoration(
-            color: isDark
-                ? CupertinoColors.darkBackgroundGray
-                : CupertinoColors.systemBackground,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : CupertinoColors.separator,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        '取消',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: CupertinoColors.systemGrey,
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      '选择主题',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        widget.onThemeChanged(_selectedTheme);
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        '确定',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: ThemeMode.values.map((mode) {
-                    final isSelected = _selectedTheme == mode;
-                    return _buildThemeOption(mode, isSelected, isDark);
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildThemeOption(ThemeMode mode, bool isSelected, bool isDark) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTheme = mode;
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? CupertinoColors.systemBlue.withValues(alpha: 0.1)
-              : isDark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : CupertinoColors.systemGrey6,
-          borderRadius: BorderRadius.circular(12),
-          border: isSelected
-              ? Border.all(
-                  color: CupertinoColors.systemBlue,
-                  width: 2,
-                )
-              : null,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? CupertinoColors.systemBlue
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : CupertinoColors.systemGrey5,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                _getThemeIcon(mode),
-                size: 20,
-                color: isSelected
-                    ? Colors.white
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.7)
-                        : CupertinoColors.systemGrey,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _getThemeText(mode),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? CupertinoColors.systemBlue : null,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _getThemeDescription(mode),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.5)
-                          : CupertinoColors.secondaryLabel,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              const Icon(
-                CupertinoIcons.checkmark_circle_fill,
-                color: CupertinoColors.systemBlue,
-                size: 24,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _getThemeDescription(ThemeMode mode) {
-    switch (mode) {
-      case ThemeMode.system:
-        return '自动适应系统设置';
-      case ThemeMode.light:
-        return '始终使用浅色界面';
-      case ThemeMode.dark:
-        return '始终使用深色界面';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: _showThemeSelector,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    CupertinoColors.systemIndigo,
-                    CupertinoColors.systemPurple,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                _getThemeIcon(_selectedTheme),
-                size: 18,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '主题设置',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _getThemeText(_selectedTheme),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.5)
-                          : CupertinoColors.secondaryLabel,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              CupertinoIcons.chevron_right,
-              size: 16,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.3)
-                  : CupertinoColors.tertiaryLabel,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// 使用示例
-class ThemeSettingsPage extends StatefulWidget {
-  const ThemeSettingsPage({super.key});
-
-  @override
-  State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
-}
-
-class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
-  ThemeMode _themeMode = ThemeMode.system;
-
-  @override
-  Widget build(BuildContext context) {
-    return ThemeSettingTile(
-      currentTheme: _themeMode,
-      onThemeChanged: (ThemeMode mode) {
-        setState(() {
-          _themeMode = mode;
-        });
-        // 这里可以调用实际的主题切换逻辑
-        // 例如: context.read<ThemeProvider>().setTheme(mode);
-      },
     );
   }
 }

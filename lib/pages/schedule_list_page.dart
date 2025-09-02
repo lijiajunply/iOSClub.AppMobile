@@ -11,6 +11,7 @@ import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
 import '../Services/data_service.dart';
 import '../widgets/ClubModalBottomSheet.dart';
+import '../widgets/showClubSnackBar.dart';
 
 class ScheduleListPage extends StatefulWidget {
   const ScheduleListPage({super.key});
@@ -124,11 +125,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             icon: const Icon(Icons.style)),
         IconButton(
             onPressed: () async {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('正在进行更新，请稍后'),
-                ),
-              );
+              showClubSnackBar(context, Text('正在进行更新，请稍后'));
               await EduService.getCourse(isRefresh: true);
               setState(() {
                 allCourse.clear();
@@ -148,11 +145,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 });
               });
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('更新完成'),
-                  ),
-                );
+                showClubSnackBar(context, Text('更新完成'));
               }
             },
             icon: const Icon(Icons.refresh)),

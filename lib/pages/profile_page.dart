@@ -7,6 +7,7 @@ import 'package:ios_club_app/widgets/ClubCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../PageModels/CourseColorManager.dart';
 import '../Services/club_service.dart';
 import '../widgets/study_credit_card.dart';
 
@@ -171,21 +172,6 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_isLoginMember) {
       _nameController.clear();
     }
-  }
-
-  Future<void> _logout() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    setState(() {
-      _isLoggedIn = false;
-      _username = '';
-      _isLoading = false;
-    });
   }
 
   @override
@@ -377,8 +363,7 @@ class _ProfilePageState extends State<ProfilePage> {
           icon: CupertinoIcons.square_list, title: '待办事务', route: '/Todo'),
       ProfileButtonItem(
           icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
-      ProfileButtonItem(
-          icon: Icons.info_outline, title: '设置/关于', route: '/About'),
+      ProfileButtonItem(icon: Icons.settings, title: '设置/关于', route: '/About'),
       ProfileButtonItem(
           title: '校车', icon: Icons.directions_bus_rounded, route: '/SchoolBus'),
       ProfileButtonItem(
@@ -399,6 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
       ProfileButtonItem(
           icon: Icons.monetization_on_outlined, title: '饭卡', route: '/Payment'),
+      ProfileButtonItem(icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
     ];
   }
 
@@ -447,14 +433,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     )
                   ],
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.exit_to_app),
-                  onPressed: _logout,
-                  label: const Text(
-                    '退出登录',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
               ],
             ),
           ),
@@ -481,11 +459,11 @@ class _ProfilePageState extends State<ProfilePage> {
               future: DataService.getInfoList(),
               builder: (context, snapshot) => snapshot.hasData
                   ? ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data?.length,
-                  itemBuilder: (context, index) =>
-                      StudyCreditCard(data: snapshot.data![index]))
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data?.length,
+                      itemBuilder: (context, index) =>
+                          StudyCreditCard(data: snapshot.data![index]))
                   : const CircularProgressIndicator()),
         ],
       ),
@@ -512,32 +490,37 @@ class ProfileButtonItem {
       this.route = '',
       this.onPressed});
 
-  RawMaterialButton build() {
-    return RawMaterialButton(
-      onPressed: () {
-        if (route.isEmpty) {
-          onPressed?.call();
-        } else {
-          Get.toNamed(route);
-        }
-      },
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 32,
+  Widget build() {
+    return Material(
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(icon,
+                    size: 32,
+                    color: CourseColorManager.generateSoftColor(icon,
+                        isDark: true)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey),
+                )
+              ],
             ),
-            Text(
-              title,
-              style: const TextStyle(
-                  fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
-            )
-          ],
-        ),
-      ),
-    );
+          ),
+          onTap: () {
+            if (route.isEmpty) {
+              onPressed?.call();
+            } else {
+              Get.toNamed(route);
+            }
+          },
+        ));
   }
 }
