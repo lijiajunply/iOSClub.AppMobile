@@ -172,65 +172,54 @@ class _LinkItem extends StatelessWidget {
     required this.link,
     required this.onTap,
   });
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        decoration: BoxDecoration(
-          color: isDark ? theme.hoverColor : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // 图标
-                  FutureBuilder(
-                    future: IconUtil.getIconFont(link),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return IconTheme(
-                          data: const IconThemeData(
-                            size: 24,
-                          ),
-                          child: snapshot.data!,
-                        );
-                      }
-                      return Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  // 名称
-                  Text(
-                    link.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1.2,
-                      color: Colors.grey[500],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 图标
+              FutureBuilder(
+                future: IconUtil.getIconFont(link),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return IconTheme(
+                      data: const IconThemeData(
+                        size: 24,
+                      ),
+                      child: snapshot.data!,
+                    );
+                  }
+                  return Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
+              const SizedBox(height: 8),
+              // 名称
+              Text(
+                link.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.2,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
           ),
         ),
       ),

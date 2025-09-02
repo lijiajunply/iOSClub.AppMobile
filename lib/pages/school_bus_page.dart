@@ -282,8 +282,8 @@ class _SchoolBusPageState extends State<SchoolBusPage>
                     }),
               )
             else if (selectedDate != null)
-              Card(
-                  margin: EdgeInsets.only(top: 20),
+              ClubCard(
+                  margin: EdgeInsets.all(20),
                   child: EmptyWidget(
                     title: '今天没有车了',
                     subtitle: '明天再来吧',

@@ -320,10 +320,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         TextButton(
                             onPressed: () async {
                               if (await canLaunchUrl(Uri.parse(
-                                  'https://swjw.xauat.edu.cn/security-center//password-reset/identity-check-form'))) {
+                                  'https://swjw.xauat.edu.cn/security-center/password-reset/identity-check-form'))) {
                                 await launchUrl(
                                     Uri.parse(
-                                        'https://swjw.xauat.edu.cn/security-center//password-reset/identity-check-form'),
+                                        'https://swjw.xauat.edu.cn/security-center/password-reset/identity-check-form'),
                                     mode: LaunchMode.externalApplication);
                               }
                             },
@@ -493,6 +493,7 @@ class ProfileButtonItem {
   Widget build() {
     return Material(
         borderRadius: BorderRadius.circular(16),
+        color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           child: Center(
