@@ -89,11 +89,13 @@ class _ElectricityPageState extends State<ElectricityPage> {
                     color: CupertinoColors.systemBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    CupertinoIcons.bolt_fill,
-                    color: CupertinoColors.systemBlue,
-                    size: 24,
-                  ),
+                  child: Hero(
+                      tag: '电费',
+                      child: Icon(
+                        CupertinoIcons.bolt_fill,
+                        color: CupertinoColors.systemBlue,
+                        size: 24,
+                      )),
                 ),
                 SizedBox(width: 12),
                 Text(
@@ -125,10 +127,12 @@ class _ElectricityPageState extends State<ElectricityPage> {
               ),
               SizedBox(height: 8),
               Text(
-                '余额充足',
+                electricity <= 10 ? '余额不足' : '余额充足',
                 style: TextStyle(
                   fontSize: 14,
-                  color: CupertinoColors.systemGreen,
+                  color: electricity <= 10
+                      ? CupertinoColors.systemRed
+                      : CupertinoColors.systemGreen,
                   fontWeight: FontWeight.w500,
                 ),
               ),

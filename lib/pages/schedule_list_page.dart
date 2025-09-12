@@ -183,11 +183,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                             } else if (value == CourseStyle.fool) {
                               allCourse.clear();
                               allCourse.add([]);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('是的，我没有课了'),
-                                ),
-                              );
+                              showClubSnackBar(context, Text('是的，我没有课了'));
                             }
                           });
                           final prefs = await SharedPreferences.getInstance();

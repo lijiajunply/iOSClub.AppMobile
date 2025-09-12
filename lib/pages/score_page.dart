@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +15,6 @@ import '../Services/data_service.dart';
 import '../widgets/ClubCard.dart';
 import '../widgets/ClubModalBottomSheet.dart';
 import '../widgets/empty_widget.dart';
-import '../widgets/page_header_delegate.dart';
 import '../widgets/showClubSnackBar.dart';
 
 class ScorePage extends StatefulWidget {
@@ -24,13 +24,31 @@ class ScorePage extends StatefulWidget {
   State<ScorePage> createState() => _ScorePageState();
 }
 
-class _ScorePageState extends State<ScorePage> {
+class _ScorePageState extends State<ScorePage>
+    with SingleTickerProviderStateMixin {
   final List<ScoreList> _scoreList = [];
   bool _isLoading = true;
   bool _isFool = false;
   String _loadingText = '正在获取数据...';
   final List<ScoreList> _yearList = [];
   bool _isYear = false;
+
+  late PageController pageController = PageController();
+  late int _currentIndex = 0;
+  final List<String> _selectorList = [];
+
+  static const yearStringList = [
+    '一',
+    '二',
+    '三',
+    '四',
+    '五',
+    '六',
+    '七',
+    '八',
+    '九',
+    '十'
+  ];
 
   @override
   void initState() {
@@ -47,6 +65,12 @@ class _ScorePageState extends State<ScorePage> {
             _scoreList
               ..clear()
               ..addAll(cachedData);
+            _selectorList.clear();
+            for (var i = 0; i < _scoreList.length; i++) {
+              var y = _scoreList.length - i + 1;
+              _selectorList.add(
+                  '大${yearStringList[y ~/ 2 - 1]}${y % 2 == 1 ? '下' : '上'}');
+            }
             _isLoading = false;
           });
         }
@@ -104,7 +128,7 @@ class _ScorePageState extends State<ScorePage> {
       final cookieData = await EduService.getUserData();
       if (cookieData == null) {
         if (mounted) {
-          showClubSnackBar(context,Text('获取用户凭证失败，请重新登录'));
+          showClubSnackBar(context, Text('获取用户凭证失败，请重新登录'));
         }
         return;
       }
@@ -140,11 +164,17 @@ class _ScorePageState extends State<ScorePage> {
             ..clear()
             ..addAll(freshScoreList);
           _isLoading = false;
+          _selectorList.clear();
+          for (var i = 0; i < _scoreList.length; i++) {
+            var y = _scoreList.length - i + 1;
+            _selectorList
+                .add('大${yearStringList[y ~/ 2 - 1]}${y % 2 == 1 ? '下' : '上'}');
+          }
         });
       }
     } catch (e) {
       if (mounted) {
-        showClubSnackBar(context,Text('获取数据失败: ${e.toString()}'));
+        showClubSnackBar(context, Text('获取数据失败: ${e.toString()}'));
       }
       if (kDebugMode) {
         print('Error fetching data: $e');
@@ -274,22 +304,22 @@ class _ScorePageState extends State<ScorePage> {
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
+      body: Column(
+        children: [
           _buildAppBar(),
           _buildStatsCard(),
-          _buildScoreList(),
+          _buildSelector(),
+          Expanded(
+            child: _buildScoreList(),
+          )
         ],
       ),
     );
   }
 
-  SliverPersistentHeader _buildAppBar() {
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: HeaderChildDelegate(
-        minHeight: 66,
-        maxHeight: 80,
+  Widget _buildAppBar() {
+    return Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -319,9 +349,7 @@ class _ScorePageState extends State<ScorePage> {
               ],
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   void _changeScoreList() {
@@ -343,16 +371,39 @@ class _ScorePageState extends State<ScorePage> {
           }
         }
       }
+
+      if (_scoreList.isNotEmpty) {
+        if (_isYear) {
+          _selectorList.clear();
+          for (var i = 0; i < _yearList.length; i++) {
+            _selectorList.add('大${yearStringList[i]}');
+          }
+        } else {
+          _selectorList.clear();
+          for (var i = 0; i < _scoreList.length; i++) {
+            var y = _scoreList.length - i + 1;
+            _selectorList
+                .add('大${yearStringList[y ~/ 2 - 1]}${y % 2 == 1 ? '下' : '上'}');
+          }
+        }
+
+        if (_currentIndex >= _selectorList.length) {
+          _currentIndex = _selectorList.length - 1;
+        }
+        pageController.jumpToPage(_currentIndex);
+      }
     });
   }
 
-  SliverPadding _buildStatsCard() {
-    return SliverPadding(
-      padding: const EdgeInsets.all(16.0),
-      sliver: SliverToBoxAdapter(
-        child: ClubCard(
-          child: _buildStatsPadding(),
-        ),
+  Widget _buildStatsCard() {
+    if (_scoreList.isEmpty) {
+      return Container();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: ClubCard(
+        child: _buildStatsPadding(),
       ),
     );
   }
@@ -448,43 +499,81 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  SliverPadding _buildScoreList() {
-    return SliverPadding(
-      padding: const EdgeInsets.all(16.0),
-      sliver: SliverToBoxAdapter(
-        child: _scoreList.isEmpty
-            ? _buildEmptyState()
-            : _isYear
-                ? _buildYearList()
-                : _buildSemesterList(),
+  Widget _buildSelector() {
+    if (_selectorList.isEmpty) {
+      return Container();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: CupertinoSlidingSegmentedControl<int>(
+        proportionalWidth: true,
+        groupValue: _currentIndex,
+        onValueChanged: (int? value) async {
+          if (value != null && value < _selectorList.length) {
+            setState(() {
+              pageController.jumpToPage(value);
+              setState(() {
+                _currentIndex = value;
+              });
+            });
+          }
+        },
+        children: _selectorList
+            .map(
+              (x) => Text(x),
+            )
+            .toList()
+            .asMap(),
       ),
     );
   }
 
+  Widget _buildScoreList() {
+    return _scoreList.isEmpty
+        ? _buildEmptyState()
+        : _isYear
+            ? _buildYearList()
+            : _buildSemesterList();
+  }
+
   Widget _buildSemesterList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+    return PageView.builder(
+      controller: pageController,
+      onPageChanged: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      },
       itemCount: _scoreList.length,
-      itemBuilder: (context, index) => _buildSemesterCard(_scoreList[index]),
+      itemBuilder: (context, index) => SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: _buildSemesterCard(_scoreList[index]),
+      ),
     );
   }
 
   Widget _buildYearList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _yearList.length,
-      itemBuilder: (context, index) => _buildYearCard(_yearList[index], index),
-    );
+    return PageView.builder(
+        controller: pageController,
+        itemCount: _yearList.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) => SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: _buildYearCard(_yearList[index], index),
+            ));
   }
 
   Widget _buildYearCard(ScoreList score, int index) {
     const yearStringList = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
     return ClubCard(
-        margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 4),
+        margin: const EdgeInsets.all(16),
         child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Column(children: [
               Text('大${yearStringList[index]}',
                   style: const TextStyle(
@@ -503,23 +592,21 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildEmptyState() {
-    return ClubCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            EmptyWidget(
-              title: '没有成绩',
-              subtitle: '建议刷新或退出重进',
-              icon: Icons.school,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => refresh(isRefresh: true),
-              child: const Text('刷新数据'),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          EmptyWidget(
+            title: '没有成绩',
+            subtitle: '建议刷新或退出重进',
+            icon: Icons.school,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => refresh(isRefresh: true),
+            child: const Text('刷新数据'),
+          ),
+        ],
       ),
     );
   }
@@ -527,9 +614,9 @@ class _ScorePageState extends State<ScorePage> {
   Widget _buildSemesterCard(ScoreList score) {
     final semesterNames = score.semester.name.split('-');
     return ClubCard(
-      margin: const EdgeInsets.symmetric(vertical: 16.0),
+      margin: const EdgeInsets.all(16),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
         child: Column(
           children: [
             Text(
@@ -551,11 +638,13 @@ class _ScorePageState extends State<ScorePage> {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
     return Material(
+      borderRadius: BorderRadius.circular(12),
       color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: () => _showScoreDetails(item),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Row(
             children: [
               Container(

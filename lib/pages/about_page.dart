@@ -640,7 +640,7 @@ class _RemindSettingState extends State<RemindSetting> {
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   child: Row(
                     children: [
-                      const SizedBox(width: 28),
+                      const SizedBox(width: 24),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

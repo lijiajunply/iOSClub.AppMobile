@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/widgets/ClubCard.dart';
 
 import '../PageModels/CourseColorManager.dart';
 
@@ -14,7 +15,6 @@ class ProgramPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // 获取当前主题模式
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
     final accentColor = const Color(0xFF007AFF); // iOS主色调
 
     return Scaffold(
@@ -49,19 +49,8 @@ class ProgramPage extends StatelessWidget {
                       ? semesterNames.length - 1
                       : int.parse(program.term) - 1;
 
-                  return Container(
+                  return ClubCard(
                     margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -148,7 +137,8 @@ class ProgramPage extends StatelessWidget {
                                         vertical: 5.0,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: courseColor.withValues(alpha: 0.15),
+                                        color:
+                                            courseColor.withValues(alpha: 0.15),
                                         borderRadius:
                                             BorderRadius.circular(6.0),
                                       ),

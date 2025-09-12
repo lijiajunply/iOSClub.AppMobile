@@ -13,7 +13,6 @@ import 'Pages/schedule_list_page.dart';
 import 'Pages/schedule_setting_page.dart';
 import 'Pages/school_bus_page.dart';
 import 'Pages/score_page.dart';
-import 'Pages/todo_page.dart';
 
 class AppRouter {
   static List<GetPage> get getPages => [
@@ -36,10 +35,6 @@ class AppRouter {
         GetPage(
           name: '/Link',
           page: () => const LinkPage(),
-        ),
-        GetPage(
-          name: '/Todo',
-          page: () => const TodoPage(),
         ),
         GetPage(
           name: '/About',

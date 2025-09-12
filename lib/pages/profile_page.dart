@@ -360,8 +360,6 @@ class _ProfilePageState extends State<ProfilePage> {
   List<ProfileButtonItem> get profileButtonItems {
     return [
       ProfileButtonItem(
-          icon: CupertinoIcons.square_list, title: '待办事务', route: '/Todo'),
-      ProfileButtonItem(
           icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
       ProfileButtonItem(icon: Icons.settings, title: '设置/关于', route: '/About'),
       ProfileButtonItem(
@@ -501,10 +499,12 @@ class ProfileButtonItem {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(icon,
-                    size: 32,
-                    color: CourseColorManager.generateSoftColor(icon,
-                        isDark: true)),
+                Hero(
+                    tag: title,
+                    child: Icon(icon,
+                        size: 32,
+                        color: CourseColorManager.generateSoftColor(icon,
+                            isDark: true))),
                 Text(
                   title,
                   style: const TextStyle(
