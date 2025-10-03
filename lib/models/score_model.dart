@@ -1,4 +1,4 @@
-import 'package:ios_club_app/Models/SemesterModel.dart';
+import 'package:ios_club_app/models/semester_model.dart';
 
 class ScoreModel {
   String name;

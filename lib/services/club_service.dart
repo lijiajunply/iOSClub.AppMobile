@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:ios_club_app/models/MemberModel.dart';
+import 'package:ios_club_app/models/member_model.dart';
 import 'package:ios_club_app/services/gzip_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
-import '../Models/LinkModel.dart';
+import 'package:ios_club_app/models/link_model.dart';
 import 'package:http/http.dart' as http;
 
 class ClubService {
@@ -69,8 +70,8 @@ class ClubService {
             print('GetData successful');
           }
           final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('member_data', response.body);
-          await prefs.setString('member_jwt', jwt);
+          await prefs.setString(PrefsKeys.MEMBER_DATA, response.body);
+          await prefs.setString(PrefsKeys.MEMBER_JWT, jwt);
           return true; // 李嘉俊
         }
       }
@@ -85,16 +86,23 @@ class ClubService {
 
   static Future<Map<String, dynamic>> getMemberInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    final memberDataString = prefs.getString('member_data');
-
     final Map<String, dynamic> data = {};
-
-    final memberData = jsonDecode(memberDataString ?? '{}');
-
+    Map<String, dynamic> memberData = {};
+    try {
+      final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);
+      memberData = jsonDecode(memberDataString ?? '{}');
+      data['memberData'] = memberData;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching data: $e');
+      }
+      prefs.setString(PrefsKeys.MEMBER_DATA, '');
+      return {};
+    }
     data['memberData'] = memberData;
 
-    if (prefs.getString('member_jwt') != null) {
-      var jwt = prefs.getString('member_jwt');
+    if (prefs.getString(PrefsKeys.MEMBER_JWT) != null) {
+      var jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
       Map<String, String> finalHeaders = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -114,7 +122,7 @@ class ClubService {
         }
         if (response.statusCode == 401) {
           if (await loginMember(memberData['userName'], memberData['userId'])) {
-            jwt = prefs.getString('member_jwt');
+            jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
             finalHeaders['Authorization'] = 'Bearer $jwt';
 
             final response = await http.get(
@@ -143,10 +151,10 @@ class ClubService {
     final url =
         'https://www.xauat.site/api/President/GetAllDataByPage?pageNum=$pageNum&pageSize=$pageSize';
     final prefs = await SharedPreferences.getInstance();
-    final memberDataString = prefs.getString('member_data');
+    final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);
 
     final memberData = jsonDecode(memberDataString ?? '{}');
-    var jwt = prefs.getString('member_jwt');
+    var jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
     if (jwt == null) {
       return MemberData(
         data: [],
@@ -170,7 +178,7 @@ class ClubService {
       if (response.statusCode == 401) {
         if (await ClubService.loginMember(
             memberData['userName'], memberData['userId'])) {
-          jwt = prefs.getString('member_jwt');
+          jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
           finalHeaders['Authorization'] = 'Bearer $jwt';
 
           final response =
@@ -202,10 +210,10 @@ class ClubService {
     final url =
         'https://www.xauat.site/api/President/GetStaffsByPage?pageNum=$pageNum&pageSize=$pageSize';
     final prefs = await SharedPreferences.getInstance();
-    final memberDataString = prefs.getString('member_data');
+    final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);
 
     final memberData = jsonDecode(memberDataString ?? '{}');
-    var jwt = prefs.getString('member_jwt');
+    var jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
     if (jwt == null) {
       return MemberData(
         data: [],
@@ -229,11 +237,11 @@ class ClubService {
       if (response.statusCode == 401) {
         if (await ClubService.loginMember(
             memberData['userName'], memberData['userId'])) {
-          jwt = prefs.getString('member_jwt');
+          jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
           finalHeaders['Authorization'] = 'Bearer $jwt';
 
           final response =
-          await http.get(Uri.parse(url), headers: finalHeaders);
+              await http.get(Uri.parse(url), headers: finalHeaders);
 
           if (response.statusCode == 200) {
             if (kDebugMode) {

@@ -4,14 +4,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:ios_club_app/Services/time_service.dart';
+import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/services/widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
-import '../Models/CourseModel.dart';
-import '../PageModels/ScheduleItem.dart';
-import 'data_service.dart';
-import 'notification_service.dart';
+import 'package:ios_club_app/models/course_model.dart';
+import 'package:ios_club_app/pageModels/schedule_item.dart';
+import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/services/notification_service.dart';
 
 /// 后台服务管理类
 class BackgroundService {
@@ -270,7 +271,7 @@ class TaskExecutor {
       final prefs = await SharedPreferences.getInstance();
 
       // 检查是否启用提醒
-      final isReminderEnabled = prefs.getBool('is_remind') ?? false;
+      final isReminderEnabled = prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
       if (!isReminderEnabled) {
         debugPrint('课程提醒未启用');
         return;
@@ -278,7 +279,7 @@ class TaskExecutor {
 
       // 检查今天是否已经提醒过
       final now = DateTime.now();
-      final lastRemindTimeStr = prefs.getString('last_remind_date');
+      final lastRemindTimeStr = prefs.getString(PrefsKeys.LAST_REMIND_DATE);
 
       if (lastRemindTimeStr != null) {
         try {
@@ -305,7 +306,7 @@ class TaskExecutor {
           await NotificationService.toList(result.$2);
 
           // 记录提醒时间（使用ISO格式字符串）
-          await prefs.setString('last_remind_date', now.toIso8601String());
+          await prefs.setString(PrefsKeys.LAST_REMIND_DATE, now.toIso8601String());
           debugPrint('课程提醒发送成功: ${now.toIso8601String()}');
         } else {
           debugPrint('没有需要提醒的课程');
@@ -420,7 +421,7 @@ class CourseReminderService {
   /// 获取上次提醒时间
   static Future<DateTime?> getLastReminderTime() async {
     final prefs = await SharedPreferences.getInstance();
-    final lastTimeStr = prefs.getString('last_remind_date');
+    final lastTimeStr = prefs.getString(PrefsKeys.LAST_REMIND_DATE);
 
     if (lastTimeStr != null) {
       try {
@@ -435,7 +436,7 @@ class CourseReminderService {
   /// 设置是否启用提醒
   static Future<void> setReminderEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_remind', enabled);
+    await prefs.setBool(PrefsKeys.IS_REMIND, enabled);
 
     if (enabled) {
       // 启用时自动启动服务
@@ -446,6 +447,6 @@ class CourseReminderService {
   /// 获取是否启用提醒
   static Future<bool> isReminderEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('is_remind') ?? false;
+    return prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
   }
 }

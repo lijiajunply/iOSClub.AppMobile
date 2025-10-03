@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/CourseModel.dart';
+import '../models/course_model.dart';
 import 'prefs_keys.dart';
 
 class CourseStore extends GetxController {

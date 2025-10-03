@@ -1,18 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ios_club_app/Services/data_service.dart';
-import 'package:ios_club_app/Services/edu_service.dart';
-import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/models/user_data.dart';
+import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/services/edu_service.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../PageModels/CourseColorManager.dart';
-import '../Services/club_service.dart';
-import '../stores/prefs_keys.dart';
-import '../stores/settings_store.dart';
-import '../stores/user_store.dart';
-import '../widgets/study_credit_card.dart';
+import 'package:ios_club_app/pageModels/course_color_manager.dart';
+import 'package:ios_club_app/services/club_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
+import 'package:ios_club_app/stores/user_store.dart';
+import 'package:ios_club_app/widgets/study_credit_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -24,7 +27,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final UserStore userStore = UserStore.to;
   final SettingsStore settingsStore = SettingsStore.to;
-  
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -32,6 +35,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isLoading = true;
   bool _isLoginMember = false;
   bool _isOnlyLoginMember = false;
+  bool _showLoginForm = false; // 新增状态，控制是否显示登录表单
+  String _username = '';
 
   @override
   void initState() {
@@ -40,6 +45,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _checkLoginStatus() async {
+    // 检查是否已有登录信息
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString(PrefsKeys.USERNAME);
+    final password = prefs.getString(PrefsKeys.PASSWORD);
+
+    if (username != null &&
+        password != null &&
+        username.isNotEmpty &&
+        password.isNotEmpty) {
+      _username = username;
+    } else {
+      // 没有登录信息，进入游客模式
+      await _enterGuestMode();
+    }
+
     setState(() {
       _isLoading = false;
     });
@@ -129,26 +149,29 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final prefs = await SharedPreferences.getInstance();
     if (_isOnlyLoginMember) {
-      await prefs.setString(PrefsKeys.MEMBER_DATA, _usernameController.text);
-      await prefs.setString(PrefsKeys.MEMBER_JWT, _passwordController.text);
+      await prefs.setString(PrefsKeys.CLUB_NAME, _usernameController.text);
+      await prefs.setString(PrefsKeys.CLUB_ID, _passwordController.text);
     } else {
       await prefs.setString(PrefsKeys.USERNAME, _usernameController.text);
       await prefs.setString(PrefsKeys.PASSWORD, _passwordController.text);
+      final userDataString = prefs.getString(PrefsKeys.USER_DATA);
+      if (userDataString != null) {
+        final userData = jsonDecode(userDataString);
+        userStore.setUserData(UserData.fromJson(userData));
+      }
     }
 
     if (_isLoginMember) {
-      await prefs.setString(PrefsKeys.MEMBER_DATA, _nameController.text);
-      await prefs.setString(PrefsKeys.MEMBER_JWT, _usernameController.text);
+      await prefs.setString(PrefsKeys.CLUB_NAME, _usernameController.text);
+      await prefs.setString(PrefsKeys.CLUB_ID, _passwordController.text);
     }
-    
-    // 退出游客模式
-    await prefs.setBool(PrefsKeys.IS_UPDATE_CLUB, false);
-    await settingsStore.setIsUpdateToClub(false);
 
+    // 移除 isUpdateToClub 相关设置
     setState(() {
       _isLoading = false;
       _isOnlyLoginMember = false;
       _isLoginMember = false;
+      _showLoginForm = false; // 隐藏登录表单
     });
 
     _usernameController.clear();
@@ -156,34 +179,26 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (_isLoginMember) {
       _nameController.clear();
+      userStore.setLoginMember();
     }
   }
-  
+
   Future<void> _enterGuestMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(PrefsKeys.IS_UPDATE_CLUB, true);
-    await settingsStore.setIsUpdateToClub(true);
-    
+    // 更新 UserStore 状态
+    await userStore.logout();
+
     setState(() {
       _isLoading = false;
+      _showLoginForm = false; // 确保隐藏登录表单
     });
-  }
-
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(PrefsKeys.USERNAME);
-    await prefs.remove(PrefsKeys.PASSWORD);
-    await prefs.remove(PrefsKeys.MEMBER_DATA);
-    await prefs.remove(PrefsKeys.MEMBER_JWT);
-    
-    await userStore.logout();
   }
 
   Future<void> _enterLoginMode() async {
     setState(() {
       _isLoading = false;
+      _showLoginForm = true; // 显示登录表单
     });
-    
+
     _usernameController.clear();
     _passwordController.clear();
     _nameController.clear();
@@ -199,8 +214,16 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    return Scaffold(
-        body: (userStore.isLogin || settingsStore.isUpdateToClub) ? _buildProfileContent() : _buildLoginForm());
+    // 根据状态决定显示登录表单还是用户信息界面
+    if (_showLoginForm) {
+      return Scaffold(
+        body: _buildLoginForm(),
+      );
+    } else {
+      return Scaffold(
+        body: Obx(() => _buildProfileContent()),
+      );
+    }
   }
 
   Widget _buildLoginForm() {
@@ -364,26 +387,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                // 游客模式按钮
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: OutlinedButton(
-                    onPressed: _enterGuestMode,
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      '游客模式',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ))
       ],
@@ -391,39 +394,62 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   List<ProfileButtonItem> get profileButtonItems {
-    // 游客模式下仅限制培养方案功能
-    if (settingsStore.isUpdateToClub) {
+    // 未登录教务系统时显示的按钮项
+    if (!userStore.isLogin) {
       return [
         ProfileButtonItem(
             icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
-        ProfileButtonItem(icon: Icons.settings, title: '设置/关于', route: '/About'),
         ProfileButtonItem(
-            title: '校车', icon: Icons.directions_bus_rounded, route: '/SchoolBus'),
+            icon: Icons.settings, title: '设置/关于', route: '/About'),
+        ProfileButtonItem(
+            title: '校车',
+            icon: Icons.directions_bus_rounded,
+            route: '/SchoolBus'),
         ProfileButtonItem(
             icon: Icons.apple,
-            title: '登录社团iMember',
+            title: userStore.isLoginMember ? '社团详情' : '登录社团iMember',
             onPressed: () {
-              setState(() {
-                _isOnlyLoginMember = true;
-              });
+              if (!userStore.isLoginMember) {
+                setState(() {
+                  _isOnlyLoginMember = true;
+                  _showLoginForm = true;
+                });
+              } else {
+                Navigator.pushNamed(context, '/iMember');
+              }
             }),
         ProfileButtonItem(
             icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
         ProfileButtonItem(
-            icon: Icons.toc, 
-            title: '培养方案', 
+            icon: Icons.toc,
+            title: '培养方案',
             onPressed: () {
-              // 游客模式下提示需要登录
+              // 未登录教务系统时提示需要登录
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('此功能需要登录后使用')),
+                const SnackBar(content: Text('此功能需要登录教务系统账号后使用')),
               );
             }),
         ProfileButtonItem(
-            icon: Icons.monetization_on_outlined, title: '饭卡', route: '/Payment'),
-        ProfileButtonItem(icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
+            icon: Icons.monetization_on_outlined,
+            title: '饭卡',
+            route: '/Payment'),
+        ProfileButtonItem(
+            icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
+        // 添加登录教务系统选项
+        ProfileButtonItem(
+            icon: Icons.login,
+            title: '登录教务系统',
+            onPressed: () {
+              setState(() {
+                _isLoading = true;
+                _showLoginForm = true;
+              });
+              _enterLoginMode();
+            }),
       ];
     }
-    
+
+    // 已登录教务系统时显示的按钮项
     return [
       ProfileButtonItem(
           icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
@@ -432,11 +458,12 @@ class _ProfilePageState extends State<ProfilePage> {
           title: '校车', icon: Icons.directions_bus_rounded, route: '/SchoolBus'),
       ProfileButtonItem(
           icon: Icons.apple,
-          title: userStore.isLogin ? '社团详情' : '登录社团iMember',
+          title: userStore.isLoginMember ? '社团详情' : '登录社团iMember',
           onPressed: () {
-            if (!userStore.isLogin) {
+            if (!userStore.isLoginMember) {
               setState(() {
                 _isOnlyLoginMember = true;
+                _showLoginForm = true;
               });
             } else {
               Navigator.pushNamed(context, '/iMember');
@@ -477,7 +504,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          userStore.userData?.studentId ?? '未登录',
+                          _username.isNotEmpty ? _username : '未登录',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -485,9 +512,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Text(
-                          settingsStore.isUpdateToClub 
-                            ? '游客模式' 
-                            : userStore.isLogin ? 'iMember账号' : '教务系统账号',
+                          userStore.isLogin ? '教务系统账号' : '游客',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -498,15 +523,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     )
                   ],
                 ),
-                if (settingsStore.isUpdateToClub)
-                  IconButton(
-                    icon: const Icon(Icons.login),
-                    onPressed: _enterLoginMode,
-                  )
-                else if (!settingsStore.isUpdateToClub && userStore.isLogin)
+                if (!userStore.isLogin)
                   IconButton(
                     icon: const Icon(Icons.logout),
-                    onPressed: _logout,
+                    onPressed: _enterLoginMode,
                   ),
               ],
             ),
@@ -530,29 +550,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 )),
           ),
           const SizedBox(height: 16),
-          if (!settingsStore.isUpdateToClub)
-            FutureBuilder(
-                future: DataService.getInfoList(),
-                builder: (context, snapshot) => snapshot.hasData
-                    ? ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, index) =>
-                            StudyCreditCard(data: snapshot.data![index]))
-                    : const CircularProgressIndicator()),
-          if (settingsStore.isUpdateToClub)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                '您当前处于游客模式，部分功能受限。登录后可享受完整功能。',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-              ),
-            ),
+          FutureBuilder(
+              future: DataService.getInfoList(),
+              builder: (context, snapshot) => snapshot.hasData
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data?.length,
+                      itemBuilder: (context, index) =>
+                          StudyCreditCard(data: snapshot.data![index]))
+                  : const CircularProgressIndicator()),
         ],
       ),
     );

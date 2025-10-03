@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/Services/todo_service.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
-import 'package:ios_club_app/widgets/ClubModalBottomSheet.dart';
+import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Services/edu_service.dart';
-import '../Services/git_service.dart';
-import '../Services/notification_service.dart';
-import '../services/download_service.dart';
-import '../stores/prefs_keys.dart';
-import '../widgets/ClubAppBar.dart';
-import '../widgets/ClubCard.dart';
-import '../widgets/showClubSnackBar.dart';
+import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/Services/git_service.dart';
+import 'package:ios_club_app/Services/notification_service.dart';
+import 'package:ios_club_app/services/download_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
+import 'package:ios_club_app/stores/user_store.dart';
+import 'package:ios_club_app/widgets/club_app_bar.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -24,6 +25,7 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final userStore = Get.find<UserStore>();
 
     return Scaffold(
       appBar: ClubAppBar(
@@ -72,9 +74,13 @@ class AboutPage extends StatelessWidget {
                 // 关于我们
                 _buildSectionTitle('其他', isDark),
                 const SizedBox(height: 12),
-                _buildSettingsGroup([
-                  _buildLogoutTile(context, isDark),
-                ]),
+                Obx(() {
+                  return userStore.isLogin
+                      ? _buildSettingsGroup([
+                          _buildLogoutTile(context, isDark),
+                        ])
+                      : const SizedBox.shrink();
+                }),
                 const SizedBox(height: 32),
               ],
             ),
@@ -421,14 +427,13 @@ class AboutPage extends StatelessWidget {
             context: context,
             builder: (context) => AlertDialog(
               title: Text("确定退出登录吗？"),
-              content: Text("会删除所有数据"),
               actions: [
                 Wrap(
                   children: [
                     TextButton(
                       onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.clear();
+                        final userStore = Get.find<UserStore>();
+                        await userStore.logout();
                         Get.toNamed("Profile");
                       },
                       child: const Text('退出登录'),
@@ -945,7 +950,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        _pageIndex = prefs.getInt(PrefsKeys.PAYMENT_NUM) ?? 0;
+        _pageIndex = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
       });
     });
   }

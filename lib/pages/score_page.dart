@@ -3,19 +3,21 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:ios_club_app/Models/SemesterModel.dart';
-import 'package:ios_club_app/PageModels/CourseColorManager.dart';
+import 'package:ios_club_app/models/semester_model.dart';
+import 'package:ios_club_app/PageModels/course_color_manager.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/stores/user_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Models/ScoreModel.dart';
-import '../Models/UserData.dart';
-import '../Services/data_service.dart';
-import '../widgets/ClubCard.dart';
-import '../widgets/ClubModalBottomSheet.dart';
-import '../widgets/empty_widget.dart';
-import '../widgets/showClubSnackBar.dart';
+import 'package:ios_club_app/models/score_model.dart';
+import 'package:ios_club_app/models/user_data.dart';
+import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
+import 'package:ios_club_app/widgets/empty_widget.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 class ScorePage extends StatefulWidget {
   const ScorePage({super.key});
@@ -26,6 +28,7 @@ class ScorePage extends StatefulWidget {
 
 class _ScorePageState extends State<ScorePage>
     with SingleTickerProviderStateMixin {
+  final UserStore userStore = Get.find();
   final List<ScoreList> _scoreList = [];
   bool _isLoading = true;
   bool _isFool = false;
@@ -286,6 +289,48 @@ class _ScorePageState extends State<ScorePage>
 
   @override
   Widget build(BuildContext context) {
+    // 检查是否为游客模式
+    if (!userStore.isLogin) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.warning,
+                size: 48,
+                color: Colors.grey[400],
+              ),
+              SizedBox(height: 16),
+              Text(
+                '未登录',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '请先去登录即可查看成绩',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+              SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  // 导航到个人页面进行登录
+                  Get.toNamed('/Profile');
+                },
+                child: Text('前往登录'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (_isLoading) {
       return Scaffold(
         body: Center(

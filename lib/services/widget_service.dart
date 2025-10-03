@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
 
-import '../PageModels/ScheduleItem.dart';
-import 'data_service.dart';
+import 'package:ios_club_app/pageModels/schedule_item.dart';
+import 'package:ios_club_app/services/data_service.dart';
 
 class WidgetService {
   static const String appWidgetProviderClass = 'TodayCoursesWidgetProvider';

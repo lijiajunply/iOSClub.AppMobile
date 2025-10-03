@@ -9,10 +9,10 @@ import 'package:ios_club_app/services/download_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'BottomNavigation.dart';
-import 'ModernSidebar.dart';
+import 'bottom_navigation.dart';
+import 'modern_sidebar.dart';
 import 'Services/git_service.dart';
-import 'UnderMaintenanceScreen.dart';
+import 'under_maintenance_screen.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});

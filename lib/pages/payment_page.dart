@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
 
-import '../controllers/PaymentController.dart';
+import '../controllers/payment_controller.dart';
 import '../services/turnover_analyzer.dart';
-import '../widgets/ClubAppBar.dart';
+import '../widgets/club_app_bar.dart';
 
 class PaymentPage extends StatelessWidget {
   final PaymentController controller = Get.put(PaymentController());

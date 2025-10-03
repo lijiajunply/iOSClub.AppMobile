@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
-import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
 
-import '../PageModels/CourseColorManager.dart';
+import '../PageModels/course_color_manager.dart';
 
 import 'package:flutter/cupertino.dart';
 
-import '../widgets/ClubAppBar.dart';
+import '../widgets/club_app_bar.dart';
 
 class ProgramPage extends StatelessWidget {
   const ProgramPage({super.key});

@@ -4,10 +4,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
-import '../Models/CourseModel.dart';
-import 'data_service.dart';
-import 'time_service.dart';
+import 'package:ios_club_app/models/course_model.dart';
+import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/services/time_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._();
@@ -78,7 +79,7 @@ class NotificationService {
       required String body,
       required DateTime courseTime}) async {
     final prefs = await SharedPreferences.getInstance();
-    final notificationTime = prefs.getInt('notification_time') ?? 15;
+    final notificationTime = prefs.getInt(PrefsKeys.NOTIFICATION_TIME) ?? 15;
     final now = DateTime.now();
     final reminderTime =
         courseTime.subtract(Duration(minutes: notificationTime));

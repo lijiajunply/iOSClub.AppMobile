@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:ios_club_app/Models/CourseModel.dart';
+import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

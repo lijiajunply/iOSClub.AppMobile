@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../Services/edu_service.dart';
 import '../Services/tile_service.dart';
 import '../services/turnover_analyzer.dart';
-import 'ClubCard.dart';
+import 'club_card.dart';
 
 Widget buildTile(String tile, BuildContext context) {
   Widget? content;

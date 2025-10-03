@@ -4,12 +4,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 
-import '../Services/tile_service.dart';
-import '../pageModels/ElectricData.dart';
-import '../stores/prefs_keys.dart';
-import '../widgets/ClubAppBar.dart';
-import '../widgets/ClubCard.dart';
-import '../widgets/empty_widget.dart';
+import 'package:ios_club_app/services/tile_service.dart';
+import 'package:ios_club_app/pageModels/electric_data.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
+import 'package:ios_club_app/widgets/club_app_bar.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/empty_widget.dart';
 
 class ElectricityPage extends StatefulWidget {
   const ElectricityPage({super.key});

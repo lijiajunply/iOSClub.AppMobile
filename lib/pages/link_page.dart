@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
-import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../Models/LinkModel.dart';
-import '../widgets/ClubAppBar.dart';
-import '../widgets/icon_font.dart';
+import 'package:ios_club_app/models/link_model.dart';
+import 'package:ios_club_app/widgets/club_app_bar.dart';
+import 'package:ios_club_app/widgets/icon_font.dart';
 
 class LinkPage extends StatelessWidget {
   const LinkPage({super.key});

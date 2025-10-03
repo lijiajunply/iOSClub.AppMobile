@@ -40,6 +40,8 @@ class PrefsKeys {
   /// 社团相关
   static const String MEMBER_DATA = 'member_data';
   static const String MEMBER_JWT = 'member_jwt';
+  static const String CLUB_NAME = 'club_name';
+  static const String CLUB_ID = 'club_id';
 
   /// 待办事项相关
   static const String TODO_DATA = 'todo_data';

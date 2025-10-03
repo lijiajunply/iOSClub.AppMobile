@@ -1,12 +1,13 @@
 import 'dart:convert';
-import 'package:ios_club_app/Models/InfoModel.dart';
-import 'package:ios_club_app/Models/ScoreModel.dart';
-import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/models/info_model.dart';
+import 'package:ios_club_app/models/score_model.dart';
+import 'package:ios_club_app/services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Models/CourseModel.dart';
-import '../PageModels/CourseTime.dart';
-import '../Models/SemesterModel.dart';
-import 'time_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
+import 'package:ios_club_app/models/course_model.dart';
+import 'package:ios_club_app/pageModels/course_time.dart';
+import 'package:ios_club_app/models/semester_model.dart';
+import 'package:ios_club_app/services/time_service.dart';
 
 class DataService {
   static Future<List<CourseModel>> getAllCourse(
@@ -16,7 +17,7 @@ class DataService {
       ig = await getIgnore();
     }
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('course_data');
+    final String? jsonString = prefs.getString(PrefsKeys.COURSE_DATA);
     final List<CourseModel> list = [];
     if (jsonString != null) {
       var jsonList = jsonDecode(jsonString);
@@ -32,7 +33,7 @@ class DataService {
 
   static Future<List<String>> getCourseName() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('course_data');
+    final String? jsonString = prefs.getString(PrefsKeys.COURSE_DATA);
     final List<String> list = [];
     if (jsonString != null) {
       var jsonList = jsonDecode(jsonString);
@@ -48,12 +49,12 @@ class DataService {
 
   static Future<void> setIgnore(List<String> list) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('ignore_data', jsonEncode({"data": list}));
+    prefs.setString(PrefsKeys.IGNORE_DATA, jsonEncode({"data": list}));
   }
 
   static Future<List<String>> getIgnore() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('ignore_data');
+    final String? jsonString = prefs.getString(PrefsKeys.IGNORE_DATA);
     final List<String> list = [];
     if (jsonString != null) {
       var jsonList = jsonDecode(jsonString);
@@ -206,7 +207,7 @@ class DataService {
       await EduService.getSemester();
     }
 
-    final semesterIntTime = prefs.getInt('semester_time');
+    final semesterIntTime = prefs.getInt(PrefsKeys.SEMESTER_TIME);
 
     if (semesterIntTime != null) {
       final now = DateTime.now();
@@ -217,7 +218,7 @@ class DataService {
         await EduService.getSemester();
       }
     }
-    final String? jsonString = prefs.getString('semester_data');
+    final String? jsonString = prefs.getString(PrefsKeys.SEMESTER_DATA);
     final List<SemesterModel> list = [];
     if (jsonString != null) {
       var jsonList = jsonDecode(jsonString);
@@ -232,8 +233,8 @@ class DataService {
 
   static Future<Map<String, String>> getTime() async {
     final prefs = await SharedPreferences.getInstance();
-    String? jsonString = prefs.getString('time_data');
-    final timeLastUpdated = prefs.getInt('time_last_updated');
+    String? jsonString = prefs.getString(PrefsKeys.TIME_DATA);
+    final timeLastUpdated = prefs.getInt(PrefsKeys.TIME_LAST_UPDATED);
     final now = DateTime.now().millisecondsSinceEpoch;
     final Map<String, String> list = {};
     if (jsonString != null &&
@@ -245,7 +246,7 @@ class DataService {
       });
     } else {
       await EduService.getTime();
-      jsonString = prefs.getString('time_data');
+      jsonString = prefs.getString(PrefsKeys.TIME_DATA);
       var jsonList = jsonDecode(jsonString ?? '{}');
       jsonList.forEach((key, value) {
         list[key] = value.toString();
@@ -258,8 +259,8 @@ class DataService {
   static Future<List<InfoModel>> getInfoList() async {
     List<InfoModel> list = [];
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('info_data');
-    final time = prefs.getInt('info_data_time');
+    final String? jsonString = prefs.getString(PrefsKeys.INFO_DATA);
+    final time = prefs.getInt(PrefsKeys.INFO_DATA_TIME);
 
     final date = DateTime.now().millisecondsSinceEpoch;
 
@@ -275,7 +276,7 @@ class DataService {
     } else {
       // 从网络获取数据
       await EduService.getInfoCompletion();
-      final String? jsonString = prefs.getString('info_data');
+      final String? jsonString = prefs.getString(PrefsKeys.INFO_DATA);
 
       if (jsonString != null) {
         final jsonList = jsonDecode(jsonString);
@@ -283,7 +284,7 @@ class DataService {
           list.add(InfoModel.fromJson(i));
         }
 
-        await prefs.setInt('info_data_time', date);
+        await prefs.setInt(PrefsKeys.INFO_DATA_TIME, date);
       }
 
       return list;

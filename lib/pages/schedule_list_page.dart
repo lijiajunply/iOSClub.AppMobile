@@ -4,14 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../PageModels/CourseColorManager.dart';
-import '../Models/CourseModel.dart';
-import '../stores/schedule_store.dart';
-import '../widgets/ClubModalBottomSheet.dart';
-import '../widgets/showClubSnackBar.dart';
+import 'package:ios_club_app/pageModels/course_color_manager.dart';
+import 'package:ios_club_app/models/course_model.dart';
+import 'package:ios_club_app/stores/schedule_store.dart';
+import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 class ScheduleListPage extends StatefulWidget {
   const ScheduleListPage({super.key});

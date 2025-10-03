@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
 class GiteeService {
   static Future<ReleaseModel> getReleases() async {
@@ -30,7 +31,7 @@ class GiteeService {
         return re;
       }
 
-      final bool? updateIgnored = prefs.getBool('update_ignored');
+      final bool? updateIgnored = prefs.getBool(PrefsKeys.UPDATE_IGNORED);
 
       if (updateIgnored != null && updateIgnored == true) {
         return ReleaseModel(name: '0.0.0', body: '0.0.0');

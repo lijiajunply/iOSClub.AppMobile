@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/UserData.dart';
+import 'package:ios_club_app/models/user_data.dart';
 import 'prefs_keys.dart';
 
 class UserStore extends GetxController {
@@ -9,8 +9,12 @@ class UserStore extends GetxController {
 
   final _isLogin = false.obs;
   final _userData = Rxn<UserData>();
+  final _isLoginMember = false.obs;
 
   bool get isLogin => _isLogin.value;
+
+  bool get isLoginMember => _isLoginMember.value;
+
   UserData? get userData => _userData.value;
 
   @override
@@ -20,41 +24,47 @@ class UserStore extends GetxController {
   }
 
   /// 加载用户数据
-  _loadUserData() async {
+  Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final String? userDataString = prefs.getString(PrefsKeys.USER_DATA);
-    
+    final String? iosName = prefs.getString(PrefsKeys.MEMBER_DATA);
+
     if (userDataString != null) {
       try {
-        final userDataMap = Map<String, dynamic>.from(
-            jsonDecode(userDataString));
+        final userDataMap =
+            Map<String, dynamic>.from(jsonDecode(userDataString));
         final userData = UserData.fromJson(userDataMap);
         _userData.value = userData;
-        _isLogin.value = true;
+        if (userData.studentId.isEmpty ||
+            userData.studentId == '/student/login') {
+          prefs.remove(PrefsKeys.USER_DATA);
+        } else {
+          _isLogin.value = true;
+        }
       } catch (e) {
         // 解析失败，清除数据
         await _clearUserData();
       }
     }
+
+    _isLoginMember.value = iosName != null && iosName.isNotEmpty;
   }
 
   /// 设置用户数据
   Future<void> setUserData(UserData userData) async {
     _userData.value = userData;
     _isLogin.value = true;
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(PrefsKeys.USER_DATA, jsonEncode({
-      'studentId': userData.studentId,
-      'cookie': userData.cookie,
-    }));
+  }
+
+  Future<void> setLoginMember() async {
+    _isLoginMember.value = true;
   }
 
   /// 清除用户数据
   Future<void> _clearUserData() async {
     _userData.value = null;
     _isLogin.value = false;
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(PrefsKeys.USER_DATA);
   }

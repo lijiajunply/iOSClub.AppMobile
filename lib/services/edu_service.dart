@@ -2,13 +2,14 @@ import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/Models/BusModel.dart';
-import 'package:ios_club_app/Services/data_service.dart';
-import 'package:ios_club_app/Services/login_service.dart';
+import 'package:ios_club_app/models/bus_model.dart';
+import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/services/login_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Models/ScoreModel.dart';
-import '../Models/UserData.dart';
-import '../models/PlanCourse.dart';
+import 'package:ios_club_app/models/score_model.dart';
+import 'package:ios_club_app/models/user_data.dart';
+import 'package:ios_club_app/models/plan_course.dart';
 
 class EduService {
   static Future<bool> refresh() async {
@@ -27,7 +28,7 @@ class EduService {
       await getCourse(userData: cookieData, isRefresh: true);
       await getExam(userData: cookieData);
       await getInfoCompletion(userData: cookieData);
-      await prefs.setInt('last_fetch_time', now);
+      await prefs.setInt(PrefsKeys.LAST_FETCH_TIME, now);
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -47,9 +48,8 @@ class EduService {
 
     final loginService = LoginService(http.Client());
     final response = await loginService.loginAsync(username, password);
-
     if (response["success"] == true) {
-      await prefs.setString('user_data', jsonEncode(response));
+      await prefs.setString(PrefsKeys.USER_DATA, jsonEncode(response));
 
       var cookieData = await getUserData();
       var now = DateTime.now().millisecondsSinceEpoch;
@@ -58,7 +58,7 @@ class EduService {
       await getCourse(userData: cookieData, isRefresh: true);
       await getExam(userData: cookieData);
       await getInfoCompletion(userData: cookieData);
-      await prefs.setInt('last_fetch_time', now);
+      await prefs.setInt(PrefsKeys.LAST_FETCH_TIME, now);
       return true;
     }
 
@@ -68,8 +68,8 @@ class EduService {
   static Future<bool> login() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? username = prefs.getString('username');
-      final String? password = prefs.getString('password');
+      final String? username = prefs.getString(PrefsKeys.USERNAME);
+      final String? password = prefs.getString(PrefsKeys.PASSWORD);
 
       if (username == null || password == null) {
         return false;
@@ -87,9 +87,9 @@ class EduService {
       }
 
       if (response["success"] == true) {
-        await prefs.setString('user_data', jsonEncode(response));
+        await prefs.setString(PrefsKeys.USER_DATA, jsonEncode(response));
         var now = DateTime.now().millisecondsSinceEpoch;
-        await prefs.setInt('last_fetch_time', now);
+        await prefs.setInt(PrefsKeys.LAST_FETCH_TIME, now);
 
         return true;
       }
@@ -125,11 +125,12 @@ class EduService {
       var now = DateTime.now().millisecondsSinceEpoch;
 
       final prefs = await SharedPreferences.getInstance();
-      final lastFetchTime = prefs.getInt('last_fetch_time');
-      if (lastFetchTime == null || now - lastFetchTime > 1000 * 60 * 20) { // 8小时
+      final lastFetchTime = prefs.getInt(PrefsKeys.LAST_FETCH_TIME);
+      if (lastFetchTime == null || now - lastFetchTime > 1000 * 60 * 20) {
+        // 20小时
         return null;
       }
-      final String? jsonString = prefs.getString('user_data');
+      final String? jsonString = prefs.getString(PrefsKeys.USER_DATA);
 
       if (jsonString != null) {
         return UserData.fromJson(jsonDecode(jsonString));
@@ -162,7 +163,7 @@ class EduService {
 
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('this_semester_data', response.body);
+        await prefs.setString(PrefsKeys.THIS_SEMESTER_DATA, response.body);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -192,10 +193,10 @@ class EduService {
 
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('semester_data', response.body);
+        await prefs.setString(PrefsKeys.SEMESTER_DATA, response.body);
 
         final now = DateTime.now().microsecondsSinceEpoch;
-        await prefs.setInt('semester_time', now);
+        await prefs.setInt(PrefsKeys.SEMESTER_TIME, now);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -225,7 +226,7 @@ class EduService {
     }
 
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('course_data');
+    final String? jsonString = prefs.getString(PrefsKeys.COURSE_DATA);
     if (jsonString != null &&
         jsonString.isNotEmpty &&
         week["week"] != null &&
@@ -255,7 +256,7 @@ class EduService {
       if (response.statusCode == 200) {
         // 存储到本地
         await prefs.setString(
-            'course_data', jsonEncode(jsonDecode(response.body)));
+            PrefsKeys.COURSE_DATA, jsonEncode(jsonDecode(response.body)));
       } else {
         if (!(await login())) return;
         var a = await getUserData();
@@ -266,7 +267,7 @@ class EduService {
             headers: finalHeaders);
         if (response.statusCode == 200) {
           await prefs.setString(
-              'course_data', jsonEncode(jsonDecode(response.body)));
+              PrefsKeys.COURSE_DATA, jsonEncode(jsonDecode(response.body)));
         }
       }
     } catch (e) {
@@ -319,7 +320,7 @@ class EduService {
         }
       }
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('all_score_data', jsonEncode(json));
+      await prefs.setString(PrefsKeys.ALL_SCORE_DATA, jsonEncode(json));
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching data: $e');
@@ -330,14 +331,14 @@ class EduService {
   static Future<List<ScoreList>> getAllScoreFromLocal(
       {bool isRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('all_score_data');
+    final String? jsonString = prefs.getString(PrefsKeys.ALL_SCORE_DATA);
     var now = DateTime.now().millisecondsSinceEpoch;
 
     final semesters = await DataService.getSemester();
 
-    final last = prefs.getInt('last_Score_time');
+    final last = prefs.getInt(PrefsKeys.LAST_SCORE_TIME);
     if (last != null && !isRefresh) {
-      if (now - prefs.getInt('last_Score_time')! < 1000 * 60 * 60) {
+      if (now - prefs.getInt(PrefsKeys.LAST_SCORE_TIME)! < 1000 * 60 * 60) {
         if (jsonString != null && jsonString.isNotEmpty) {
           final List<ScoreList> list = [];
           final Map<String, dynamic> jsonList = jsonDecode(jsonString);
@@ -401,7 +402,7 @@ class EduService {
         }
       }
 
-      await prefs.setString('all_score_data', jsonEncode(json));
+      await prefs.setString(PrefsKeys.ALL_SCORE_DATA, jsonEncode(json));
 
       final List<ScoreList> scoreReturnList = [];
       final Map<String, dynamic> jsonList = jsonDecode(jsonEncode(json));
@@ -413,7 +414,7 @@ class EduService {
         ));
       });
 
-      await prefs.setInt('last_Score_time', now);
+      await prefs.setInt(PrefsKeys.LAST_SCORE_TIME, now);
       return scoreReturnList;
     } catch (e) {
       if (kDebugMode) {
@@ -445,7 +446,7 @@ class EduService {
       final prefs = await SharedPreferences.getInstance();
       if (response.statusCode == 200) {
         await prefs.setString(
-            'exam_data', jsonEncode(jsonDecode(response.body)));
+            PrefsKeys.EXAM_DATA, jsonEncode(jsonDecode(response.body)));
       } else {
         if (!(await login())) return;
         final a = await getUserData();
@@ -459,7 +460,7 @@ class EduService {
             headers: finalHeaders);
         if (response.statusCode == 200) {
           await prefs.setString(
-              'exam_data', jsonEncode(jsonDecode(response.body)));
+              PrefsKeys.EXAM_DATA, jsonEncode(jsonDecode(response.body)));
         }
       }
     } catch (e) {
@@ -477,9 +478,9 @@ class EduService {
         // 存储到本地
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
-            'time_data', jsonEncode(jsonDecode(response.body)));
+            PrefsKeys.TIME_DATA, jsonEncode(jsonDecode(response.body)));
         final now = DateTime.now().millisecondsSinceEpoch;
-        await prefs.setInt('time_last_updated', now);
+        await prefs.setInt(PrefsKeys.TIME_LAST_UPDATED, now);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -508,7 +509,7 @@ class EduService {
           headers: finalHeaders);
       if (response.statusCode == 200) {
         await prefs.setString(
-            'info_data', jsonEncode(jsonDecode(response.body)));
+            PrefsKeys.INFO_DATA, jsonEncode(jsonDecode(response.body)));
       } else {
         if (!(await login())) return;
         final a = await getUserData();
@@ -523,7 +524,7 @@ class EduService {
 
         if (response.statusCode == 200) {
           await prefs.setString(
-              'info_data', jsonEncode(jsonDecode(response.body)));
+              PrefsKeys.INFO_DATA, jsonEncode(jsonDecode(response.body)));
         }
       }
     } catch (e) {
@@ -631,9 +632,10 @@ class EduService {
           print('找到了培养方案：${result.length}');
         }
         return result.entries
-            .map<PlanCourseList>((entry) => PlanCourseList.fromMap(entry.key, entry.value))
+            .map<PlanCourseList>(
+                (entry) => PlanCourseList.fromMap(entry.key, entry.value))
             .toList();
-      }else{
+      } else {
         if (!(await login())) return [];
         final a = await getUserData();
         if (a == null) {
@@ -653,11 +655,12 @@ class EduService {
             print('找到了培养方案：${result.length}');
           }
           return result.entries
-              .map<PlanCourseList>((entry) => PlanCourseList.fromMap(entry.key, entry.value))
+              .map<PlanCourseList>(
+                  (entry) => PlanCourseList.fromMap(entry.key, entry.value))
               .toList();
         }
       }
-    }catch (e) {
+    } catch (e) {
       if (kDebugMode) {
         print('Error fetching data: $e');
       }

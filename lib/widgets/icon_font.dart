@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/Models/LinkModel.dart';
-import 'package:ios_club_app/PageModels/CourseColorManager.dart';
+import 'package:ios_club_app/Models/link_model.dart';
+import 'package:ios_club_app/PageModels/course_color_manager.dart';
 
 class IconUtil {
   static Future<Widget> getIconFont(LinkModel model) async {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/PageModels/CourseColorManager.dart';
+import 'package:ios_club_app/PageModels/course_color_manager.dart';
 
-import '../../models/ExamModel.dart';
+import '../../models/exam_model.dart';
 import '../../services/exam_service.dart';
-import '../ClubCard.dart';
+import '../club_card.dart';
 import '../empty_widget.dart';
 
 class ExamCard extends StatefulWidget {

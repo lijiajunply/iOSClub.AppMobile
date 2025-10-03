@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/Models/BusModel.dart';
+import 'package:ios_club_app/models/bus_model.dart';
 
-import '../Services/edu_service.dart';
-import '../Services/tile_service.dart';
-import '../widgets/ClubCard.dart';
-import '../widgets/ClubModalBottomSheet.dart';
-import '../widgets/empty_widget.dart';
+import 'package:ios_club_app/services/edu_service.dart';
+import 'package:ios_club_app/services/tile_service.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
+import 'package:ios_club_app/widgets/empty_widget.dart';
 
 class SchoolBusPage extends StatefulWidget {
   const SchoolBusPage({super.key});

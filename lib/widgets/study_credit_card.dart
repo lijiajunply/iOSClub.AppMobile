@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Models/InfoModel.dart';
+import 'package:ios_club_app/models/info_model.dart';
 
-import 'ClubCard.dart';
+import 'club_card.dart';
 
 class StudyCreditCard extends StatelessWidget {
   final InfoModel data;

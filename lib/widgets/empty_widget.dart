@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../PageModels/CourseColorManager.dart';
+import '../PageModels/course_color_manager.dart';
 
 class EmptyWidget extends StatelessWidget {
   const EmptyWidget(

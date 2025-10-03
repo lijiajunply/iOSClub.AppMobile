@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ios_club_app/Models/UserData.dart';
-import 'package:ios_club_app/models/ExamModel.dart';
+import 'package:ios_club_app/models/user_data.dart';
+import 'package:ios_club_app/models/exam_model.dart';
 import 'package:ios_club_app/services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
 class ExamService {
   static Future<List<ExamItem>> getExam({bool isRefresh = false}) async {
@@ -34,8 +35,8 @@ class ExamService {
 
   static (bool needRefresh, String jsonString) _checkCache(
       SharedPreferences prefs, DateTime now, bool isRefresh) {
-    final String jsonString = prefs.getString('exam_data') ?? '';
-    final int? examTime = prefs.getInt('exam_time');
+    final String jsonString = prefs.getString(PrefsKeys.EXAM_DATA) ?? '';
+    final int? examTime = prefs.getInt(PrefsKeys.EXAM_TIME);
 
     final bool isCached = examTime != null &&
         now.difference(DateTime.fromMicrosecondsSinceEpoch(examTime)).inHours <
@@ -102,8 +103,8 @@ class ExamService {
 
   static Future<void> _updateCache(
       SharedPreferences prefs, String jsonString, DateTime now) async {
-    await prefs.setString('exam_data', jsonString);
-    await prefs.setInt('exam_time', now.microsecondsSinceEpoch);
+    await prefs.setString(PrefsKeys.EXAM_DATA, jsonString);
+    await prefs.setInt(PrefsKeys.EXAM_TIME, now.microsecondsSinceEpoch);
   }
 
   static List<ExamItem> _parseExamItems(String jsonString, DateTime now) {

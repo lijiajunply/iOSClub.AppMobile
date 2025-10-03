@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../Models/TodoItem.dart';
+import 'package:ios_club_app/models/todo_item.dart';
 
-import '../../services/todo_service.dart';
-import '../ClubCard.dart';
-import '../empty_widget.dart';
+import 'package:ios_club_app/services/todo_service.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/empty_widget.dart';
 
 class TodoWidget extends StatefulWidget {
   const TodoWidget({super.key});

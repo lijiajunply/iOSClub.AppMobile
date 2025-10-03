@@ -1,7 +1,7 @@
-import 'dart:convert' show jsonEncode, utf8, jsonDecode;
-import 'package:http/http.dart' as http;
+import 'dart:convert' show utf8, jsonDecode, jsonEncode;
+
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 
 class LoginService {
   final http.Client httpClient;
@@ -10,98 +10,21 @@ class LoginService {
 
   Future<Map<String, dynamic>> loginAsync(
       String username, String password) async {
-    var saltResponse = await httpClient.get(
-      Uri.parse('https://xauatlogin.zeabur.app/login/$username/$password'),
-    );
-
-    var result = jsonDecode(saltResponse.body);
-
-    String studentId = await getCode(result['cookies']);
-    if (studentId.isEmpty) {
-      return {'success': false};
-    }
-    return {'success': true, 'studentId': studentId, 'cookie': result['cookies']};
-  }
-
-  Future<Map<String, dynamic>> oldLoginAsync(String username, String password) async {
-    // 获取 salt
-
-    var saltResponse = await httpClient.get(
-      Uri.parse('https://swjw.xauat.edu.cn/student/login-salt'),
-    );
-
-    if (saltResponse.statusCode != 200) {
-      throw Exception('Failed to get salt');
-    }
-
-    String salt = saltResponse.body;
-    String cookies = parseCookie(saltResponse.headers['set-cookie']);
-
-    // 准备登录参数
-    var loginParams = {
-      'salt': salt,
-      'username': username,
-      'password': password
+    final Map<String, String> finalHeaders = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
     };
 
-    var encodedParams = CodeService.encode(loginParams); // 需要实现对应的加密方法
+    var saltResponse =
+        await httpClient.post(Uri.parse('https://xauatapi.xauat.site/Login'),
+            body: jsonEncode({
+              'username': username,
+              'password': password,
+            }),
+            headers: finalHeaders);
 
-    // 发送登录请求
-    var loginResponse = await httpClient.post(
-      Uri.parse('https://swjw.xauat.edu.cn/student/login'),
-      headers: {
-        'Cookie': cookies,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(encodedParams),
-    );
-
-    if (loginResponse.statusCode != 200) {
-      throw Exception('Login failed');
-    }
-
-    String studentId = await getCode(cookies);
-    if (studentId.isEmpty) {
-      return {'success': false};
-    }
-    return {'success': true, 'studentId': studentId, 'cookie': cookies};
-  }
-
-  Future<String> getCode(String cookies) async {
-    final dio = Dio();
-
-    try {
-      final response = await dio.get(
-        'https://swjw.xauat.edu.cn/student/for-std/precaution',
-        options: Options(
-          headers: {'Cookie': cookies},
-          followRedirects: true,
-          maxRedirects: 5,
-        ),
-      );
-
-      if (response.statusCode != 200) {
-        return '';
-      }
-
-      // Dio会跟踪重定向并在response.realUri中保存最终URL
-      final finalUrl = response.realUri.path;
-      final result = finalUrl
-          .replaceAll('/student/precaution/index/', '');
-
-      if (result == '/student/for-std/precaution') {
-        var content = response.data;
-        var regex = RegExp(r'value="(.*?)">');
-        var match = regex.allMatches(content);
-        return match.map((x) => x.group(1)).join(',');
-      }
-
-      return result;
-    } catch (e) {
-      return '';
-    } finally {
-      dio.close();
-    }
+    var a = jsonDecode(saltResponse.body);
+    return a;
   }
 
   String parseCookie(String? cookiesHeader) {

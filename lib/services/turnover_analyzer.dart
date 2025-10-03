@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
 class PaymentData {
   final List<PaymentModel> payments;
@@ -74,11 +75,11 @@ class TurnoverAnalyzer {
 
   static Future<void> setPayment(String a) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('payment_num', a);
+    await prefs.setString(PrefsKeys.PAYMENT_NUM, a);
   }
 
   static Future<String> getPayment() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('payment_num') ?? '';
+    return prefs.getString(PrefsKeys.PAYMENT_NUM) ?? '';
   }
 }

@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../Models/CourseModel.dart';
-import '../../PageModels/CourseColorManager.dart';
-import '../../PageModels/ScheduleItem.dart';
-import '../../Services/data_service.dart';
-import '../../Services/notification_service.dart';
-import '../../Services/time_service.dart';
-import '../ClubCard.dart';
+import 'package:ios_club_app/models/course_model.dart';
+import 'package:ios_club_app/pageModels/course_color_manager.dart';
+import 'package:ios_club_app/pageModels/schedule_item.dart';
+import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/services/notification_service.dart';
+import 'package:ios_club_app/services/time_service.dart';
+import '../club_card.dart';
 import '../empty_widget.dart';
 
 class ScheduleWidget extends StatefulWidget {

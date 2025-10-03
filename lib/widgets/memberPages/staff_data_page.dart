@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/Services/club_service.dart';
-import 'package:ios_club_app/models/MemberModel.dart';
+import 'package:ios_club_app/models/member_model.dart';
 
 class StaffDataPage extends StatefulWidget {
   const StaffDataPage({super.key});

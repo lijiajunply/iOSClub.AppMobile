@@ -1,16 +1,17 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:ios_club_app/Services/club_service.dart';
+import 'package:ios_club_app/services/club_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
-import '../Models/TodoItem.dart';
+import 'package:ios_club_app/models/todo_item.dart';
 
 class TodoService {
   static Future<List<TodoItem>> getTodoList() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final isUpdateToClub = prefs.getBool('is_update_club') ?? false;
+    final isUpdateToClub = prefs.getBool(PrefsKeys.IS_UPDATE_CLUB) ?? false;
     if (isUpdateToClub) {
       return await getClubTodoList();
     }
@@ -22,15 +23,15 @@ class TodoService {
 
   static Future<void> setTodoList(List<TodoItem> list) async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('todo_data');
-    final String? username = prefs.getString('username');
+    final String? jsonString = prefs.getString(PrefsKeys.TODO_DATA);
+    final String? username = prefs.getString(PrefsKeys.USERNAME);
 
     if (username != null) {
       final Map<String, dynamic> jsonList =
           jsonString == null ? {} : jsonDecode(jsonString);
       jsonList[username] = list;
       final json = jsonEncode(jsonList);
-      prefs.setString('todo_data', json);
+      prefs.setString(PrefsKeys.TODO_DATA, json);
     } else {
       throw Exception('No data found');
     }
@@ -38,8 +39,8 @@ class TodoService {
 
   static Future<List<TodoItem>> getLocalTodoList() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? jsonString = prefs.getString('todo_data');
-    final String? username = prefs.getString('username');
+    final String? jsonString = prefs.getString(PrefsKeys.TODO_DATA);
+    final String? username = prefs.getString(PrefsKeys.USERNAME);
 
     if (jsonString != null && username != null) {
       final List<TodoItem> list = [];
@@ -62,7 +63,7 @@ class TodoService {
 
   static Future<List<TodoItem>> getClubTodoList() async {
     final prefs = await SharedPreferences.getInstance();
-    final memberDataString = prefs.getString('member_data');
+    final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);
 
     if (memberDataString == null || memberDataString.isEmpty) {
       return [];
@@ -70,7 +71,7 @@ class TodoService {
 
     final memberData = jsonDecode(memberDataString);
 
-    var jwt = prefs.getString('member_jwt');
+    var jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
     Map<String, String> finalHeaders = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ class TodoService {
 
     if (response.statusCode == 401) {
       if (await ClubService.loginMember(memberData['userName'], memberData['userId'])) {
-        jwt = prefs.getString('member_jwt');
+        jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
         finalHeaders['Authorization'] = 'Bearer $jwt';
 
         if (response.statusCode == 200) {
@@ -124,13 +125,13 @@ class TodoService {
 
   static Future<void> nowToUpdate() async {
     final prefs = await SharedPreferences.getInstance();
-    final memberDataString = prefs.getString('member_data');
+    final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);
 
     if (memberDataString == null || memberDataString.isEmpty) {
       return;
     }
 
-    var jwt = prefs.getString('member_jwt');
+    var jwt = prefs.getString(PrefsKeys.MEMBER_JWT);
     Map<String, String> finalHeaders = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -158,7 +159,7 @@ class TodoService {
     }
 
     if (isOK) {
-      prefs.remove("todo_data");
+      prefs.remove(PrefsKeys.TODO_DATA);
     }
   }
 }

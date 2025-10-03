@@ -3,8 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 
-import '../pageModels/ElectricData.dart';
+import 'package:ios_club_app/pageModels/electric_data.dart';
 
 class TileService {
   static Future<double?> getTextAfterKeyword({String? url}) async {
@@ -12,7 +13,7 @@ class TileService {
       final prefs = await SharedPreferences.getInstance();
 
       if (url == null || url.isEmpty) {
-        url = prefs.getString('electricity_url') ?? '';
+        url = prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
 
         if (url.isEmpty) {
           return null;
@@ -42,7 +43,7 @@ class TileService {
           // 尝试将提取的内容转换为double
           final result = double.tryParse(textAfterKeyword);
           if (result != null) {
-            await prefs.setString('electricity_url', url);
+            await prefs.setString(PrefsKeys.ELECTRICITY_URL, url);
             return result;
           }
         }
@@ -59,12 +60,12 @@ class TileService {
 
   static Future<void> setTiles(List<String> map) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('tiles', map);
+    await prefs.setStringList(PrefsKeys.TILES, map);
   }
 
   static Future<List<String>> getTiles() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList('tiles') ?? [];
+    return prefs.getStringList(PrefsKeys.TILES) ?? [];
   }
 
   static Future<void> openInWeChat(String url) async {
@@ -87,7 +88,7 @@ class TileService {
   static Future<List<ElectricData>> getElectricityWeeklyData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    var url = prefs.getString('electricity_url') ?? '';
+    var url = prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
 
     if (url.isEmpty) {
       return [];

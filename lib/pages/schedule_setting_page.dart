@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 import 'package:ios_club_app/stores/course_store.dart';
-import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../widgets/ClubAppBar.dart';
-import '../widgets/page_header_delegate.dart';
+import 'package:ios_club_app/widgets/club_app_bar.dart';
+import 'package:ios_club_app/widgets/page_header_delegate.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
   const ScheduleSettingPage({super.key});
