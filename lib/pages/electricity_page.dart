@@ -307,29 +307,6 @@ class _ElectricityPageState extends State<ElectricityPage> {
     return ClubCard(
       child: Column(
         children: [
-          ListTile(
-            leading: const Icon(CupertinoIcons.bolt_fill),
-            title: const Text('电费磁贴'),
-            subtitle: const Text('在桌面显示电费'),
-            trailing: Switch(
-              value: _tiles.contains('电费'),
-              onChanged: (value) async {
-                final prefs = await SharedPreferences.getInstance();
-                if (value) {
-                  setState(() {
-                    _tiles.add('电费');
-                  });
-                  await prefs.setString(PrefsKeys.ELECTRICITY_URL, _urlController.text);
-                } else {
-                  setState(() {
-                    _tiles = _tiles.where((tile) => tile != '电费').toList();
-                  });
-                  await prefs.remove(PrefsKeys.ELECTRICITY_URL);
-                }
-                await TileService.setTiles(_tiles);
-              },
-            ),
-          ),
           if (isHasData) ...[
             ListTile(
               leading: Icon(Icons.home),

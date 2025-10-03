@@ -75,11 +75,11 @@ class AboutPage extends StatelessWidget {
                 _buildSectionTitle('其他', isDark),
                 const SizedBox(height: 12),
                 Obx(() {
-                  return userStore.isLogin
-                      ? _buildSettingsGroup([
-                          _buildLogoutTile(context, isDark),
-                        ])
-                      : const SizedBox.shrink();
+                  return _buildSettingsGroup([
+                    if (userStore.isLogin) _buildLogoutTile(context, isDark),
+                    if (userStore.isLoginMember)
+                      _buildLogoutMemberTile(context, isDark),
+                  ]);
                 }),
                 const SizedBox(height: 32),
               ],
@@ -467,18 +467,50 @@ class AboutPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      '退出登录',
+                      '退出教务系统',
                       style: TextStyle(fontSize: 16),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '会删除所有数据',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.5)
-                            : CupertinoColors.secondaryLabel,
-                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutMemberTile(BuildContext context, bool isDark) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () async {
+          final userStore = Get.find<UserStore>();
+          await userStore.logoutMember();
+          if (context.mounted) {
+            showClubSnackBar(context, const Text('已退出iMember账号'));
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                Icons.logout_outlined,
+                size: 20,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.5)
+                    : CupertinoColors.tertiaryLabel,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '退出iMember',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ],
                 ),

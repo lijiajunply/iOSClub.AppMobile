@@ -71,11 +71,13 @@ Widget buildElectricity(BuildContext context) {
                               : Colors.blue.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Hero(tag: '电费', child: Icon(
-                          Icons.electric_bolt_rounded,
-                          color: isLow ? Colors.red : Colors.blue,
-                          size: 24,
-                        )),
+                        child: Hero(
+                            tag: '电费',
+                            child: Icon(
+                              Icons.electric_bolt_rounded,
+                              color: isLow ? Colors.red : Colors.blue,
+                              size: 24,
+                            )),
                       ),
                       const Spacer(),
                       if (isLow)
@@ -274,11 +276,13 @@ Widget buildPayment(BuildContext context) {
                                 : Colors.orange.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(
-                            Icons.monetization_on_outlined,
-                            color: isLow ? Colors.red : Colors.orange,
-                            size: 24,
-                          ),
+                          child: Hero(
+                              tag: '饭卡',
+                              child: Icon(
+                                Icons.monetization_on_outlined,
+                                color: isLow ? Colors.red : Colors.orange,
+                                size: 24,
+                              )),
                         ),
                         const Spacer(),
                         if (isLow)

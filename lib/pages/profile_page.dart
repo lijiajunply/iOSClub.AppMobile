@@ -240,6 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         setState(() {
                           _isOnlyLoginMember = false;
                           _passwordController.clear();
+                          _showLoginForm = false; // 添加这行代码来隐藏登录表单
                         });
                       },
                       icon: const Icon(Icons.arrow_back)),

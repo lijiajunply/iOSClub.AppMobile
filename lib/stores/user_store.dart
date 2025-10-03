@@ -73,4 +73,15 @@ class UserStore extends GetxController {
   Future<void> logout() async {
     await _clearUserData();
   }
+
+  /// 退出iMember登录
+  Future<void> logoutMember() async {
+    _isLoginMember.value = false;
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(PrefsKeys.MEMBER_DATA);
+    await prefs.remove(PrefsKeys.MEMBER_JWT);
+    await prefs.remove(PrefsKeys.CLUB_NAME);
+    await prefs.remove(PrefsKeys.CLUB_ID);
+  }
 }
