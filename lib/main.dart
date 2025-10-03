@@ -4,6 +4,7 @@ import 'package:display_mode/display_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/services/background_service.dart';
+import 'package:ios_club_app/stores/init.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -13,6 +14,9 @@ import 'main_app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化Stores
+  initStores();
 
   requestPermissions();
 

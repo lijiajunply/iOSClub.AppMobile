@@ -9,6 +9,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../PageModels/CourseColorManager.dart';
 import '../Services/club_service.dart';
+import '../stores/prefs_keys.dart';
+import '../stores/settings_store.dart';
+import '../stores/user_store.dart';
 import '../widgets/study_credit_card.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -19,8 +22,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isLoggedIn = false;
-  String _username = '';
+  final UserStore userStore = UserStore.to;
+  final SettingsStore settingsStore = SettingsStore.to;
+  
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -29,9 +33,6 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isLoginMember = false;
   bool _isOnlyLoginMember = false;
 
-  /// true为 都登录状态，false为教务系统登录状态
-  late bool _isBoth = false;
-
   @override
   void initState() {
     super.initState();
@@ -39,26 +40,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-    final iosName = prefs.getString('club_name');
-
     setState(() {
-      _isLoggedIn = username != null &&
-          password != null &&
-          username.isNotEmpty &&
-          password.isNotEmpty;
-
-      _username = username ?? '';
       _isLoading = false;
-
-      if (iosName == null || iosName.isEmpty) {
-        _isBoth = false;
-      } else {
-        _username = iosName;
-        _isBoth = true;
-      }
     });
   }
 
@@ -100,7 +83,6 @@ class _ProfilePageState extends State<ProfilePage> {
         }
 
         setState(() {
-          _isLoggedIn = false;
           _isLoading = false;
         });
         return;
@@ -147,23 +129,26 @@ class _ProfilePageState extends State<ProfilePage> {
 
     final prefs = await SharedPreferences.getInstance();
     if (_isOnlyLoginMember) {
-      await prefs.setString('club_name', _usernameController.text);
-      await prefs.setString('club_id', _passwordController.text);
+      await prefs.setString(PrefsKeys.MEMBER_DATA, _usernameController.text);
+      await prefs.setString(PrefsKeys.MEMBER_JWT, _passwordController.text);
     } else {
-      await prefs.setString('username', _usernameController.text);
-      await prefs.setString('password', _passwordController.text);
+      await prefs.setString(PrefsKeys.USERNAME, _usernameController.text);
+      await prefs.setString(PrefsKeys.PASSWORD, _passwordController.text);
     }
 
     if (_isLoginMember) {
-      await prefs.setString('club_name', _nameController.text);
-      await prefs.setString('club_id', _usernameController.text);
+      await prefs.setString(PrefsKeys.MEMBER_DATA, _nameController.text);
+      await prefs.setString(PrefsKeys.MEMBER_JWT, _usernameController.text);
     }
+    
+    // 退出游客模式
+    await prefs.setBool(PrefsKeys.IS_UPDATE_CLUB, false);
+    await settingsStore.setIsUpdateToClub(false);
 
     setState(() {
-      _isLoggedIn = true;
-      _username = _usernameController.text;
       _isLoading = false;
-      _isBoth = _isOnlyLoginMember || _isLoginMember;
+      _isOnlyLoginMember = false;
+      _isLoginMember = false;
     });
 
     _usernameController.clear();
@@ -172,6 +157,36 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_isLoginMember) {
       _nameController.clear();
     }
+  }
+  
+  Future<void> _enterGuestMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(PrefsKeys.IS_UPDATE_CLUB, true);
+    await settingsStore.setIsUpdateToClub(true);
+    
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(PrefsKeys.USERNAME);
+    await prefs.remove(PrefsKeys.PASSWORD);
+    await prefs.remove(PrefsKeys.MEMBER_DATA);
+    await prefs.remove(PrefsKeys.MEMBER_JWT);
+    
+    await userStore.logout();
+  }
+
+  Future<void> _enterLoginMode() async {
+    setState(() {
+      _isLoading = false;
+    });
+    
+    _usernameController.clear();
+    _passwordController.clear();
+    _nameController.clear();
   }
 
   @override
@@ -185,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
-        body: _isLoggedIn ? _buildProfileContent() : _buildLoginForm());
+        body: (userStore.isLogin || settingsStore.isUpdateToClub) ? _buildProfileContent() : _buildLoginForm());
   }
 
   Widget _buildLoginForm() {
@@ -201,7 +216,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: () {
                         setState(() {
                           _isOnlyLoginMember = false;
-                          _isLoggedIn = true;
                           _passwordController.clear();
                         });
                       },
@@ -310,7 +324,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 if (value == null) return;
                                 setState(() {
                                   _isLoginMember = value;
-                                  _passwordController.text = _username;
                                 });
                               },
                             ),
@@ -351,6 +364,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                // 游客模式按钮
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton(
+                    onPressed: _enterGuestMode,
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      '游客模式',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ))
       ],
@@ -358,6 +391,39 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   List<ProfileButtonItem> get profileButtonItems {
+    // 游客模式下仅限制培养方案功能
+    if (settingsStore.isUpdateToClub) {
+      return [
+        ProfileButtonItem(
+            icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
+        ProfileButtonItem(icon: Icons.settings, title: '设置/关于', route: '/About'),
+        ProfileButtonItem(
+            title: '校车', icon: Icons.directions_bus_rounded, route: '/SchoolBus'),
+        ProfileButtonItem(
+            icon: Icons.apple,
+            title: '登录社团iMember',
+            onPressed: () {
+              setState(() {
+                _isOnlyLoginMember = true;
+              });
+            }),
+        ProfileButtonItem(
+            icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
+        ProfileButtonItem(
+            icon: Icons.toc, 
+            title: '培养方案', 
+            onPressed: () {
+              // 游客模式下提示需要登录
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('此功能需要登录后使用')),
+              );
+            }),
+        ProfileButtonItem(
+            icon: Icons.monetization_on_outlined, title: '饭卡', route: '/Payment'),
+        ProfileButtonItem(icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
+      ];
+    }
+    
     return [
       ProfileButtonItem(
           icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
@@ -366,11 +432,10 @@ class _ProfilePageState extends State<ProfilePage> {
           title: '校车', icon: Icons.directions_bus_rounded, route: '/SchoolBus'),
       ProfileButtonItem(
           icon: Icons.apple,
-          title: _isBoth ? '社团详情' : '登录社团iMember',
+          title: userStore.isLogin ? '社团详情' : '登录社团iMember',
           onPressed: () {
-            if (!_isBoth) {
+            if (!userStore.isLogin) {
               setState(() {
-                _isLoggedIn = false;
                 _isOnlyLoginMember = true;
               });
             } else {
@@ -412,7 +477,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _username,
+                          userStore.userData?.studentId ?? '未登录',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -420,7 +485,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Text(
-                          _isBoth ? 'iMember账号' : '教务系统账号',
+                          settingsStore.isUpdateToClub 
+                            ? '游客模式' 
+                            : userStore.isLogin ? 'iMember账号' : '教务系统账号',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -431,6 +498,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     )
                   ],
                 ),
+                if (settingsStore.isUpdateToClub)
+                  IconButton(
+                    icon: const Icon(Icons.login),
+                    onPressed: _enterLoginMode,
+                  )
+                else if (!settingsStore.isUpdateToClub && userStore.isLogin)
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: _logout,
+                  ),
               ],
             ),
           ),
@@ -453,16 +530,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 )),
           ),
           const SizedBox(height: 16),
-          FutureBuilder(
-              future: DataService.getInfoList(),
-              builder: (context, snapshot) => snapshot.hasData
-                  ? ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data?.length,
-                      itemBuilder: (context, index) =>
-                          StudyCreditCard(data: snapshot.data![index]))
-                  : const CircularProgressIndicator()),
+          if (!settingsStore.isUpdateToClub)
+            FutureBuilder(
+                future: DataService.getInfoList(),
+                builder: (context, snapshot) => snapshot.hasData
+                    ? ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data?.length,
+                        itemBuilder: (context, index) =>
+                            StudyCreditCard(data: snapshot.data![index]))
+                    : const CircularProgressIndicator()),
+          if (settingsStore.isUpdateToClub)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                '您当前处于游客模式，部分功能受限。登录后可享受完整功能。',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
+            ),
         ],
       ),
     );

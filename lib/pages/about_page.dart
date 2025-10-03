@@ -1,19 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:ios_club_app/Services/edu_service.dart';
-import 'package:ios_club_app/services/todo_service.dart';
-import 'package:ios_club_app/widgets/ClubCard.dart';
+import 'package:ios_club_app/Services/todo_service.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/widgets/ClubModalBottomSheet.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Services/edu_service.dart';
 import '../Services/git_service.dart';
 import '../Services/notification_service.dart';
 import '../services/download_service.dart';
+import '../stores/prefs_keys.dart';
 import '../widgets/ClubAppBar.dart';
+import '../widgets/ClubCard.dart';
 import '../widgets/showClubSnackBar.dart';
 
 class AboutPage extends StatelessWidget {
@@ -501,7 +502,7 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
     super.initState();
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
+        isShowTomorrow = prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
       });
     });
   }
@@ -548,7 +549,7 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
                 isShowTomorrow = value;
               });
               final prefs = await SharedPreferences.getInstance();
-              prefs.setBool('is_show_tomorrow', value);
+              prefs.setBool(PrefsKeys.IS_REMIND, value);
             },
           ),
         ],
@@ -574,8 +575,8 @@ class _RemindSettingState extends State<RemindSetting> {
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        isRemind = prefs.getBool('is_remind') ?? false;
-        remindTime = prefs.getInt('notification_time') ?? 15;
+        isRemind = prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
+        remindTime = prefs.getInt(PrefsKeys.NOTIFICATION_TIME) ?? 15;
       });
     });
   }
@@ -623,7 +624,7 @@ class _RemindSettingState extends State<RemindSetting> {
                       isRemind = value;
                     });
                     final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool('is_remind', value);
+                    prefs.setBool(PrefsKeys.IS_REMIND, value);
                     if (value && context.mounted) {
                       await NotificationService.set(context);
                     }
@@ -692,7 +693,7 @@ class _RemindSettingState extends State<RemindSetting> {
                     step: 1,
                     onChanged: (value) async {
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.setInt('notification_time', value);
+                      await prefs.setInt(PrefsKeys.NOTIFICATION_TIME, value);
                       setStateBottomSheet(() {
                         remindTime = value;
                       });
@@ -731,7 +732,7 @@ class _VersionSettingState extends State<VersionSetting> {
       setState(() {
         version = packageInfo.version;
         SharedPreferences.getInstance().then((prefs) {
-          updateIgnored = prefs.getBool('update_ignored') ?? false;
+          updateIgnored = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
         });
         GiteeService.isNeedUpdate().then((res) {
           isNeedUpdate = res.$1;
@@ -848,7 +849,7 @@ class _VersionSettingState extends State<VersionSetting> {
                     updateIgnored = value;
                   });
                   final prefs = await SharedPreferences.getInstance();
-                  prefs.setBool('update_ignored', value);
+                  prefs.setBool(PrefsKeys.UPDATE_IGNORED, value);
                 },
               )
             ],
@@ -867,17 +868,11 @@ class TodoListSetting extends StatefulWidget {
 }
 
 class _TodoListSettingState extends State<TodoListSetting> {
-  late bool isUpdateToClub = false;
+  final SettingsStore settingsStore = SettingsStore.to;
 
   @override
   void initState() {
     super.initState();
-
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        isUpdateToClub = prefs.getBool('is_update_club') ?? false;
-      });
-    });
   }
 
   @override
@@ -914,19 +909,15 @@ class _TodoListSettingState extends State<TodoListSetting> {
                 ],
               ),
             ),
-            CupertinoSwitch(
-              value: isUpdateToClub,
-              onChanged: (bool value) async {
-                setState(() {
-                  isUpdateToClub = value;
-                });
-                final prefs = await SharedPreferences.getInstance();
-                prefs.setBool('is_update_club', value);
-                if (value) {
-                  await TodoService.nowToUpdate();
-                }
-              },
-            )
+            Obx(() => CupertinoSwitch(
+                  value: settingsStore.isUpdateToClub,
+                  onChanged: (bool value) async {
+                    await settingsStore.setIsUpdateToClub(value);
+                    if (value) {
+                      await TodoService.nowToUpdate();
+                    }
+                  },
+                ))
           ],
         ));
   }
@@ -954,7 +945,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        _pageIndex = prefs.getInt('page_index') ?? 0;
+        _pageIndex = prefs.getInt(PrefsKeys.PAYMENT_NUM) ?? 0;
       });
     });
   }
@@ -1006,7 +997,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
                   _pageIndex = selectedItem;
                 });
                 SharedPreferences.getInstance().then((prefs) {
-                  prefs.setInt('page_index', selectedItem);
+                  prefs.setInt(PrefsKeys.PAYMENT_NUM, selectedItem);
                 });
               },
               children: List.generate(_pageNames.length, (int index) {

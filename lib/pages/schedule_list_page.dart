@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../PageModels/CourseColorManager.dart';
 import '../Models/CourseModel.dart';
-import '../Services/data_service.dart';
+import '../stores/schedule_store.dart';
 import '../widgets/ClubModalBottomSheet.dart';
 import '../widgets/showClubSnackBar.dart';
 
@@ -21,26 +21,15 @@ class ScheduleListPage extends StatefulWidget {
 }
 
 class _ScheduleListPageState extends State<ScheduleListPage> {
-  late List<List<CourseModel>> allCourse = [];
-  late int maxWeek = 0;
-  late int weekNow = 0;
   late PageController pageController = PageController();
-  double height = 55.0;
-  int currentPage = 0;
   CourseStyle courseStyle = CourseStyle.normal;
   bool isStyle = false;
-  bool isLoading = true;
+
+  final ScheduleStore scheduleStore = ScheduleStore.to;
 
   void jumpToPage(int page) {
-    if (page < 0) {
-      page = maxWeek;
-    } else if (page > maxWeek) {
-      page = 0;
-    }
-    setState(() {
-      currentPage = page;
-    });
-    pageController.jumpToPage(page);
+    scheduleStore.jumpToPage(page);
+    pageController.jumpToPage(scheduleStore.currentPage);
   }
 
   @override
@@ -52,43 +41,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
-  }
-
-  Future<void> _initializeData() async {
-    try {
-      final weekData = await DataService.getWeek();
-      await _handleWeekData(weekData);
-      await _loadCourses();
-      await _loadPreferences();
-    } catch (e) {
-      debugPrint('初始化数据出错: $e');
-      // 可以考虑在这里显示错误提示给用户
-    }
-  }
-
-  Future<void> _handleWeekData(Map<String, dynamic> weekData) async {
-    setState(() {
-      weekNow = weekData['week']!;
-      maxWeek = weekData['maxWeek']!;
-      currentPage = weekNow <= 0 ? 0 : weekNow;
-
-      pageController = PageController(initialPage: currentPage);
-    });
-  }
-
-  Future<void> _loadCourses() async {
-    final courses = await DataService.getAllCourse();
-    setState(() {
-      allCourse = List.generate(maxWeek + 1, (i) {
-        return i == 0
-            ? courses
-            : courses
-                .where((course) => course.weekIndexes.contains(i))
-                .toList();
-      });
-      isLoading = false;
-    });
+    pageController = PageController(initialPage: scheduleStore.currentPage);
+    _loadPreferences();
   }
 
   Future<void> _loadPreferences() async {
@@ -97,7 +51,6 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
     if (courseSize != null && courseSize != 0) {
       setState(() {
-        height = courseSize;
         courseStyle = _determineCourseStyle(courseSize);
       });
     }
@@ -127,23 +80,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             onPressed: () async {
               showClubSnackBar(context, Text('正在进行更新，请稍后'));
               await EduService.getCourse(isRefresh: true);
-              setState(() {
-                allCourse.clear();
-                DataService.getAllCourse().then((value) {
-                  setState(() {
-                    for (var i = 0; i <= maxWeek; i++) {
-                      if (i == 0) {
-                        allCourse.add(value);
-                        continue;
-                      }
-                      allCourse.add(value
-                          .where((course) => course.weekIndexes.contains(i))
-                          .toList());
-                    }
-                    jumpToPage(weekNow);
-                  });
-                });
-              });
+              scheduleStore.refreshCourses();
               if (context.mounted) {
                 showClubSnackBar(context, Text('更新完成'));
               }
@@ -174,20 +111,19 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                         if (value != null) {
                           setState(() {
                             courseStyle = value;
-                            if (value == CourseStyle.small) {
-                              height = 50;
-                            } else if (value == CourseStyle.normal) {
-                              height = 55;
-                            } else if (value == CourseStyle.large) {
-                              height = 60;
-                            } else if (value == CourseStyle.fool) {
-                              allCourse.clear();
-                              allCourse.add([]);
-                              showClubSnackBar(context, Text('是的，我没有课了'));
-                            }
                           });
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setDouble('course_size', height);
+                          double height = 55;
+                          if (value == CourseStyle.small) {
+                            height = 50;
+                          } else if (value == CourseStyle.normal) {
+                            height = 55;
+                          } else if (value == CourseStyle.large) {
+                            height = 60;
+                          } else if (value == CourseStyle.fool) {
+                            showClubSnackBar(context, Text('是的，我没有课了'));
+                            return;
+                          }
+                          await scheduleStore.setCourseHeight(height);
                         }
                       },
                       children: {
@@ -212,7 +148,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                   )
                 : Container()));
 
-    final weekText = weekNow <= 0 ? '距离开学还有${-weekNow + 1}周' : '当前为第$weekNow周';
+    final weekText = scheduleStore.currentWeek <= 0 
+        ? '距离开学还有${-scheduleStore.currentWeek + 1}周' 
+        : '当前为第${scheduleStore.currentWeek}周';
 
     return Scaffold(
         body: Column(
@@ -227,14 +165,14 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                           Expanded(
                               child: TextButton(
                                   onPressed: () =>
-                                      jumpToPage((currentPage - 1).ceil()),
+                                      jumpToPage((scheduleStore.currentPage - 1).ceil()),
                                   child: const Text('上一周'))),
                           Expanded(
                               child: Center(
                             child: Text(
-                              currentPage <= 0
+                              scheduleStore.currentPage <= 0
                                   ? '全部课表'
-                                  : '第 $currentPage 周 ${currentPage == weekNow ? "(本周)" : ""}',
+                                  : '第 ${scheduleStore.currentPage} 周 ${scheduleStore.currentPage == scheduleStore.currentWeek ? "(本周)" : ""}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
@@ -278,17 +216,17 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                               ),
                               InkWell(
                                   onTap: () {
-                                    jumpToPage(weekNow);
+                                    jumpToPage(scheduleStore.currentWeek);
                                   },
                                   child: Padding(
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Text(
-                                        currentPage <= 0 ||
-                                                currentPage == weekNow
+                                        scheduleStore.currentPage <= 0 ||
+                                                scheduleStore.currentPage == scheduleStore.currentWeek
                                             ? '全部课表 $weekText'
-                                            : currentPage <= 0
+                                            : scheduleStore.currentPage <= 0
                                                 ? '全部课表 $weekText'
-                                                : '第$currentPage周 $weekText',
+                                                : '第${scheduleStore.currentPage}周 $weekText',
                                         style: const TextStyle(
                                           fontSize: 14,
                                         ),
@@ -301,7 +239,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     ],
                   )),
         if (!isDesktop) animatedSlide,
-        isLoading
+        Obx(() => scheduleStore.isLoading
             ? const Expanded(
                 child: Center(
                   child: CircularProgressIndicator(),
@@ -311,13 +249,11 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 child: PageView.builder(
                   controller: pageController,
                   onPageChanged: (index) {
-                    setState(() {
-                      currentPage = index;
-                    });
+                    scheduleStore.setCurrentPage(index);
                   },
-                  itemCount: allCourse.length,
+                  itemCount: scheduleStore.allCourses.length,
                   itemBuilder: (BuildContext context, int i) {
-                    final courses = allCourse[i];
+                    final courses = scheduleStore.allCourses[i];
                     return Column(
                       children: [
                         _buildWeekHeader(i),
@@ -327,7 +263,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                             scrollDirection: Axis.vertical,
                             child: SizedBox(
                               // 设置固定高度确保内容可以完整显示
-                              height: height * 12, // 12节课的总高度
+                              height: scheduleStore.height * 12, // 12节课的总高度
                               child: _buildScheduleGrid(courses),
                             ),
                           ),
@@ -336,7 +272,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     );
                   },
                 ),
-              )
+              ))
       ],
     ));
   }
@@ -368,7 +304,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     int weekday = now.weekday;
     if (weekday == 7) weekday = 0;
     final w =
-        now.subtract(Duration(days: weekday + (weekNow - i) * 7)); // 每周第一天（周日）
+        now.subtract(Duration(days: weekday + (scheduleStore.currentWeek - i) * 7)); // 每周第一天（周日）
     for (int i1 = 0; i1 < 7; i1++) {
       weekDays.add(
         Expanded(
@@ -377,14 +313,14 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             Text(
               a[i1],
               style: TextStyle(
-                fontWeight: i1 == weekday && weekNow - i == 0
+                fontWeight: i1 == weekday && scheduleStore.currentWeek - i == 0
                     ? FontWeight.bold
                     : FontWeight.normal,
               ),
             ),
             Text(DateFormat('M/d').format(w.add(Duration(days: i1))),
                 style: TextStyle(
-                  fontWeight: i1 == weekday && weekNow - i == 0
+                  fontWeight: i1 == weekday && scheduleStore.currentWeek - i == 0
                       ? FontWeight.bold
                       : FontWeight.normal,
                 ))
@@ -421,7 +357,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       children: List.generate(
         12,
         (index) => SizedBox(
-          height: height,
+          height: scheduleStore.height,
           width: 50,
           child: Center(
               child: Text('${index + 1}',
@@ -442,7 +378,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             children: List.generate(
               12,
               (index) => Container(
-                height: height,
+                height: scheduleStore.height,
               ),
             ),
           ),
@@ -459,10 +395,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
     return Positioned(
-        top: (course.startUnit - 1) * height,
+        top: (course.startUnit - 1) * scheduleStore.height,
         left: 0,
         right: 0,
-        height: (course.endUnit - course.startUnit + 1) * height,
+        height: (course.endUnit - course.startUnit + 1) * scheduleStore.height,
         child: InkWell(
           onTap: () async {
             await _showModalBottomSheet(course);

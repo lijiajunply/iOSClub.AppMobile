@@ -47,44 +47,7 @@ class PaymentPage extends StatelessWidget {
   }
 
   Widget _buildBody() {
-    if (controller.isLoading.value) {
-      return _buildLoadingIndicator();
-    } else if (controller.errorMessage.isNotEmpty) {
-      return _buildErrorView();
-    } else {
-      return _buildContent();
-    }
-  }
-
-  Widget _buildLoadingIndicator() {
-    return const Center(child: CircularProgressIndicator());
-  }
-
-  Widget _buildErrorView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 60, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            controller.errorMessage.value,
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: controller.loadData,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: const Text('重新加载'),
-          ),
-        ],
-      ),
-    );
+    return _buildContent();
   }
 
   Widget _buildContent() {
@@ -93,7 +56,11 @@ class PaymentPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStatisticsSection(),
-          _buildRecentTransactionsSection(),
+          Obx(
+            () => controller.totalRecharge.value == 0
+                ? _buildBindCardPrompt()
+                : _buildRecentTransactionsSection(),
+          )
         ],
       ),
     );
@@ -157,13 +124,21 @@ class PaymentPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '¥${amount.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Obx(() => controller.totalRecharge.value == 0
+                    ? const Text(
+                        '暂无数据',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : Text(
+                        '¥${amount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
               ],
             ),
           ),
@@ -237,6 +212,47 @@ class PaymentPage extends StatelessWidget {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBindCardPrompt() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: SizedBox(
+        width: double.infinity,
+        child: ClubCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              const Text(
+                '暂无饭卡数据',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '请先绑定饭卡卡号以查看余额和消费记录',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // 显示设置对话框让用户输入卡号
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _showSettingDialog(Get.context!);
+                  });
+                },
+                child: const Text('绑定饭卡卡号'),
+              ),
+            ],
+          ),
         ),
       ),
     );

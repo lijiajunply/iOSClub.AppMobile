@@ -6,6 +6,7 @@ import 'dart:math';
 
 import '../Services/tile_service.dart';
 import '../pageModels/ElectricData.dart';
+import '../stores/prefs_keys.dart';
 import '../widgets/ClubAppBar.dart';
 import '../widgets/ClubCard.dart';
 import '../widgets/empty_widget.dart';
@@ -306,6 +307,29 @@ class _ElectricityPageState extends State<ElectricityPage> {
     return ClubCard(
       child: Column(
         children: [
+          ListTile(
+            leading: const Icon(CupertinoIcons.bolt_fill),
+            title: const Text('电费磁贴'),
+            subtitle: const Text('在桌面显示电费'),
+            trailing: Switch(
+              value: _tiles.contains('电费'),
+              onChanged: (value) async {
+                final prefs = await SharedPreferences.getInstance();
+                if (value) {
+                  setState(() {
+                    _tiles.add('电费');
+                  });
+                  await prefs.setString(PrefsKeys.ELECTRICITY_URL, _urlController.text);
+                } else {
+                  setState(() {
+                    _tiles = _tiles.where((tile) => tile != '电费').toList();
+                  });
+                  await prefs.remove(PrefsKeys.ELECTRICITY_URL);
+                }
+                await TileService.setTiles(_tiles);
+              },
+            ),
+          ),
           if (isHasData) ...[
             ListTile(
               leading: Icon(Icons.home),
@@ -331,7 +355,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
               subtitle: Text('跳转至浏览器进行电费充值'),
               onTap: () async {
                 final prefs = await SharedPreferences.getInstance();
-                var url = prefs.getString('electricity_url') ?? '';
+                var url = prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
                 url = url.replaceAll('wxAccount', 'wxCharge');
                 await TileService.openInWeChat(url);
               },
@@ -351,25 +375,24 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   void _showRefreshDialog() {
-    showCupertinoDialog(
+    showDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
+      builder: (context) => AlertDialog(
         title: Text('电费管理'),
         content: Text('选择要执行的操作'),
         actions: [
-          CupertinoDialogAction(
+          TextButton(
             child: Text('取消'),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          CupertinoDialogAction(
+          TextButton(
             child: Text('更换房间'),
             onPressed: () {
               Navigator.of(context).pop();
               _showInputDialog();
             },
           ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
+          TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
               final value = await TileService.getTextAfterKeyword();
@@ -388,9 +411,9 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   void _showInputDialog() {
-    showCupertinoDialog(
+    showDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
+      builder: (context) => AlertDialog(
         title: Text('获取电费'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -401,23 +424,24 @@ class _ElectricityPageState extends State<ElectricityPage> {
               style: TextStyle(fontSize: 14),
             ),
             SizedBox(height: 16),
-            CupertinoTextField(
+            TextField(
               controller: _urlController,
-              placeholder: '请输入URL',
-              padding: EdgeInsets.all(12),
+              decoration: InputDecoration(
+                hintText: '请输入URL',
+                border: OutlineInputBorder(),
+              ),
             ),
           ],
         ),
         actions: [
-          CupertinoDialogAction(
+          TextButton(
             child: Text('取消'),
             onPressed: () {
               Navigator.of(context).pop();
               _urlController.clear();
             },
           ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
+          TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
               final value = await TileService.getTextAfterKeyword(

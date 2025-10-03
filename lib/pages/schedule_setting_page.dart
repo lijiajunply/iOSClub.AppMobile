@@ -4,6 +4,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/Services/data_service.dart';
+import 'package:ios_club_app/stores/course_store.dart';
 import 'package:ios_club_app/widgets/ClubCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +21,7 @@ class ScheduleSettingPage extends StatefulWidget {
 
 class _ScheduleSettingPageState extends State<ScheduleSettingPage>
     with AutomaticKeepAliveClientMixin {
+  final CourseStore courseStore = CourseStore.to;
   List<String> totalList = [];
   List<String> ignoreList = [];
   late List<CourseIgnore> _ignores = [];
@@ -58,19 +60,19 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
 
   Future<void> _loadCourseData() async {
     try {
-      final ignoreList = await DataService.getIgnore();
+      await courseStore.loadIgnoreCourses();
       final courseNames = await DataService.getCourseName();
 
       final ignores = courseNames
           .map((i) => CourseIgnore(
                 title: i,
                 isCompleted:
-                    ignoreList.isNotEmpty && ignoreList.any((x) => x == i),
+                    courseStore.ignoreCourses.isNotEmpty && courseStore.ignoreCourses.any((x) => x == i),
               ))
           .toList();
 
       setState(() {
-        this.ignoreList = ignoreList;
+        ignoreList = courseStore.ignoreCourses;
         totalList = courseNames;
         _ignores = ignores;
       });
@@ -232,6 +234,9 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       } else {
         ignoreList.remove(ignore.title);
       }
+      
+      // 使用CourseStore更新忽略的课程
+      courseStore.setIgnoreCourses(ignoreList);
       return DataService.setIgnore(ignoreList);
     });
   }

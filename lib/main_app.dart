@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/router.dart';
 import 'package:ios_club_app/services/download_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'BottomNavigation.dart';
@@ -37,7 +38,7 @@ class _MainAppState extends State<MainApp> {
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        _currentIndex = prefs.getInt('page_index') ?? 0;
+        _currentIndex = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
         Get.toNamed(_routeMap[_currentIndex] ?? '/');
       });
     });
@@ -85,7 +86,7 @@ class _MainAppState extends State<MainApp> {
               TextButton(
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
-                  prefs.setBool('update_ignored', true);
+                  prefs.setBool(PrefsKeys.UPDATE_IGNORED, true);
                   if (context.mounted) {
                     Navigator.of(context).pop();
                   }
