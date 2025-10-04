@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
+    android:background="@drawable/widget_modern_background"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -10,36 +10,62 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="1dp">
+        android:paddingBottom="6dp">
 
-        <ImageView
-            android:id="@+id/title_icon"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/calendar" />
-
-        <TextView
-            android:id="@+id/widget_title"
+        <!-- 左侧标题区域 -->
+        <LinearLayout
+            android:id="@+id/title_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/title_icon"
-            android:text="今日课表"
-            android:textColor="#1D1D1F"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/widget_date"
+            <!-- 指示器条 -->
+            <TextView
+                android:layout_width="4dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/modern_accent_indicator"
+                android:text="" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/widget_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="今日课程"
+                    android:textColor="@color/widget_title_text_light"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 右侧日期区域 -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:textColor="#8E8E93"
-            android:textSize="13sp" />
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12月 15日"
+                android:textColor="@color/widget_date_text_light"
+                android:textSize="14sp" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 
@@ -47,21 +73,24 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="12dp"
-        android:background="#E5E5EA" />
+        android:layout_marginBottom="8dp"
+        android:background="@color/widget_divider_light"
+        android:text="" />
 
     <!-- 课程列表容器 -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
+        <!-- 课程列表 -->
         <ListView
             android:id="@+id/widget_courses_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@android:color/transparent"
-            android:dividerHeight="8dp"
-            android:fastScrollEnabled="false"
+            android:dividerHeight="0dp"
+            android:fadingEdge="none"
             android:scrollbars="none" />
 
         <!-- 空状态视图 -->
@@ -73,18 +102,21 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/check" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="今天没有课程"
+                android:textColor="@color/widget_empty_text_primary_light"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="今天没有课程"
-                android:textColor="#8E8E93"
-                android:textSize="16sp" />
+                android:text="享受你的自由时光吧！"
+                android:textColor="@color/widget_empty_text_secondary_light"
+                android:textSize="14sp" />
 
         </LinearLayout>
 

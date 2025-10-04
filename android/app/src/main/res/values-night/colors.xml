@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme colors -->
+    <color name="widget_background_light">#000000</color>
+    <color name="widget_title_text_light">#FFFFFF</color>
+    <color name="widget_date_text_light">#FFFFFF</color>
+    <color name="widget_divider_light">#2C2C2E</color>
+    <color name="widget_empty_text_primary_light">#FFFFFF</color>
+    <color name="widget_empty_text_secondary_light">#98989A</color>
+    
+    <!-- Course item colors -->
+    <color name="course_item_background_light">#1C1C1E</color>
+    <color name="time_indicator_background_light">#2C2C2E</color>
+    <color name="course_title_text_light">#FFFFFF</color>
+    <color name="course_info_text_light">#98989A</color>
+    <color name="time_indicator_text_light">#0A84FF</color>
+</resources>

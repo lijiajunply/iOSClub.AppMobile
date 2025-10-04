@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,7 @@ import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:android_intent_plus/android_intent.dart';
 
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:ios_club_app/Services/git_service.dart';
@@ -61,6 +64,13 @@ class AboutPage extends StatelessWidget {
                 const SizedBox(height: 12),
                 _buildSettingsGroup([
                   const VersionSetting(),
+                ]),
+                const SizedBox(height: 24),
+                // 安卓小组件
+                _buildSectionTitle('小组件', isDark),
+                const SizedBox(height: 12),
+                _buildSettingsGroup([
+                  _buildWidgetTile(context, isDark),
                 ]),
                 const SizedBox(height: 24),
                 // 关于我们
@@ -439,7 +449,7 @@ class AboutPage extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Row(
             children: [
               Icon(
@@ -477,7 +487,7 @@ class AboutPage extends StatelessWidget {
           final result = await PlatformDialog.showConfirmDialog(
             context,
             title: "确定退出登录吗？",
-            content: "退出后需要重新登录才能访问教务系统数据",
+            content: "退出后需要重新登录才能访问数据",
             confirmText: '退出登录',
             cancelText: '取消',
           );
@@ -491,7 +501,7 @@ class AboutPage extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Row(
             children: [
               Icon(
@@ -517,6 +527,165 @@ class AboutPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildWidgetTile(BuildContext context, bool isDark) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          // 直接打开安卓小组件设置
+          _openWidgetSettings(context);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Row(
+            children: [
+              Icon(
+                Icons.widgets,
+                size: 20,
+                color: CupertinoColors.systemBlue,
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  '添加到桌面',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              Icon(
+                CupertinoIcons.chevron_right,
+                size: 18,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.3)
+                    : CupertinoColors.tertiaryLabel,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openWidgetSettings(BuildContext context) async {
+    try {
+      // 尝试直接打开小组件设置页面
+      if (Platform.isAndroid) {
+        final AndroidIntent intent = AndroidIntent(
+          action: 'android.settings.ACTION_APPLICATION_DETAILS_SETTINGS',
+          data: Uri.encodeFull('package: com.example.ios_club_app'),
+        );
+        await intent.launch();
+      }
+    } catch (e) {
+      // 如果无法直接打开设置，则显示说明
+      if (context.mounted) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        _showWidgetInstructions(context, isDark);
+      }
+    }
+  }
+
+  void _showWidgetInstructions(BuildContext context, bool isDark) {
+    showClubModalBottomSheet(
+      context,
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '添加小组件到桌面',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '请按照以下步骤操作：',
+            style: TextStyle(
+              fontSize: 16,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.7)
+                  : Colors.black.withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildInstructionStep(
+            isDark,
+            '1',
+            '长按手机桌面空白处',
+          ),
+          const SizedBox(height: 8),
+          _buildInstructionStep(
+            isDark,
+            '2',
+            '点击"小组件"或"Widgets"选项',
+          ),
+          const SizedBox(height: 8),
+          _buildInstructionStep(
+            isDark,
+            '3',
+            '找到"iOS Club App"并选择合适的小组件',
+          ),
+          const SizedBox(height: 8),
+          _buildInstructionStep(
+            isDark,
+            '4',
+            '将小组件拖拽到桌面合适位置',
+          ),
+          const SizedBox(height: 24),
+          Text(
+            '提示：小组件可以显示今日课程等信息，方便快速查看',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.6)
+                  : Colors.black.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstructionStep(bool isDark, String step, String description) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBlue,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              step,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            description,
+            style: TextStyle(
+              fontSize: 16,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

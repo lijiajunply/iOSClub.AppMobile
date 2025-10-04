@@ -102,8 +102,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             curve: Curves.easeInOut,
             opacity: isStyle ? 1.0 : 0.0,
             child: isStyle
-                ? Padding(
+                ? Container(
                     padding: EdgeInsets.all(4),
+                    width: double.infinity,
                     child: CupertinoSlidingSegmentedControl<CourseStyle>(
                       groupValue: courseStyle,
                       // Callback that sets the selected segmented control.
