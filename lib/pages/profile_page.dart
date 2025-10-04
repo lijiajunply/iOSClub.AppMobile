@@ -513,7 +513,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Text(
-                          userStore.isLogin ? '教务系统账号' : '游客',
+                          userStore.isLogin && userStore.isLoginMember
+                              ? '教务系统账号 & iMember账号'
+                              : userStore.isLogin
+                                  ? '教务系统账号'
+                                  : userStore.isLoginMember
+                                      ? 'iMember账号'
+                                      : '游客',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],

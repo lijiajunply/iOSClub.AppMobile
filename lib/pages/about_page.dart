@@ -474,10 +474,20 @@ class AboutPage extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () async {
-          final userStore = Get.find<UserStore>();
-          await userStore.logoutMember();
-          if (context.mounted) {
-            showClubSnackBar(context, const Text('已退出iMember账号'));
+          final result = await PlatformDialog.showConfirmDialog(
+            context,
+            title: "确定退出登录吗？",
+            content: "退出后需要重新登录才能访问教务系统数据",
+            confirmText: '退出登录',
+            cancelText: '取消',
+          );
+
+          if (result == true) {
+            final userStore = Get.find<UserStore>();
+            await userStore.logoutMember();
+            if (context.mounted) {
+              showClubSnackBar(context, const Text('已退出iMember账号'));
+            }
           }
         },
         child: Container(

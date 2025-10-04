@@ -7,7 +7,6 @@ import 'package:ios_club_app/widgets/club_card.dart';
 import '../controllers/payment_controller.dart';
 import '../services/turnover_analyzer.dart';
 import '../widgets/club_app_bar.dart';
-import '../widgets/platform_dialog.dart';
 
 class PaymentPage extends StatelessWidget {
   final PaymentController controller = Get.put(PaymentController());
@@ -53,7 +52,7 @@ class PaymentPage extends StatelessWidget {
         children: [
           _buildStatisticsSection(),
           Obx(
-            () => controller.totalRecharge.value == 0
+            () => controller.num.value.isEmpty
                 ? _buildBindCardPrompt()
                 : _buildRecentTransactionsSection(),
           ),

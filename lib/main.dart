@@ -21,8 +21,6 @@ void main() async {
   requestPermissions();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    await CourseReminderService.performCourseReminder();
-
     // 初始化 window_manager
     await windowManager.ensureInitialized();
 

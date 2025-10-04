@@ -546,7 +546,8 @@ class _ScorePageState extends State<ScorePage>
       return Container();
     }
 
-    return Padding(
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       child: CupertinoSlidingSegmentedControl<int>(
         proportionalWidth: true,

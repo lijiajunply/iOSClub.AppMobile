@@ -1,260 +1,110 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/services/widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/services/notification_service.dart';
 
+/// 后台任务回调函数
+@pragma('vm:entry-point')
+void backgroundTask() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 执行课程提醒检查
+  await TaskExecutor.checkAndSendCourseReminder();
+  
+  // 更新小组件
+  await TaskExecutor.updateTodayWidget();
+}
+
 /// 后台服务管理类
 class BackgroundService {
-  static const String _channelId = 'course_reminder_service';
-  static const String _channelName = '课程提醒服务';
-  static const String _channelDescription = '用于课程提醒和小组件更新的后台服务';
+  static const int _reminderAlarmId = 1;
+  static const int _widgetAlarmId = 2;
 
   /// 初始化后台服务
   static Future<void> initializeService() async {
-    final service = FlutterBackgroundService();
-
-    // 根据平台配置不同的服务
-    if (Platform.isIOS) {
-      await _configureIOSService(service);
-    } else if (Platform.isAndroid) {
-      await _configureAndroidService(service);
-    }
-  }
-
-  /// 配置 iOS 服务
-  static Future<void> _configureIOSService(
-      FlutterBackgroundService service) async {
-    await service.configure(
-      iosConfiguration: IosConfiguration(
-        // iOS 不建议 autoStart，让用户手动控制
-        autoStart: false,
-        onForeground: _onStartIOS,
-        // iOS 后台任务应该快速完成
-        onBackground: _onIOSBackground,
-      ),
-      androidConfiguration: AndroidConfiguration(
-        onStart: _onStartAndroid,
-        autoStart: false,
-        isForegroundMode: false,
-        autoStartOnBoot: false,
-      ),
+    // 初始化 Android Alarm Manager
+    await AndroidAlarmManager.initialize();
+    
+    // 注册后台任务
+    await AndroidAlarmManager.periodic(
+      const Duration(hours: 8), 
+      _reminderAlarmId, 
+      backgroundTask,
+      wakeup: true,
+      exact: true,
+      rescheduleOnReboot: true,
     );
-  }
-
-  /// 配置 Android 服务
-  static Future<void> _configureAndroidService(
-      FlutterBackgroundService service) async {
-    // Android 通知通道配置
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      _channelId,
-      _channelName,
-      description: _channelDescription,
-      importance: Importance.low,
-    );
-
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
-    await service.configure(
-      iosConfiguration: IosConfiguration(
-        autoStart: false,
-        onForeground: _onStartIOS,
-        onBackground: _onIOSBackground,
-      ),
-      androidConfiguration: AndroidConfiguration(
-        onStart: _onStartAndroid,
-        autoStart: true,
-        isForegroundMode: true,
-        autoStartOnBoot: true,
-      ),
-    );
+    
+    // 立即执行一次任务以测试功能
+    Future.delayed(const Duration(seconds: 5), () {
+      backgroundTask();
+    });
+    
+    debugPrint('Android Alarm Manager 初始化完成');
   }
 
   /// 启动服务
   static Future<void> startService() async {
-    final service = FlutterBackgroundService();
-    final isRunning = await service.isRunning();
-
-    if (!isRunning) {
-      await service.startService();
-      debugPrint('后台服务已启动');
-    } else {
-      debugPrint('后台服务已在运行');
-    }
+    // 启动周期性任务
+    await AndroidAlarmManager.periodic(
+      const Duration(hours: 8), 
+      _reminderAlarmId, 
+      backgroundTask,
+      wakeup: true,
+      exact: true,
+      rescheduleOnReboot: true,
+    );
+    
+    await AndroidAlarmManager.periodic(
+      const Duration(minutes: 30), 
+      _widgetAlarmId, 
+      TaskExecutor.updateTodayWidget,
+      wakeup: false, // 小组件更新不需要唤醒设备
+      exact: true,
+      rescheduleOnReboot: true,
+    );
+    
+    // 立即执行一次任务以测试功能
+    Future.delayed(const Duration(seconds: 1), () {
+      backgroundTask();
+      TaskExecutor.updateTodayWidget();
+    });
+    
+    debugPrint('周期性任务已注册');
   }
 
   /// 停止服务
   static Future<void> stopService() async {
-    final service = FlutterBackgroundService();
-    service.invoke("stopService");
-    debugPrint('后台服务停止指令已发送');
+    await AndroidAlarmManager.cancel(_reminderAlarmId);
+    await AndroidAlarmManager.cancel(_widgetAlarmId);
+    debugPrint('所有后台任务已取消');
   }
 
   /// 手动触发课程提醒检查
   static Future<void> checkCourseReminder() async {
-    final service = FlutterBackgroundService();
-    service.invoke("checkReminder");
+    await AndroidAlarmManager.oneShot(
+      const Duration(seconds: 1),
+      _reminderAlarmId,
+      TaskExecutor.checkAndSendCourseReminder,
+    );
   }
 
   /// 手动触发小组件更新
   static Future<void> updateWidget() async {
-    final service = FlutterBackgroundService();
-    service.invoke("updateWidget");
+    await AndroidAlarmManager.oneShot(
+      const Duration(seconds: 1),
+      _widgetAlarmId,
+      TaskExecutor.updateTodayWidget,
+    );
   }
-}
-
-/// iOS 后台处理入口
-@pragma('vm:entry-point')
-Future<bool> _onIOSBackground(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-
-  // iOS 后台任务应该快速完成并返回
-  try {
-    // 执行快速的后台任务
-    await TaskExecutor.performQuickTasks();
-    return true;
-  } catch (e) {
-    debugPrint('iOS 后台任务执行失败: $e');
-    return false;
-  }
-}
-
-/// iOS 前台服务入口
-@pragma('vm:entry-point')
-void _onStartIOS(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-
-  debugPrint('iOS 前台服务启动');
-
-  // iOS 使用定时器而不是 while 循环
-  Timer? reminderTimer;
-  Timer? widgetTimer;
-
-  // 立即执行一次
-  await TaskExecutor.checkAndSendCourseReminder();
-  await TaskExecutor.updateTodayWidget();
-
-  // 设置定时器
-  // 课程提醒：每小时检查一次（会在内部判断是否需要提醒）
-  reminderTimer = Timer.periodic(const Duration(hours: 1), (timer) async {
-    await TaskExecutor.checkAndSendCourseReminder();
-  });
-
-  // 小组件更新：每30分钟更新一次
-  widgetTimer = Timer.periodic(const Duration(minutes: 30), (timer) async {
-    await TaskExecutor.updateTodayWidget();
-  });
-
-  // 监听服务控制事件
-  service.on('stopService').listen((event) {
-    debugPrint('iOS 服务收到停止指令');
-    reminderTimer?.cancel();
-    widgetTimer?.cancel();
-    service.stopSelf();
-  });
-
-  service.on('checkReminder').listen((event) async {
-    await TaskExecutor.checkAndSendCourseReminder();
-  });
-
-  service.on('updateWidget').listen((event) async {
-    await TaskExecutor.updateTodayWidget();
-  });
-}
-
-/// Android 服务入口
-@pragma('vm:entry-point')
-void _onStartAndroid(ServiceInstance service) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  DartPluginRegistrant.ensureInitialized();
-
-  debugPrint('Android 后台服务启动');
-
-  // Android 特有的前台服务设置
-  if (service is AndroidServiceInstance) {
-    service.on('setAsForeground').listen((event) {
-      service.setAsForegroundService();
-    });
-
-    service.on('setAsBackground').listen((event) {
-      service.setAsBackgroundService();
-    });
-
-    // 设置为前台服务
-    service.setAsForegroundService();
-  }
-
-  // 使用标志控制循环
-  bool shouldStop = false;
-
-  // 监听停止事件
-  service.on('stopService').listen((event) {
-    debugPrint('Android 服务收到停止指令');
-    shouldStop = true;
-  });
-
-  // 监听手动触发事件
-  service.on('checkReminder').listen((event) async {
-    await TaskExecutor.checkAndSendCourseReminder();
-  });
-
-  service.on('updateWidget').listen((event) async {
-    await TaskExecutor.updateTodayWidget();
-  });
-
-  // 立即执行一次
-  await TaskExecutor.checkAndSendCourseReminder();
-  await TaskExecutor.updateTodayWidget();
-
-  // 记录上次执行时间
-  DateTime lastReminderCheck = DateTime.now();
-  DateTime lastWidgetUpdate = DateTime.now();
-
-  // Android 可以使用循环，但要优化
-  while (!shouldStop) {
-    try {
-      final now = DateTime.now();
-
-      // 每8小时检查一次课程提醒
-      if (now.difference(lastReminderCheck).inHours >= 8) {
-        await TaskExecutor.checkAndSendCourseReminder();
-        lastReminderCheck = now;
-      }
-
-      // 每15分钟更新一次小组件
-      if (now.difference(lastWidgetUpdate).inMinutes >= 15) {
-        await TaskExecutor.updateTodayWidget();
-        lastWidgetUpdate = now;
-      }
-    } catch (e) {
-      debugPrint('Android 后台任务执行错误: $e');
-    }
-
-    // 等待1分钟再检查
-    await Future.delayed(const Duration(minutes: 1));
-  }
-
-  // 循环结束，停止服务
-  service.stopSelf();
-  debugPrint('Android 后台服务已停止');
 }
 
 /// 任务执行器 - 实际的业务逻辑
@@ -404,18 +254,19 @@ class TaskExecutor {
 class CourseReminderService {
   /// 手动执行课程提醒
   static Future<void> performCourseReminder() async {
-    await TaskExecutor.checkAndSendCourseReminder();
+    await BackgroundService.checkCourseReminder();
   }
 
   /// 手动更新今日课程
   static Future<void> updateTodayCourse() async {
-    await TaskExecutor.updateTodayWidget();
+    await BackgroundService.updateWidget();
   }
 
   /// 获取服务状态
   static Future<bool> isServiceRunning() async {
-    final service = FlutterBackgroundService();
-    return await service.isRunning();
+    // AndroidAlarmManager 没有直接的 API 来检查任务是否运行
+    // 这里简单返回 true 表示已配置
+    return true;
   }
 
   /// 获取上次提醒时间
@@ -439,8 +290,11 @@ class CourseReminderService {
     await prefs.setBool(PrefsKeys.IS_REMIND, enabled);
 
     if (enabled) {
-      // 启用时自动启动服务
+      // 启用时启动服务
       await BackgroundService.startService();
+    } else {
+      // 禁用时停止服务
+      await BackgroundService.stopService();
     }
   }
 

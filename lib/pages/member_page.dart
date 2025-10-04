@@ -634,22 +634,12 @@ class MemberPage extends StatelessWidget {
           color: CupertinoColors.activeBlue,
         ),
         onTap: () {
-          // 这里已经使用了 Cupertino 风格的对话框，符合苹果平台的设计规范
-          showCupertinoDialog(
-            context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: Text(resource['name']),
-              content: Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Text(resource['description']),
-              ),
-              actions: [
-                CupertinoDialogAction(
-                  child: const Text('关闭'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
+          // 使用 PlatformDialog 显示跨平台对话框
+          PlatformDialog.showConfirmDialog(
+            context,
+            title: resource['name'],
+            content: resource['description'],
+            confirmText: '关闭',
           );
         },
       ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Services/edu_service.dart';
@@ -74,7 +75,7 @@ Widget buildElectricity(BuildContext context) {
                         child: Hero(
                             tag: '电费',
                             child: Icon(
-                              Icons.electric_bolt_rounded,
+                              CupertinoIcons.bolt_fill,
                               color: isLow ? Colors.red : Colors.blue,
                               size: 24,
                             )),
