@@ -6,12 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:ios_club_app/Services/data_service.dart';
 import 'package:ios_club_app/stores/course_store.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/page_header_delegate.dart';
-import 'package:ios_club_app/widgets/platform_dialog.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
   const ScheduleSettingPage({super.key});
@@ -124,10 +124,9 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                     } else {
                       // 如果没有找到可以处理该 Intent 的应用，则显示错误消息
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('没有找到日历应用，请手动导入'),
-                          ),
+                        showClubSnackBar(
+                          context,
+                          Text('没有找到日历应用，请手动导入'),
                         );
                       }
                     }
@@ -174,11 +173,9 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                           onPressed: () {
                             Clipboard.setData(
                                 ClipboardData(text: 'webcal$url'));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('复制成功!'),
-                                duration: const Duration(seconds: 2),
-                              ),
+                            showClubSnackBar(
+                              context,
+                              Text('复制成功!'),
                             );
                           },
                         ),
@@ -280,8 +277,9 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                       icon: const Icon(Icons.copy),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: httpsUrl));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('链接已复制到剪贴板')),
+                        showClubSnackBar(
+                          context,
+                          const Text('链接已复制到剪贴板'),
                         );
                       },
                     ),

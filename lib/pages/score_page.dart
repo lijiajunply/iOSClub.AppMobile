@@ -271,15 +271,14 @@ class _ScorePageState extends State<ScorePage>
       }
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('是的，在下绩点5.0'),
-            Icon(Icons.mood, color: Colors.black12),
-          ],
-        ),
+    showClubSnackBar(
+      context,
+      const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('是的，在下绩点5.0'),
+          Icon(Icons.mood, color: Colors.black12),
+        ],
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -228,15 +229,17 @@ class UpdateManager {
       // 下载完成
       if (context.mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('下载完成，正在安装...')),
+        showClubSnackBar(
+          context,
+          const Text('下载完成，正在安装...'),
         );
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('下载失败: $e')),
+        showClubSnackBar(
+          context,
+          Text('下载失败: $e'),
         );
       }
     } finally {

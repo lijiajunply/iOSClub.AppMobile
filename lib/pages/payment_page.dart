@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 import '../controllers/payment_controller.dart';
 import '../services/turnover_analyzer.dart';
@@ -330,8 +331,9 @@ class PaymentPage extends StatelessWidget {
               onPressed: () async {
                 final cardNumber = textController.text.trim();
                 if (cardNumber.isEmpty) {
-                  ScaffoldMessenger.of(contextDialog).showSnackBar(
-                    const SnackBar(content: Text('请输入饭卡卡号')),
+                  showClubSnackBar(
+                    contextDialog,
+                    const Text('请输入饭卡卡号'),
                   );
                   return;
                 }

@@ -7,6 +7,7 @@ import 'package:ios_club_app/models/user_data.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/services/edu_service.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -67,8 +68,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _login() async {
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('用户名和密码不能为空')),
+      showClubSnackBar(
+        context,
+        const Text('用户名和密码不能为空'),
       );
       return;
     }
@@ -89,16 +91,18 @@ class _ProfilePageState extends State<ProfilePage> {
         if (result) break;
         await Future.delayed(const Duration(seconds: 1));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('正在重试')),
+          showClubSnackBar(
+            context,
+            const Text('正在重试'),
           );
         }
       }
 
       if (!result) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('登录失败，请检查用户名和密码')),
+          showClubSnackBar(
+            context,
+            const Text('登录失败，请检查用户名和密码'),
           );
         }
 
@@ -114,8 +118,9 @@ class _ProfilePageState extends State<ProfilePage> {
       if ((_nameController.text.isEmpty && _isOnlyLoginMember) &&
           (_isLoginMember && _usernameController.text.isEmpty) &&
           mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('登录社团账号时姓名不能为空')),
+        showClubSnackBar(
+          context,
+          const Text('登录社团账号时姓名不能为空'),
         );
       } else {
         if (_isOnlyLoginMember) {
@@ -134,8 +139,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (!result) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('社团账号登陆失败')),
+        showClubSnackBar(
+          context,
+          const Text('社团账号登陆失败'),
         );
       }
 
@@ -426,8 +432,9 @@ class _ProfilePageState extends State<ProfilePage> {
             title: '培养方案',
             onPressed: () {
               // 未登录教务系统时提示需要登录
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('此功能需要登录教务系统账号后使用')),
+              showClubSnackBar(
+                context,
+                const Text('此功能需要登录教务系统账号后使用'),
               );
             }),
         ProfileButtonItem(
