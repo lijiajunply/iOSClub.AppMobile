@@ -257,6 +257,7 @@ class EduService {
         // 存储到本地
         await prefs.setString(
             PrefsKeys.COURSE_DATA, jsonEncode(jsonDecode(response.body)));
+        await DataService.setIgnore([]);
       } else {
         if (!(await login())) return;
         var a = await getUserData();
@@ -268,6 +269,7 @@ class EduService {
         if (response.statusCode == 200) {
           await prefs.setString(
               PrefsKeys.COURSE_DATA, jsonEncode(jsonDecode(response.body)));
+          await DataService.setIgnore([]);
         }
       }
     } catch (e) {
