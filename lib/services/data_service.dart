@@ -205,19 +205,21 @@ class DataService {
     final prefs = await SharedPreferences.getInstance();
     if (isRefresh) {
       await EduService.getSemester();
-    }
+    } else {
+      final semesterIntTime = prefs.getInt(PrefsKeys.SEMESTER_TIME);
 
-    final semesterIntTime = prefs.getInt(PrefsKeys.SEMESTER_TIME);
-
-    if (semesterIntTime != null) {
-      final now = DateTime.now();
-      if (now
-              .difference(DateTime.fromMicrosecondsSinceEpoch(semesterIntTime))
-              .inHours <
-          1) {
-        await EduService.getSemester();
+      if (semesterIntTime != null) {
+        final now = DateTime.now();
+        if (now
+                .difference(
+                    DateTime.fromMicrosecondsSinceEpoch(semesterIntTime))
+                .inHours <
+            1) {
+          await EduService.getSemester();
+        }
       }
     }
+
     final String? jsonString = prefs.getString(PrefsKeys.SEMESTER_DATA);
     final List<SemesterModel> list = [];
     if (jsonString != null) {

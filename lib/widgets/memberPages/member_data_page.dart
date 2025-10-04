@@ -124,6 +124,7 @@ class _MemberDataPageState extends State<MemberDataPage> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
+                          color: CupertinoColors.white,
                         ),
                       ),
                     ),

@@ -148,8 +148,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                   )
                 : Container()));
 
-    final weekText = scheduleStore.currentWeek <= 0 
-        ? '距离开学还有${-scheduleStore.currentWeek + 1}周' 
+    final weekText = scheduleStore.currentWeek <= 0
+        ? '距离开学还有${-scheduleStore.currentWeek + 1}周'
         : '当前为第${scheduleStore.currentWeek}周';
 
     return Scaffold(
@@ -164,8 +164,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                         children: [
                           Expanded(
                               child: TextButton(
-                                  onPressed: () =>
-                                      jumpToPage((scheduleStore.currentPage - 1).ceil()),
+                                  onPressed: () => jumpToPage(
+                                      (scheduleStore.currentPage - 1).ceil()),
                                   child: const Text('上一周'))),
                           Expanded(
                               child: Center(
@@ -220,17 +220,19 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   },
                                   child: Padding(
                                       padding: const EdgeInsets.only(top: 4),
-                                      child: Text(
-                                        scheduleStore.currentPage <= 0 ||
-                                                scheduleStore.currentPage == scheduleStore.currentWeek
-                                            ? '全部课表 $weekText'
-                                            : scheduleStore.currentPage <= 0
-                                                ? '全部课表 $weekText'
-                                                : '第${scheduleStore.currentPage}周 $weekText',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                        ),
-                                      )))
+                                      child: Obx(() {
+                                        return Text(
+                                          scheduleStore.currentPage ==
+                                                  scheduleStore.currentWeek
+                                              ? weekText
+                                              : scheduleStore.currentPage <= 0
+                                                  ? '全部课表 $weekText'
+                                                  : '第${scheduleStore.currentPage}周 $weekText',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        );
+                                      })))
                             ],
                           )
                         ]),
@@ -303,8 +305,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final now = DateTime.now();
     int weekday = now.weekday;
     if (weekday == 7) weekday = 0;
-    final w =
-        now.subtract(Duration(days: weekday + (scheduleStore.currentWeek - i) * 7)); // 每周第一天（周日）
+    final w = now.subtract(Duration(
+        days: weekday + (scheduleStore.currentWeek - i) * 7)); // 每周第一天（周日）
     for (int i1 = 0; i1 < 7; i1++) {
       weekDays.add(
         Expanded(
@@ -320,9 +322,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             ),
             Text(DateFormat('M/d').format(w.add(Duration(days: i1))),
                 style: TextStyle(
-                  fontWeight: i1 == weekday && scheduleStore.currentWeek - i == 0
-                      ? FontWeight.bold
-                      : FontWeight.normal,
+                  fontWeight:
+                      i1 == weekday && scheduleStore.currentWeek - i == 0
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                 ))
           ]),
         ),

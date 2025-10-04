@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ios_club_app/services/club_service.dart';
 import 'package:ios_club_app/widgets/memberPages/member_data_page.dart';
+import 'package:ios_club_app/widgets/memberPages/staff_data_page.dart';
 
 class MemberPage extends StatelessWidget {
   const MemberPage({super.key});
@@ -440,7 +441,13 @@ class MemberPage extends StatelessWidget {
                 );
               }),
               _buildDataCard(
-                  '部员数量', '${infoData['staffsCount']}', CupertinoIcons.person),
+                  '部员数量', '${infoData['staffsCount']}', CupertinoIcons.person,
+                  onTap: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (context) => StaffDataPage()),
+                );
+              }),
               _buildDataCard(
                   '项目数量',
                   '${(infoData['projects'] as List<dynamic>).length}',

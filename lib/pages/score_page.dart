@@ -204,9 +204,7 @@ class _ScorePageState extends State<ScorePage>
     try {
       final response = await http.get(
         Uri.parse(
-          'https://xauatapi.xauat.site/Score?'
-          'studentId=${cookieData.studentId}&semester=${semester.semester}',
-        ),
+            'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${semester.semester}'),
         headers: headers,
       );
 
@@ -240,8 +238,7 @@ class _ScorePageState extends State<ScorePage>
 
     final response = await http.get(
       Uri.parse(
-        'https://xauatapi.xauat.site/Score?'
-        'studentId=${cookieData.studentId}&semester=${semester.semester}',
+        'https://xauatapi.xauat.site/Score?studentId=${cookieData.studentId}&semester=${semester.semester}',
       ),
       headers: _buildHeaders(freshCookieData),
     );

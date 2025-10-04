@@ -1,4 +1,3 @@
-// payment_page.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +17,7 @@ class PaymentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: Obx(() => _buildBody()),
+      body: Obx(() => _buildContent()),
     );
   }
 
@@ -46,10 +45,6 @@ class PaymentPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody() {
-    return _buildContent();
-  }
-
   Widget _buildContent() {
     return SingleChildScrollView(
       child: Column(
@@ -60,7 +55,8 @@ class PaymentPage extends StatelessWidget {
             () => controller.totalRecharge.value == 0
                 ? _buildBindCardPrompt()
                 : _buildRecentTransactionsSection(),
-          )
+          ),
+          _buildSettingsSection()
         ],
       ),
     );
@@ -80,7 +76,7 @@ class PaymentPage extends StatelessWidget {
           _buildStatCard(
             '余额',
             controller.totalRecharge.value,
-            CupertinoIcons.money_dollar,
+            Icons.monetization_on_outlined,
             Colors.green,
           ),
         ],
@@ -258,8 +254,42 @@ class PaymentPage extends StatelessWidget {
     );
   }
 
+  Widget _buildSettingsSection() {
+    if (controller.num.value.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '设置',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          ClubCard(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.home),
+                  title: Text('添加到首页'),
+                  subtitle: Text('在首页显示饭卡磁贴'),
+                  trailing: CupertinoSwitch(
+                    value: controller.isShowTile.value,
+                    onChanged: (value) => controller.toggleTileShow(value),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Future<void> _showSettingDialog(BuildContext context) async {
-    final controller = Get.find<PaymentController>();
     final TextEditingController textController =
         TextEditingController(text: controller.num.value);
 
@@ -268,39 +298,26 @@ class PaymentPage extends StatelessWidget {
       builder: (contextDialog) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
           title: const Text('设置饭卡卡号'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: textController,
-                decoration: InputDecoration(
-                  hintText: '请输入饭卡卡号',
-                  filled: true,
-                  border: InputBorder.none,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.numbers,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,19}')),
-                ],
+          content: TextField(
+            controller: textController,
+            decoration: InputDecoration(
+              hintText: '请输入饭卡卡号',
+              filled: true,
+              border: InputBorder.none,
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide.none,
               ),
-              if (controller.num.value.isNotEmpty)
-                ListTile(
-                  title: Text('是否显示饭卡磁贴'),
-                  trailing: Obx(() => Switch(
-                        value: controller.isShowTile.value,
-                        onChanged: (value) => controller.toggleTileShow(value),
-                      )),
-                ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.blue, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.numbers,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d{0,19}')),
             ],
           ),
           actions: [
