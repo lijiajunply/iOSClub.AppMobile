@@ -16,6 +16,7 @@ import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
+import 'package:ios_club_app/widgets/platform_dialog.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 class AboutPage extends StatelessWidget {
@@ -423,32 +424,19 @@ class AboutPage extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () async {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text("确定退出登录吗？"),
-              actions: [
-                Wrap(
-                  children: [
-                    TextButton(
-                      onPressed: () async {
-                        final userStore = Get.find<UserStore>();
-                        await userStore.logout();
-                        Get.toNamed("Profile");
-                      },
-                      child: const Text('退出登录'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('取消'),
-                    ),
-                  ],
-                )
-              ],
-            ),
+          final result = await PlatformDialog.showConfirmDialog(
+            context,
+            title: "确定退出登录吗？",
+            content: "退出后需要重新登录才能访问教务系统数据",
+            confirmText: '退出登录',
+            cancelText: '取消',
           );
+
+          if (result == true) {
+            final userStore = Get.find<UserStore>();
+            await userStore.logout();
+            Get.toNamed("Profile");
+          }
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -824,32 +812,20 @@ class _VersionSettingState extends State<VersionSetting> {
               ),
               onTap: () async {
                 if (isNeedUpdate) {
-                  await showDialog(
-                      context: context,
-                      builder: (b) {
-                        return AlertDialog(
-                          title: Text('是否更新最新版本: $newVersion'),
-                          actions: [
-                            TextButton(
-                              child: const Text('是的'),
-                              onPressed: () async {
-                                Navigator.of(b).pop();
-                                final a = await GiteeService.getReleases();
-                                if (context.mounted) {
-                                  UpdateManager.showUpdateWithProgress(
-                                      context, a.name);
-                                }
-                              },
-                            ),
-                            TextButton(
-                              child: const Text('不要'),
-                              onPressed: () {
-                                Navigator.of(b).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      });
+                  final result = await PlatformDialog.showConfirmDialog(
+                    context,
+                    title: '是否更新最新版本: $newVersion',
+                    content: '发现新版本可用，是否立即更新？',
+                    confirmText: '是的',
+                    cancelText: '不要',
+                  );
+
+                  if (result == true) {
+                    final a = await GiteeService.getReleases();
+                    if (context.mounted) {
+                      UpdateManager.showUpdateWithProgress(context, a.name);
+                    }
+                  }
                 }
               }),
         ),

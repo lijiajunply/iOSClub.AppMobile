@@ -10,6 +10,7 @@ import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/empty_widget.dart';
+import 'package:ios_club_app/widgets/platform_dialog.dart';
 
 class ElectricityPage extends StatefulWidget {
   const ElectricityPage({super.key});
@@ -388,6 +389,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
   }
 
   void _showInputDialog() {
+    // 对于这种自定义输入框的对话框，我们保留原来的 Material 风格
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

@@ -8,6 +8,7 @@ import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/services/notification_service.dart';
 import 'package:ios_club_app/services/time_service.dart';
+import 'package:ios_club_app/widgets/platform_dialog.dart';
 import '../club_card.dart';
 import '../empty_widget.dart';
 
@@ -176,6 +177,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
+          // 对于这种简单的信息展示对话框，我们保留原来的 Material 风格
           showDialog(
               context: context,
               builder: (context) => AlertDialog(

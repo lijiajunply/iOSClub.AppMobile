@@ -12,6 +12,10 @@ import 'package:ios_club_app/models/user_data.dart';
 import 'package:ios_club_app/models/plan_course.dart';
 
 class EduService {
+  /// 刷新所有数据
+  /// 该方法会执行登录、获取学期信息、时间信息、课程信息、考试信息和完成情况等操作
+  ///
+  /// @return Future<bool> 返回是否刷新成功
   static Future<bool> refresh() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -39,6 +43,11 @@ class EduService {
     return false;
   }
 
+  /// 使用用户名和密码登录并获取数据
+  ///
+  /// @param username 用户名
+  /// @param password 密码
+  /// @return Future<bool> 返回是否登录成功
   static Future<bool> loginFromData(String username, String password) async {
     if (username.isEmpty || password.isEmpty) {
       return false;
@@ -65,6 +74,10 @@ class EduService {
     return false;
   }
 
+  /// 登录用户
+  /// 从SharedPreferences中读取用户名和密码，然后尝试登录
+  ///
+  /// @return Future<bool> 返回是否登录成功
   static Future<bool> login() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -102,6 +115,10 @@ class EduService {
     return false;
   }
 
+  /// 获取用户数据
+  /// 首先尝试从缓存中获取，如果失败则尝试登录后重新获取
+  ///
+  /// @return Future<UserData?> 返回用户数据或null
   static Future<UserData?> getUserData() async {
     // 尝试获取缓存数据
     final cachedData = await getCookie();
@@ -120,6 +137,10 @@ class EduService {
         'Cookie data is invalid after successful login');
   }
 
+  /// 获取Cookie数据
+  /// 从SharedPreferences中读取缓存的用户数据
+  ///
+  /// @return Future<UserData?> 返回用户数据或null
   static Future<UserData?> getCookie() async {
     try {
       var now = DateTime.now().millisecondsSinceEpoch;

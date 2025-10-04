@@ -7,6 +7,7 @@ import 'package:ios_club_app/widgets/club_card.dart';
 import '../controllers/payment_controller.dart';
 import '../services/turnover_analyzer.dart';
 import '../widgets/club_app_bar.dart';
+import '../widgets/platform_dialog.dart';
 
 class PaymentPage extends StatelessWidget {
   final PaymentController controller = Get.put(PaymentController());
@@ -293,6 +294,7 @@ class PaymentPage extends StatelessWidget {
     final TextEditingController textController =
         TextEditingController(text: controller.num.value);
 
+    // 对于这种自定义输入框的对话框，我们保留原来的 Material 风格
     await showDialog(
       context: context,
       builder: (contextDialog) => StatefulBuilder(

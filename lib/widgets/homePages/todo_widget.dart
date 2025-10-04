@@ -155,7 +155,8 @@ class _TodoWidgetState extends State<TodoWidget> {
     );
   }
 
-  Future<TodoItem?> showAddTodoDialog(BuildContext context, {TodoItem? todo}) {
+  Future<TodoItem?> showAddTodoDialog(BuildContext context,
+      {TodoItem? todo}) async {
     final formKey = GlobalKey<FormState>();
     final titleController = TextEditingController();
     final deadlineController = TextEditingController();
@@ -163,7 +164,8 @@ class _TodoWidgetState extends State<TodoWidget> {
     titleController.text = todo?.title ?? '';
     deadlineController.text = todo?.deadline ?? '';
 
-    return showDialog<TodoItem>(
+    // 由于 PlatformDialog.showInputDialog 只返回字符串，我们需要使用自定义对话框
+    return showDialog<TodoItem?>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -222,18 +224,18 @@ class _TodoWidgetState extends State<TodoWidget> {
             TextButton(
               child: const Text('取消',
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(null),
             ),
             TextButton(
               child: Text(todo == null ? '添加' : '更改',
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  final todo = TodoItem(
+                  final todoItem = TodoItem(
                     title: titleController.text,
                     deadline: deadlineController.text,
                   );
-                  Navigator.of(context).pop(todo);
+                  Navigator.of(context).pop(todoItem);
                 }
               },
             ),

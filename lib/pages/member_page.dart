@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ios_club_app/services/club_service.dart';
 import 'package:ios_club_app/widgets/memberPages/member_data_page.dart';
 import 'package:ios_club_app/widgets/memberPages/staff_data_page.dart';
+import 'package:ios_club_app/widgets/platform_dialog.dart';
 
 class MemberPage extends StatelessWidget {
   const MemberPage({super.key});
@@ -633,6 +634,7 @@ class MemberPage extends StatelessWidget {
           color: CupertinoColors.activeBlue,
         ),
         onTap: () {
+          // 这里已经使用了 Cupertino 风格的对话框，符合苹果平台的设计规范
           showCupertinoDialog(
             context: context,
             builder: (context) => CupertinoAlertDialog(

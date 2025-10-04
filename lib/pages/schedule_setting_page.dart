@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/page_header_delegate.dart';
+import 'package:ios_club_app/widgets/platform_dialog.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
   const ScheduleSettingPage({super.key});
@@ -244,6 +245,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
   void showCalendarGuidanceDialog(BuildContext context) {
     final httpsUrl = 'webcal$url';
 
+    // 对于这种复杂的说明性对话框，我们保留原来的 Material 风格
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

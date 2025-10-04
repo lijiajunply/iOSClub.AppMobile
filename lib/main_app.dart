@@ -13,6 +13,7 @@ import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
 import 'Services/git_service.dart';
 import 'under_maintenance_screen.dart';
+import 'widgets/platform_dialog.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -58,6 +59,8 @@ class _MainAppState extends State<MainApp> {
   }
 
   void showUpdateDialog(ReleaseModel model) {
+    // 这里我们保留原来的 Material 风格对话框，因为它包含复杂的内容和多个按钮
+    // 对于这种复杂的对话框，我们不使用 PlatformDialog
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
