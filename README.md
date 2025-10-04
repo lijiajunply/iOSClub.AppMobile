@@ -19,6 +19,7 @@
 
 - **TodayCoursesWidgetProvider**：提供了一个 AppWidget，用于在 Android 桌面上显示当天的课程。
 - **CourseListRemoteViewsService** 和 **CourseListRemoteViewsFactory**：支持 AppWidget 的远程视图服务和数据绑定。
+- **暗色主题支持**：所有Android组件均支持暗色主题，能够根据系统设置自动适配亮色和暗色主题。
 
 ## 开发环境
 
