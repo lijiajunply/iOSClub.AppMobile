@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ios_club_app/pageModels/course_color_manager.dart';
 import 'package:ios_club_app/models/course_model.dart';
+import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/schedule_store.dart';
 import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
@@ -24,6 +25,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   late PageController pageController = PageController();
   CourseStyle courseStyle = CourseStyle.normal;
   bool isStyle = false;
+  bool isYanTa = false;
 
   final ScheduleStore scheduleStore = ScheduleStore.to;
 
@@ -364,13 +366,62 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           height: scheduleStore.height,
           width: 50,
           child: Center(
-              child: Text('${index + 1}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ))),
+            child: _buildTimeCellForPeriod(index + 1),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTimeCellForPeriod(int period) {
+    final index = period - 1;
+    String timeText = "";
+
+    // 根据当前日期和季节选择时间表
+    final now = DateTime.now();
+    final isSummer = now.month >= 5 && now.month <= 10;
+
+    // 确保索引在有效范围内
+    if (index + 1 < TimeService.CanTangTime.length) {
+      // 默认使用草堂时间
+      String startTime = TimeService.CanTangTime[index + 1];
+
+      // 根据季节选择雁塔时间
+      if (scheduleStore.isYanTa) {
+        if (isSummer) {
+          if (index * 2 + 1 < TimeService.YanTaXia.length) {
+            startTime = TimeService.YanTaXia[index + 1];
+          }
+        } else {
+          if (index * 2 + 1 < TimeService.YanTaDong.length) {
+            startTime = TimeService.YanTaDong[index + 1];
+          }
+        }
+      }
+
+      // 只有当时间不为空时才显示
+      if (startTime.isNotEmpty) {
+        timeText = startTime;
+      }
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('$period',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            )),
+        Text(
+          timeText,
+          style: const TextStyle(
+            fontWeight: FontWeight.normal,
+            fontSize: 8,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 

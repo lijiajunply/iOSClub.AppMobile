@@ -112,7 +112,7 @@ Widget buildElectricity(BuildContext context) {
                   Text(
                     '¥${amount.toStringAsFixed(2)}',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: isLow ? Colors.red : Colors.blue,
                     ),
@@ -319,7 +319,7 @@ Widget buildPayment(BuildContext context) {
                     Text(
                       '¥${amount.toStringAsFixed(2)}',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: isLow ? Colors.red : Colors.orange,
                       ),

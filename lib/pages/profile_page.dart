@@ -614,7 +614,7 @@ class ProfileButtonItem {
                     tag: title,
                     child: Icon(icon,
                         size: 32,
-                        color: CourseColorManager.generateSoftColor(icon,
+                        color: CourseColorManager.generateSoftColor(title,
                             isDark: true))),
                 Text(
                   title,

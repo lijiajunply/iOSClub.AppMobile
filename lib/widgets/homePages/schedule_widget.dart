@@ -8,7 +8,6 @@ import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/services/notification_service.dart';
 import 'package:ios_club_app/services/time_service.dart';
-import 'package:ios_club_app/widgets/platform_dialog.dart';
 import '../club_card.dart';
 import '../empty_widget.dart';
 
@@ -59,7 +58,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
       if (course.room.substring(0, 2) == "草堂") {
         startTime = TimeService.CanTangTime[course.startUnit];
         endTime = TimeService.CanTangTime[course.endUnit];
-      } else {
+      } else if (course.room.substring(0, 2) == "雁塔") {
         final now = DateTime.now();
         if (now.month >= 5 && now.month <= 10) {
           startTime = TimeService.YanTaXia[course.startUnit];
@@ -68,6 +67,9 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
           startTime = TimeService.YanTaDong[course.startUnit];
           endTime = TimeService.YanTaDong[course.endUnit];
         }
+      } else {
+        startTime = TimeService.CanTangTime[course.startUnit];
+        endTime = TimeService.CanTangTime[course.endUnit];
       }
 
       return ScheduleItem(

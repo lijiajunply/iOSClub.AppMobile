@@ -13,6 +13,7 @@ class ScheduleStore extends GetxController {
   final _currentWeek = 0.obs;
   final _currentPage = 0.obs;
   final _height = 55.0.obs;
+  final _isYanTa = false.obs;
 
   List<List<CourseModel>> get allCourses => _allCourses.toList();
   bool get isLoading => _isLoading.value;
@@ -20,6 +21,7 @@ class ScheduleStore extends GetxController {
   int get currentWeek => _currentWeek.value;
   int get currentPage => _currentPage.value;
   double get height => _height.value;
+  bool get isYanTa => _isYanTa.value;
 
   @override
   void onInit() {
@@ -57,6 +59,9 @@ class ScheduleStore extends GetxController {
               .where((course) => course.weekIndexes.contains(i))
               .toList();
     });
+    if (courses.isNotEmpty) {
+      _isYanTa.value = !(courses[0].room.substring(0, 2) == "草堂");
+    }
     _isLoading.value = false;
   }
 

@@ -463,7 +463,7 @@ class _ScorePageState extends State<ScorePage>
             label: 'GPA',
           ),
           _buildStatItem(
-            icon: Icons.do_not_disturb_on_total_silence,
+            icon: Icons.library_books,
             value: scoreList == null
                 ? ScoreList.getTotalCourse(_scoreList).toString()
                 : scoreList.totalCourse.toString(),
@@ -493,7 +493,10 @@ class _ScorePageState extends State<ScorePage>
   }) {
     return Column(
       children: [
-        Icon(icon, size: 32),
+        Icon(
+          icon,
+          size: 32,
+        ),
         Text(
           value,
           style: const TextStyle(
