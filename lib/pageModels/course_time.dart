@@ -5,7 +5,7 @@ class CourseTime {
 
   CourseTime({required this.startTime, required this.courseName,required this.endTime});
 
-  difference(DateTime now) {
+  Duration difference(DateTime now) {
     return startTime.difference(now);
   }
 

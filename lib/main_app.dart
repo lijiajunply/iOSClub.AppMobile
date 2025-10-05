@@ -13,7 +13,6 @@ import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
 import 'Services/git_service.dart';
 import 'under_maintenance_screen.dart';
-import 'widgets/platform_dialog.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});

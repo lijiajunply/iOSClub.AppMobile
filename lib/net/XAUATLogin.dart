@@ -255,7 +255,7 @@ class XAUATLogin {
         final document = html_parser.parse(response.body);
         final errorMsg = document.querySelector('span#msg');
 
-        if (errorMsg != null && errorMsg.text != null) {
+        if (errorMsg != null) {
           return LoginTokenModel(
             success: false,
             message: '登录失败：${errorMsg.text}',

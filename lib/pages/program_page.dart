@@ -211,7 +211,7 @@ class _ProgramPageState extends State<ProgramPage>
                                       // 添加分隔线，最后一项不添加
                                     ],
                                   );
-                                }).toList(),
+                                }),
                                 const SizedBox(height: 8),
                               ],
                             ),

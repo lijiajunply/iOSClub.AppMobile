@@ -108,6 +108,7 @@ class BackgroundService {
 }
 
 /// 任务执行器 - 实际的业务逻辑
+@pragma('vm:entry-point')
 class TaskExecutor {
   /// 执行快速任务（iOS后台用）
   static Future<void> performQuickTasks() async {
