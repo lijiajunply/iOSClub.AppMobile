@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 
-import 'package:ios_club_app/services/tile_service.dart';
+import 'package:ios_club_app/system_services/tile_service.dart';
 import 'package:ios_club_app/pageModels/electric_data.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';

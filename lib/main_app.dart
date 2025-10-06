@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
-import 'Services/git_service.dart';
+import 'net/git_service.dart';
 import 'under_maintenance_screen.dart';
 
 class MainApp extends StatefulWidget {

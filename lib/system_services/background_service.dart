@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/services/time_service.dart';
-import 'package:ios_club_app/services/widget_service.dart';
+import 'package:ios_club_app/system_services/widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../services/edu_service.dart';
+import 'package:ios_club_app/net/edu_service.dart';
 import '../club_card.dart';
 
 class BusTile extends StatelessWidget {

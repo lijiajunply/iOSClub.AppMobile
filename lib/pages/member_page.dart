@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:ios_club_app/services/club_service.dart';
+import 'package:ios_club_app/net/club_service.dart';
 import 'package:ios_club_app/widgets/memberPages/member_data_page.dart';
 import 'package:ios_club_app/widgets/memberPages/staff_data_page.dart';
 import 'package:ios_club_app/widgets/platform_dialog.dart';

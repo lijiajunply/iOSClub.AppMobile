@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/models/bus_model.dart';
 import 'package:ios_club_app/services/data_service.dart';
-import 'package:ios_club_app/services/login_service.dart';
+import 'package:ios_club_app/net/login_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/models/score_model.dart';

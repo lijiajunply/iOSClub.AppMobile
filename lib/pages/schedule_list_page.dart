@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/services/edu_service.dart';
+import 'package:ios_club_app/net/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ios_club_app/pageModels/course_color_manager.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:ios_club_app/services/club_service.dart';
+import 'package:ios_club_app/net/club_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 

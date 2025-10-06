@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import '../../Services/tile_service.dart';
+import '../../system_services/tile_service.dart';
 import '../tiles/bus_tile.dart';
 import '../tiles/electricity_tile.dart';
 import '../tiles/payment_tile.dart';

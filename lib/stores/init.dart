@@ -4,7 +4,7 @@ import 'user_store.dart';
 import 'course_store.dart';
 import 'schedule_store.dart';
 import 'settings_store.dart';
-import 'package:ios_club_app/stores/electricity_store.dart';
+import 'electricity_store.dart';
 
 /// 初始化所有 Store
 void initStores() {

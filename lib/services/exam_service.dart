@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/models/user_data.dart';
 import 'package:ios_club_app/models/exam_model.dart';
-import 'package:ios_club_app/services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 

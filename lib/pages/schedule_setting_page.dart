@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/Services/data_service.dart';
+import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/stores/course_store.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';

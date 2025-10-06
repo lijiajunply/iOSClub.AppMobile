@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ios_club_app/Services/club_service.dart';
+import 'package:ios_club_app/net/club_service.dart';
 import 'package:ios_club_app/models/member_model.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/club_card.dart';

@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/models/user_data.dart';
 import 'package:ios_club_app/services/data_service.dart';
-import 'package:ios_club_app/services/edu_service.dart';
+import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ios_club_app/pageModels/course_color_manager.dart';
-import 'package:ios_club_app/services/club_service.dart';
+import 'package:ios_club_app/net/club_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/stores/user_store.dart';

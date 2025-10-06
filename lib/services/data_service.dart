@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/models/info_model.dart';
 import 'package:ios_club_app/models/score_model.dart';
-import 'package:ios_club_app/services/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/models/course_model.dart';

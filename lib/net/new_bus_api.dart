@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../Services/edu_service.dart';
+import 'edu_service.dart';
 import '../models/bus_model.dart';
 
 /// 新数据平台

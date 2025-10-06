@@ -1,7 +1,7 @@
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/models/plan_course.dart';
-import 'package:ios_club_app/services/edu_service.dart';
+import 'package:ios_club_app/net/edu_service.dart';
 import 'package:flutter/material.dart';
 
 class ProgramController extends GetxController {

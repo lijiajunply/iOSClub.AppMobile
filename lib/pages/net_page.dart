@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/services/net_service.dart';
+import 'package:ios_club_app/net/net_service.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import '../widgets/club_app_bar.dart';

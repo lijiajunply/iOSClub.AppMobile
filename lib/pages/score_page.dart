@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:ios_club_app/models/semester_model.dart';
 import 'package:ios_club_app/PageModels/course_color_manager.dart';
-import 'package:ios_club_app/Services/edu_service.dart';
+import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:ios_club_app/models/bus_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:ios_club_app/services/edu_service.dart';
-import 'package:ios_club_app/services/tile_service.dart';
+import 'package:ios_club_app/net/edu_service.dart';
+import 'package:ios_club_app/system_services/tile_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';

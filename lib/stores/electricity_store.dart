@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:ios_club_app/services/tile_service.dart';
+import 'package:ios_club_app/system_services/tile_service.dart';
 import 'package:ios_club_app/pageModels/electric_data.dart';
 
 class ElectricityStore extends GetxController {
