@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({
@@ -9,7 +11,6 @@ class BottomNavigation extends StatelessWidget {
     this.backgroundColor,
     this.selectedItemColor,
     this.unselectedItemColor,
-    this.enableHapticFeedback = true,
   });
 
   final List<NavigationDestination> destinations;
@@ -18,12 +19,12 @@ class BottomNavigation extends StatelessWidget {
   final Color? backgroundColor;
   final Color? selectedItemColor;
   final Color? unselectedItemColor;
-  final bool enableHapticFeedback;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final settingsStore = Get.find<SettingsStore>();
 
     // 定义颜色
     final bgColor = backgroundColor ?? theme.scaffoldBackgroundColor;
@@ -54,7 +55,7 @@ class BottomNavigation extends StatelessWidget {
                 destination: destinations[index],
                 isSelected: selectedIndex == index,
                 onTap: () {
-                  if (enableHapticFeedback) {
+                  if (settingsStore.enableHapticFeedback) {
                     Feedback.forLongPress(context);
                   }
                   onDestinationSelected(index);

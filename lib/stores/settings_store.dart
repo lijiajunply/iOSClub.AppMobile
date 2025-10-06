@@ -18,6 +18,9 @@ class SettingsStore extends GetxController {
   // 主页设置
   final _pageIndex = 0.obs;
 
+  // 触觉反馈设置
+  final _enableHapticFeedback = false.obs;
+
   bool get isRemind => _isRemind.value;
 
   int get remindTime => _remindTime.value;
@@ -27,6 +30,8 @@ class SettingsStore extends GetxController {
   bool get isUpdateToClub => _isUpdateToClub.value;
 
   int get pageIndex => _pageIndex.value;
+
+  bool get enableHapticFeedback => _enableHapticFeedback.value;
 
   @override
   void onInit() {
@@ -43,6 +48,7 @@ class SettingsStore extends GetxController {
     _isShowTomorrow.value = prefs.getBool(PrefsKeys.IS_SHOW_TOMORROW) ?? false;
     _isUpdateToClub.value = prefs.getBool(PrefsKeys.IS_UPDATE_CLUB) ?? false;
     _pageIndex.value = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
+    _enableHapticFeedback.value = prefs.getBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK) ?? false;
   }
 
   /// 设置课程通知开关
@@ -78,5 +84,12 @@ class SettingsStore extends GetxController {
     _pageIndex.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('page_index', value);
+  }
+
+  /// 设置是否启用触觉反馈
+  Future<void> setEnableHapticFeedback(bool value) async {
+    _enableHapticFeedback.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK, value);
   }
 }
