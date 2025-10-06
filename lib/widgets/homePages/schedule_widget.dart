@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ios_club_app/models/course_model.dart';
@@ -8,6 +9,7 @@ import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/system_services/notification_service.dart';
 import 'package:ios_club_app/services/time_service.dart';
+import 'package:ios_club_app/stores/schedule_store.dart';
 import '../club_card.dart';
 import '../empty_widget.dart';
 
@@ -20,28 +22,26 @@ class ScheduleWidget extends StatefulWidget {
 
 class _ScheduleWidgetState extends State<ScheduleWidget> {
   final List<ScheduleItem> scheduleItems = [];
-  bool _isShowingTomorrow = false;
-  bool _isShowTomorrow = false;
   late bool isRemind = false;
+  late ScheduleStore scheduleStore;
 
   @override
   void initState() {
     super.initState();
+    // 使用 Get.find 获取已经在其他地方初始化的 ScheduleStore 实例
+    scheduleStore = Get.find<ScheduleStore>();
     _initializeData();
   }
 
   Future<void> _initializeData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final (isShowingTomorrow, courses) = await DataService.getCourse(
-          isTomorrow: prefs.getBool('is_show_tomorrow') ?? false);
+      final courses = scheduleStore.getTodayCourses();
 
       if (!mounted) return;
 
       setState(() {
         isRemind = prefs.getBool('is_remind') ?? false;
-        _isShowTomorrow = prefs.getBool('is_show_tomorrow') ?? false;
-        _isShowingTomorrow = isShowingTomorrow;
         changeScheduleItems(courses);
       });
     } catch (e) {
@@ -89,13 +89,13 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
           padding: const EdgeInsets.all(16.0),
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(
-              '${_isShowingTomorrow ? '明' : '今'}日课表',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Obx(() => Text(
+                  '${scheduleStore.showTomorrow ? '明' : '今'}日课表',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )),
             IconButton(
                 icon: Icon(Icons.settings),
                 onPressed: () {
@@ -110,29 +110,12 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                   children: [
                                     ListTile(
                                         title: const Text('显示明天的课表'),
-                                        trailing: CupertinoSwitch(
-                                            value: _isShowTomorrow,
+                                        trailing: Obx(() => CupertinoSwitch(
+                                            value: scheduleStore.showTomorrow,
                                             onChanged: (value) async {
-                                              setStateDialog(() {
-                                                _isShowTomorrow = value;
-                                              });
-                                              setState(() {
-                                                SharedPreferences.getInstance()
-                                                    .then((prefs) {
-                                                  prefs.setBool(
-                                                      'is_show_tomorrow',
-                                                      value);
-                                                  DataService.getCourse(
-                                                          isTomorrow: value)
-                                                      .then((value) {
-                                                    _isShowingTomorrow =
-                                                        value.$1;
-                                                    changeScheduleItems(
-                                                        value.$2);
-                                                  });
-                                                });
-                                              });
-                                            })),
+                                              await scheduleStore.toggleShowTomorrow();
+                                              _initializeData(); // 重新加载数据
+                                            }))),
                                     ListTile(
                                       title: const Text('课程通知'),
                                       trailing: CupertinoSwitch(
@@ -158,16 +141,21 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
           child: ClubCard(
-            child: scheduleItems.isEmpty
-                ? Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: EmptyWidget(
-                        title: '${_isShowingTomorrow ? '明' : '今'}天没有课了',
-                        icon: Icons.school,
-                        subtitle: '好好休息会儿吧，学一天累死个人'))
-                : Column(
-                    children: scheduleItems.map(_buildScheduleItem).toList(),
-                  ),
+            child: Obx(() { // 使用 Obx 监听 ScheduleStore 中的变化
+              final todayCourses = scheduleStore.getTodayCourses();
+              changeScheduleItems(todayCourses);
+              
+              return scheduleItems.isEmpty
+                  ? Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: EmptyWidget(
+                          title: '${scheduleStore.showTomorrow ? '明' : '今'}天没有课了',
+                          icon: Icons.school,
+                          subtitle: '好好休息会儿吧，学一天累死个人'))
+                  : Column(
+                      children: scheduleItems.map(_buildScheduleItem).toList(),
+                    );
+            }),
           ),
         ),
       ],
@@ -261,7 +249,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
   Future<CourseModel> getCourse(ScheduleItem item) async {
     final (_, courses) =
-        await DataService.getCourse(isTomorrow: _isShowTomorrow);
+        await DataService.getCourse(isTomorrow: scheduleStore.showTomorrow);
 
     return courses.firstWhere((course) {
       return course.startUnit.toString() == item.time[1];

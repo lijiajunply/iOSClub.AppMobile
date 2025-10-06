@@ -14,6 +14,7 @@ class ScheduleStore extends GetxController {
   final _currentPage = 0.obs;
   final _height = 55.0.obs;
   final _isYanTa = false.obs;
+  final _showTomorrow = false.obs;
 
   List<List<CourseModel>> get allCourses => _allCourses.toList();
   bool get isLoading => _isLoading.value;
@@ -22,6 +23,7 @@ class ScheduleStore extends GetxController {
   int get currentPage => _currentPage.value;
   double get height => _height.value;
   bool get isYanTa => _isYanTa.value;
+  bool get showTomorrow => _showTomorrow.value;
 
   @override
   void onInit() {
@@ -69,10 +71,13 @@ class ScheduleStore extends GetxController {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final courseSize = prefs.getDouble('course_size');
+    final showTomorrowPref = prefs.getBool('is_show_tomorrow') ?? false;
 
     if (courseSize != null && courseSize != 0) {
       _height.value = courseSize;
     }
+    
+    _showTomorrow.value = showTomorrowPref;
   }
 
   /// 刷新课程数据
@@ -106,5 +111,26 @@ class ScheduleStore extends GetxController {
   /// 设置当前页面
   void setCurrentPage(int page) {
     _currentPage.value = page;
+  }
+  
+  /// 切换显示明天课程
+  Future<void> toggleShowTomorrow() async {
+    _showTomorrow.value = !_showTomorrow.value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_show_tomorrow', _showTomorrow.value);
+  }
+  
+  /// 获取今天或明天的课程
+  List<CourseModel> getTodayCourses() {
+    final now = DateTime.now();
+    final targetDate = showTomorrow ? now.add(Duration(days: 1)) : now;
+    final weekday = targetDate.weekday;
+    
+    // 获取当前页面的课程（第0页是所有课程，其他页是特定周的课程）
+    final courses = currentPage == 0 
+        ? allCourses[0] 
+        : allCourses[currentPage];
+        
+    return courses.where((course) => course.weekday == weekday).toList();
   }
 }
