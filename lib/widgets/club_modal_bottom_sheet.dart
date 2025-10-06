@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
-Future<void> showClubModalBottomSheet(BuildContext context, Widget child) {
+Future<void> showClubModalBottomSheet(BuildContext context, Widget child,
+    {bool isScrollControlled = true, double maxHeight = 0}) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   final a = MediaQuery.of(context).size.width;
+
+  if (maxHeight == 0) {
+    maxHeight = MediaQuery.of(context).size.height * 0.6;
+  }
 
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    constraints: BoxConstraints(
-        maxWidth: a,
-        minWidth: a,
-        maxHeight: MediaQuery.of(context).size.height * 0.6),
+    isScrollControlled: isScrollControlled,
+    constraints: BoxConstraints(maxWidth: a, minWidth: a, maxHeight: maxHeight),
     builder: (BuildContext context) {
       return Container(
         decoration: BoxDecoration(

@@ -2,12 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/models/bus_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ios_club_app/services/edu_service.dart';
 import 'package:ios_club_app/services/tile_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
 import 'package:ios_club_app/widgets/empty_widget.dart';
+
+import '../net/new_bus_api.dart';
 
 class SchoolBusPage extends StatefulWidget {
   const SchoolBusPage({super.key});
@@ -30,10 +34,14 @@ class _SchoolBusPageState extends State<SchoolBusPage>
   bool isShowBus = false;
   List<String> _tiles = [];
 
+  // 新增：是否使用新API的标志
+  bool useNewApi = false;
+
   @override
   void initState() {
     super.initState();
     _generateWeeklyDates();
+
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(() async {
       if (_tabController.indexIsChanging) {
@@ -42,7 +50,7 @@ class _SchoolBusPageState extends State<SchoolBusPage>
       }
     });
     selectedDate = availableDates.isNotEmpty ? availableDates.keys.first : null;
-    if (selectedDate != null) _fetchBusData();
+    if (selectedDate != null) _fetchBusData(isInit: true);
 
     TileService.getTextAfterKeyword().then((value) {
       setState(() {
@@ -69,13 +77,23 @@ class _SchoolBusPageState extends State<SchoolBusPage>
     super.dispose();
   }
 
-  Future<void> _fetchBusData() async {
+  Future<void> _fetchBusData({bool isInit = false}) async {
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
     try {
-      final data = await EduService.getBus(dayDate: selectedDate);
+      if (isInit) {
+        final prefs = await SharedPreferences.getInstance();
+        useNewApi = prefs.getBool(PrefsKeys.USE_NEW_BUS_API) ?? false;
+      }
+      BusModel data = BusModel(records: [], total: 0);
+      if (useNewApi) {
+        data = await getBusFromNewData(time: selectedDate, loc: 'ALL');
+      } else {
+        data = await EduService.getBus(dayDate: selectedDate);
+      }
+
       todayBusData = data.records;
       if (isCaoTang) {
         data.records =
@@ -100,31 +118,31 @@ class _SchoolBusPageState extends State<SchoolBusPage>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Center(
-            child: CupertinoButton(
-              onPressed: () {
-                setState(() {
-                  isCaoTang = !isCaoTang;
-                  if (isCaoTang) {
-                    busData = todayBusData
-                        .where((bus) => bus.lineName.startsWith("草堂"))
-                        .toList();
-                  } else {
-                    busData = todayBusData
-                        .where((bus) => bus.lineName.startsWith("雁塔"))
-                        .toList();
-                  }
-                });
-              },
-              child: Row(
-                children: [
-                  Text(isCaoTang ? '草堂校区' : '雁塔校区'),
-                  Icon(Icons.arrow_forward),
-                  Text(isCaoTang ? '雁塔校区' : '草堂校区')
-                ],
-              ),
+          title: CupertinoButton(
+            onPressed: () {
+              setState(() {
+                isCaoTang = !isCaoTang;
+                if (isCaoTang) {
+                  busData = todayBusData
+                      .where((bus) => bus.lineName.startsWith("草堂"))
+                      .toList();
+                } else {
+                  busData = todayBusData
+                      .where((bus) => bus.lineName.startsWith("雁塔"))
+                      .toList();
+                }
+              });
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(isCaoTang ? '草堂校区' : '雁塔校区'),
+                Icon(Icons.arrow_forward),
+                Text(isCaoTang ? '雁塔校区' : '草堂校区')
+              ],
             ),
           ),
+          centerTitle: true,
           bottom: TabBar(
             controller: _tabController,
             tabAlignment: TabAlignment.start,
@@ -142,155 +160,189 @@ class _SchoolBusPageState extends State<SchoolBusPage>
             IconButton(
               icon: Icon(Icons.settings),
               onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (alertContext) => StatefulBuilder(
-                        builder: (context, setStateDialog) => AlertDialog(
-                              title: Text('设置'),
-                              content: ListTile(
-                                title: Text(
-                                  '是否显示校车磁贴',
-                                ),
-                                trailing: CupertinoSwitch(
-                                  value: isShowBus,
-                                  onChanged: (bool value) async {
-                                    setStateDialog(() {
-                                      isShowBus = value;
-                                    });
-                                    if (isShowBus) {
-                                      _tiles.add("校车");
-                                    } else {
-                                      _tiles.remove("校车");
-                                    }
-
-                                    TileService.setTiles(_tiles);
-                                  },
-                                ),
-                              ),
-                            )));
+                _showSettingsModalBottomSheet();
               },
             ),
           ],
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (isLoading)
-              Center(
-                child: ClubCard(
-                  margin: EdgeInsets.only(top: 40),
-                  padding: EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (errorMessage != null)
-              Center(
-                child: ClubCard(
-                  padding: EdgeInsets.all(16.0),
-                  margin: EdgeInsets.only(top: 40),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(errorMessage!,
-                        style: TextStyle(color: Colors.redAccent)),
-                  ),
-                ),
-              )
-            else if (busData.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                    itemCount: busData.length,
-                    itemBuilder: (context, index) {
-                      final bus = busData[index];
-                      return Padding(
-                        padding: EdgeInsets.only(top: 12, left: 12, right: 12),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(20),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            child: ClubCard(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            bus.departureStation,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            bus.runTime,
-                                            style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                          Text(bus.description,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold)),
-                                          Divider(
-                                            thickness: 1,
-                                          ),
-                                          Text(bus.arrivalStationTime,
-                                              style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontWeight: FontWeight.bold))
-                                        ])),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                          Text(
-                                            bus.arrivalStation,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            bus.totalTime,
-                                            style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ]))
-                                  ],
+        body: _buildBuses());
+  }
+
+  Widget _buildBuses() {
+    if (isLoading) {
+      return Center(
+        child: ClubCard(
+          margin: EdgeInsets.only(top: 40),
+          padding: EdgeInsets.all(16.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else if (errorMessage != null) {
+      return Center(
+        child: ClubCard(
+          padding: EdgeInsets.all(16.0),
+          margin: EdgeInsets.only(top: 40),
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child:
+                Text(errorMessage!, style: TextStyle(color: Colors.redAccent)),
+          ),
+        ),
+      );
+    } else if (busData.isNotEmpty) {
+      return ListView.builder(
+          itemCount: busData.length,
+          itemBuilder: (context, index) {
+            final bus = busData[index];
+
+            var bottom = index == busData.length - 1 ? 12.0 : 0.0;
+
+            return Padding(
+              padding: EdgeInsets.only(top: 12, left: 12, right: 12, bottom: bottom),
+              child: Material(
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  child: ClubCard(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  bus.departureStation,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
                                 ),
-                              ),
+                                SizedBox(height: 8),
+                                Text(
+                                  bus.runTime,
+                                  style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
-                            onTap: () async {
-                              await _showModalBottomSheet(bus);
-                            },
                           ),
-                        ),
-                      );
-                    }),
-              )
-            else if (selectedDate != null)
-              ClubCard(
-                  margin: EdgeInsets.all(20),
-                  child: EmptyWidget(
-                    title: '今天没有车了',
-                    subtitle: '明天再来吧',
-                    icon: Icons.directions_bus,
-                  ))
-          ],
-        ));
+                          Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                Text(bus.description,
+                                    style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.bold)),
+                                Divider(
+                                  thickness: 1,
+                                ),
+                                Text(bus.arrivalStationTime,
+                                    style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.bold))
+                              ])),
+                          Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                Text(
+                                  bus.arrivalStation,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  bus.totalTime,
+                                  style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ]))
+                        ],
+                      ),
+                    ),
+                  ),
+                  onTap: () async {
+                    await _showModalBottomSheet(bus);
+                  },
+                ),
+              ),
+            );
+          });
+    } else if (selectedDate != null) {
+      return ClubCard(
+          margin: EdgeInsets.all(20),
+          child: EmptyWidget(
+            title: '今天没有车了',
+            subtitle: '明天再来吧',
+            icon: Icons.directions_bus,
+          ));
+    }
+
+    return Container();
+  }
+
+  // 新增：显示设置的底部弹窗
+  Future<void> _showSettingsModalBottomSheet() async {
+    await showClubModalBottomSheet(
+      context,
+      StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '校车页面设置',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                title: const Text('是否显示校车磁贴'),
+                trailing: CupertinoSwitch(
+                  value: isShowBus,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      isShowBus = value;
+                    });
+                    if (isShowBus) {
+                      _tiles.add("校车");
+                    } else {
+                      _tiles.remove("校车");
+                    }
+
+                    TileService.setTiles(_tiles);
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                title: const Text('是否使用新API'),
+                subtitle: const Text('新的API接口只能在校园网内使用'),
+                trailing: CupertinoSwitch(
+                  value: useNewApi,
+                  onChanged: (bool value) async {
+                    setState(() {
+                      useNewApi = value;
+                    });
+
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool(PrefsKeys.USE_NEW_BUS_API, useNewApi);
+
+                    // 切换API后重新获取数据
+                    _fetchBusData();
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Future<void> _showModalBottomSheet(BusItem bus) {

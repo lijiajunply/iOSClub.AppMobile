@@ -3,24 +3,26 @@ import 'dart:io' show Platform;
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/Services/data_service.dart';
+import 'package:ios_club_app/pages/schedule_setting_page.dart';
+import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/stores/course_store.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/page_header_delegate.dart';
 
-class ScheduleSettingPage extends StatefulWidget {
-  const ScheduleSettingPage({super.key});
+class ScheduleSetting extends StatefulWidget {
+  const ScheduleSetting({super.key, this.showAppBar = true});
+
+  final bool showAppBar;
 
   @override
-  State<ScheduleSettingPage> createState() => _ScheduleSettingPageState();
+  State<ScheduleSetting> createState() => _ScheduleSettingState();
 }
 
-class _ScheduleSettingPageState extends State<ScheduleSettingPage>
+class _ScheduleSettingState extends State<ScheduleSetting>
     with AutomaticKeepAliveClientMixin {
   final CourseStore courseStore = CourseStore.to;
   List<String> totalList = [];
@@ -67,8 +69,8 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       final ignores = courseNames
           .map((i) => CourseIgnore(
                 title: i,
-                isCompleted:
-                    courseStore.ignoreCourses.isNotEmpty && courseStore.ignoreCourses.any((x) => x == i),
+                isCompleted: courseStore.ignoreCourses.isNotEmpty &&
+                    courseStore.ignoreCourses.any((x) => x == i),
               ))
           .toList();
 
@@ -91,11 +93,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
         Platform.isWindows || Platform.isMacOS || Platform.isLinux;
 
     super.build(context);
-    return Scaffold(
-      appBar: ClubAppBar(
-        title: ('课程设置'),
-      ),
-      body: CustomScrollView(
+    return CustomScrollView(
         cacheExtent: 500,
         slivers: [
           if (!isDesktop)
@@ -220,8 +218,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                 ),
               )),
         ],
-      ),
-    );
+      );
   }
 
   void _handleIgnoreChange(CourseIgnore ignore, bool value) async {
@@ -232,7 +229,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       } else {
         ignoreList.remove(ignore.title);
       }
-      
+
       // 使用CourseStore更新忽略的课程
       courseStore.setIgnoreCourses(ignoreList);
       return DataService.setIgnore(ignoreList);
@@ -300,49 +297,4 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       ),
     );
   }
-}
-
-class CourseIgnoreItem extends StatelessWidget {
-  final CourseIgnore ignore;
-  final Function(CourseIgnore, bool) onChanged;
-
-  const CourseIgnoreItem({super.key,
-    required this.ignore,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: ignore.isCompleted,
-                  onChanged: (v) => onChanged(ignore, v!),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    ignore.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            )),
-        onTap: () => onChanged(ignore, !ignore.isCompleted),
-      ),
-    );
-  }
-}
-
-class CourseIgnore {
-  String title;
-  bool isCompleted;
-
-  CourseIgnore({required this.title, this.isCompleted = false});
 }
