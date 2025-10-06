@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'bus_tile_store.dart';
 import 'payment_store.dart';
 import 'user_store.dart';
 import 'course_store.dart';
@@ -14,6 +15,7 @@ void initStores() {
   Get.put(SettingsStore());
   Get.put(ElectricityStore());
   Get.put(PaymentStore());
+  Get.put(BusTileStore());
 }
 
 /// 释放所有 Store
@@ -24,4 +26,5 @@ void disposeStores() {
   Get.delete<SettingsStore>();
   Get.delete<ElectricityStore>();
   Get.delete<PaymentStore>();
+  Get.delete<BusTileStore>();
 }
