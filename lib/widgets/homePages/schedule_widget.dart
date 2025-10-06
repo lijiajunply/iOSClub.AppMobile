@@ -6,7 +6,7 @@ import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/pageModels/course_color_manager.dart';
 import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
-import 'package:ios_club_app/services/notification_service.dart';
+import 'package:ios_club_app/system_services/notification_service.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import '../club_card.dart';
 import '../empty_widget.dart';

@@ -5,12 +5,12 @@ import 'package:get/get.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
-import '../controllers/payment_controller.dart';
+import '../stores/payment_store.dart';
 import '../services/turnover_analyzer.dart';
 import '../widgets/club_app_bar.dart';
 
 class PaymentPage extends StatelessWidget {
-  final PaymentController controller = Get.put(PaymentController());
+  final PaymentStore controller = Get.put(PaymentStore());
 
   PaymentPage({super.key});
 

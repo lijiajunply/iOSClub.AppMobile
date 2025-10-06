@@ -53,8 +53,9 @@ class ClubAppBar extends StatelessWidget implements PreferredSizeWidget {
                 )),
       actions: actions,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: const Icon(Icons.arrow_back),
         onPressed: () => Navigator.of(context).pop(),
+        tooltip: 'Back',
       ),
       backgroundColor: backgroundColor,
       elevation: elevation,

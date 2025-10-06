@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../../Services/tile_service.dart';
-import '../tile_widget.dart';
+import '../tiles/bus_tile.dart';
+import '../tiles/electricity_tile.dart';
+import '../tiles/payment_tile.dart';
 
 class TilesWidget extends StatelessWidget {
   const TilesWidget({super.key});
@@ -64,4 +66,25 @@ class TilesWidget extends StatelessWidget {
           return SizedBox();
         });
   }
+}
+
+
+Widget buildTile(String tile, BuildContext context) {
+  Widget? content;
+
+  if (tile == '电费') {
+    content = const ElectricityTile();
+  }
+
+  if (tile == '校车') {
+    content = const BusTile();
+  }
+
+  if (tile == '饭卡') {
+    content = const PaymentTile();
+  }
+
+  content ??= Container();
+
+  return content;
 }

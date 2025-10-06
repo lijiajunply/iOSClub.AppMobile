@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:ios_club_app/services/turnover_analyzer.dart';
 import 'package:ios_club_app/services/tile_service.dart';
 
-class PaymentController extends GetxController {
+class PaymentStore extends GetxController {
   // 响应式状态变量
   final RxBool isLoading = true.obs;
   final RxString errorMessage = ''.obs;

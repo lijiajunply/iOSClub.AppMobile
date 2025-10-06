@@ -28,7 +28,6 @@ class MemberPage extends StatelessWidget {
               title: Text(
                 '社团详情',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black,
                   fontWeight: FontWeight.w600,
                   fontSize: 17,
                 ),
@@ -37,8 +36,7 @@ class MemberPage extends StatelessWidget {
             ),
             leading: IconButton(
               icon: Icon(
-                CupertinoIcons.back,
-                color: CupertinoColors.activeBlue,
+                Icons.arrow_back,
                 size: 28,
               ),
               onPressed: () => Navigator.of(context).pop(),

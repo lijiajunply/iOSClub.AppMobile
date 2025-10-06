@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
+import 'payment_store.dart';
 import 'user_store.dart';
 import 'course_store.dart';
 import 'schedule_store.dart';
 import 'settings_store.dart';
+import 'package:ios_club_app/stores/electricity_store.dart';
 
 /// 初始化所有 Store
 void initStores() {
@@ -10,6 +12,8 @@ void initStores() {
   Get.put(CourseStore());
   Get.put(ScheduleStore());
   Get.put(SettingsStore());
+  Get.put(ElectricityStore());
+  Get.put(PaymentStore());
 }
 
 /// 释放所有 Store
@@ -18,4 +22,6 @@ void disposeStores() {
   Get.delete<CourseStore>();
   Get.delete<ScheduleStore>();
   Get.delete<SettingsStore>();
+  Get.delete<ElectricityStore>();
+  Get.delete<PaymentStore>();
 }

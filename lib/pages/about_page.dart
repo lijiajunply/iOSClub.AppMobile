@@ -14,7 +14,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:ios_club_app/Services/edu_service.dart';
 import 'package:ios_club_app/Services/git_service.dart';
 import 'package:ios_club_app/Services/notification_service.dart';
-import 'package:ios_club_app/services/download_service.dart';
+import 'package:ios_club_app/system_services/download_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';

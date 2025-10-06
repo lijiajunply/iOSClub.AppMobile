@@ -10,6 +10,8 @@ import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/empty_widget.dart';
+import 'package:ios_club_app/stores/electricity_store.dart';
+import 'package:get/get.dart';
 
 class ElectricityPage extends StatefulWidget {
   const ElectricityPage({super.key});
@@ -19,32 +21,12 @@ class ElectricityPage extends StatefulWidget {
 }
 
 class _ElectricityPageState extends State<ElectricityPage> {
-  bool isHasData = false;
-  double electricity = 0;
+  final ElectricityStore controller = Get.put(ElectricityStore());
   final TextEditingController _urlController = TextEditingController();
-  List<String> _tiles = [];
 
   @override
   void initState() {
     super.initState();
-    _loadElectricityData();
-  }
-
-  Future<void> _loadElectricityData() async {
-    try {
-      final value = await TileService.getTextAfterKeyword();
-      final tiles = await TileService.getTiles();
-
-      setState(() {
-        if (value != null) {
-          electricity = value;
-          isHasData = true;
-        }
-        _tiles = tiles;
-      });
-    } catch (e) {
-      // Handle error
-    }
   }
 
   @override
@@ -64,9 +46,9 @@ class _ElectricityPageState extends State<ElectricityPage> {
               SizedBox(height: 20),
 
               // 电费图表卡片
-              if (isHasData) _buildChartCard(),
+              Obx(() => controller.hasData.value ? _buildChartCard() : Container()),
 
-              if (isHasData) SizedBox(height: 20),
+              Obx(() => controller.hasData.value ? SizedBox(height: 20) : Container()),
 
               // 设置选项
               _buildSettingsSection(),
@@ -107,52 +89,58 @@ class _ElectricityPageState extends State<ElectricityPage> {
                   ),
                 ),
                 Spacer(),
-                CupertinoButton(
+                Obx(() => CupertinoButton(
                   padding: EdgeInsets.zero,
                   onPressed: _handleElectricityAction,
                   child: Icon(
-                    isHasData ? CupertinoIcons.refresh : CupertinoIcons.add,
+                    controller.hasData.value ? CupertinoIcons.refresh : CupertinoIcons.add,
                     color: CupertinoColors.systemBlue,
                   ),
-                ),
+                )),
               ],
             ),
             SizedBox(height: 16),
-            if (isHasData) ...[
-              Text(
-                '¥${electricity.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
+            Obx(() => controller.hasData.value ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '¥${controller.electricity.value.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                electricity <= 10 ? '余额不足' : '余额充足',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: electricity <= 10
-                      ? CupertinoColors.systemRed
-                      : CupertinoColors.systemGreen,
-                  fontWeight: FontWeight.w500,
+                SizedBox(height: 8),
+                Text(
+                  controller.electricity.value <= 10 ? '余额不足' : '余额充足',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: controller.electricity.value <= 10
+                        ? CupertinoColors.systemRed
+                        : CupertinoColors.systemGreen,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ] else ...[
-              Text(
-                '暂无数据',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
+              ],
+            ) : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '暂无数据',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '点击右上角添加电费数据',
-                style: TextStyle(
-                  fontSize: 14,
+                SizedBox(height: 8),
+                Text(
+                  '点击右上角添加电费数据',
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            )),
           ],
         ),
       ),
@@ -187,24 +175,14 @@ class _ElectricityPageState extends State<ElectricityPage> {
             SizedBox(height: 20),
             SizedBox(
               height: 200,
-              child: FutureBuilder(
-                future: TileService.getElectricityWeeklyData(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CupertinoActivityIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        '加载失败',
-                      ),
-                    );
-                  }
-                  return _buildChart(snapshot.data!);
-                },
-              ),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return Center(
+                    child: CupertinoActivityIndicator(),
+                  );
+                }
+                return _buildChart(controller.weeklyData);
+              }),
             ),
           ],
         ),
@@ -307,44 +285,40 @@ class _ElectricityPageState extends State<ElectricityPage> {
     return ClubCard(
       child: Column(
         children: [
-          if (isHasData) ...[
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('添加到首页'),
-              subtitle: Text('在首页显示电费磁贴'),
-              trailing: CupertinoSwitch(
-                value: _tiles.contains('电费'),
-                onChanged: (value) async {
-                  setState(() {
-                    if (value) {
-                      _tiles = [..._tiles, '电费'];
-                    } else {
-                      _tiles = _tiles.where((tile) => tile != '电费').toList();
-                    }
-                  });
-                  await TileService.setTiles(_tiles);
-                },
+          Obx(() => controller.hasData.value ? Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text('添加到首页'),
+                subtitle: Text('在首页显示电费磁贴'),
+                trailing: Obx(() => CupertinoSwitch(
+                  value: controller.tiles.contains('电费'),
+                  onChanged: (value) async {
+                    controller.toggleTile('电费', value);
+                    await TileService.setTiles(controller.tiles);
+                  },
+                )),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.monetization_on_outlined),
-              title: Text('电费充值'),
-              subtitle: Text('跳转至浏览器进行电费充值'),
-              onTap: () async {
-                final prefs = await SharedPreferences.getInstance();
-                var url = prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
-                url = url.replaceAll('wxAccount', 'wxCharge');
-                await TileService.openInWeChat(url);
-              },
-            )
-          ],
+              ListTile(
+                leading: Icon(Icons.monetization_on_outlined),
+                title: Text('电费充值'),
+                subtitle: Text('跳转至浏览器进行电费充值'),
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  var url = prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
+                  url = url.replaceAll('wxAccount', 'wxCharge');
+                  await TileService.openInWeChat(url);
+                },
+              )
+            ],
+          ) : Container()),
         ],
       ),
     );
   }
 
   void _handleElectricityAction() {
-    if (isHasData) {
+    if (controller.hasData.value) {
       _showRefreshDialog();
     } else {
       _showInputDialog();
@@ -372,13 +346,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              final value = await TileService.getTextAfterKeyword();
-              if (value != null) {
-                setState(() {
-                  electricity = value;
-                  isHasData = true;
-                });
-              }
+              await controller.refreshElectricityData();
             },
             child: Text('刷新数据'),
           ),
@@ -427,10 +395,9 @@ class _ElectricityPageState extends State<ElectricityPage> {
               );
               if (value != null) {
                 _urlController.clear();
-                setState(() {
-                  electricity = value;
-                  isHasData = true;
-                });
+                controller.electricity.value = value;
+                controller.hasData.value = true;
+                await controller.loadElectricityData(); // 重新加载所有数据
               }
             },
             child: Text('确定'),
