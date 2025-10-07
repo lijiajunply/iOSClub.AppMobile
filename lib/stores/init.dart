@@ -9,10 +9,10 @@ import 'electricity_store.dart';
 
 /// 初始化所有 Store
 void initStores() {
+  Get.put(SettingsStore());
   Get.put(UserStore());
   Get.put(CourseStore());
   Get.put(ScheduleStore());
-  Get.put(SettingsStore());
   Get.put(ElectricityStore());
   Get.put(PaymentStore());
   Get.put(BusTileStore());

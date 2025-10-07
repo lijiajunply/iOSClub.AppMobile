@@ -20,6 +20,9 @@ class SettingsStore extends GetxController {
 
   // 触觉反馈设置
   final _enableHapticFeedback = false.obs;
+  
+  // 忽略更新设置
+  final _updateIgnored = false.obs;
 
   bool get isRemind => _isRemind.value;
 
@@ -32,6 +35,8 @@ class SettingsStore extends GetxController {
   int get pageIndex => _pageIndex.value;
 
   bool get enableHapticFeedback => _enableHapticFeedback.value;
+  
+  bool get updateIgnored => _updateIgnored.value;
 
   @override
   void onInit() {
@@ -49,6 +54,7 @@ class SettingsStore extends GetxController {
     _isUpdateToClub.value = prefs.getBool(PrefsKeys.IS_UPDATE_CLUB) ?? false;
     _pageIndex.value = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
     _enableHapticFeedback.value = prefs.getBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK) ?? false;
+    _updateIgnored.value = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
   }
 
   /// 设置课程通知开关
@@ -69,7 +75,7 @@ class SettingsStore extends GetxController {
   Future<void> setIsShowTomorrow(bool value) async {
     _isShowTomorrow.value = value;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_show_tomorrow', value);
+    await prefs.setBool(PrefsKeys.IS_SHOW_TOMORROW, value);
   }
 
   /// 设置是否同步待办事项到社团
@@ -83,7 +89,7 @@ class SettingsStore extends GetxController {
   Future<void> setPageIndex(int value) async {
     _pageIndex.value = value;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('page_index', value);
+    await prefs.setInt(PrefsKeys.PAGE_DATA, value);
   }
 
   /// 设置是否启用触觉反馈
@@ -91,5 +97,12 @@ class SettingsStore extends GetxController {
     _enableHapticFeedback.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK, value);
+  }
+  
+  /// 设置是否忽略更新
+  Future<void> setUpdateIgnored(bool value) async {
+    _updateIgnored.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(PrefsKeys.UPDATE_IGNORED, value);
   }
 }

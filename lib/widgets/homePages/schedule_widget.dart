@@ -1,17 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:ios_club_app/models/course_model.dart';
-import 'package:ios_club_app/pageModels/course_color_manager.dart';
 import 'package:ios_club_app/pageModels/schedule_item.dart';
-import 'package:ios_club_app/services/data_service.dart';
-import 'package:ios_club_app/system_services/notification_service.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/schedule_store.dart';
+import 'package:ios_club_app/system_services/notification_service.dart';
+import 'package:ios_club_app/widgets/empty_widget.dart';
+import 'package:get/get.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
+import 'package:ios_club_app/pageModels/course_color_manager.dart';
+
 import '../club_card.dart';
-import '../empty_widget.dart';
 
 class ScheduleWidget extends StatefulWidget {
   const ScheduleWidget({super.key});
@@ -22,6 +21,7 @@ class ScheduleWidget extends StatefulWidget {
 
 class _ScheduleWidgetState extends State<ScheduleWidget> {
   final List<ScheduleItem> scheduleItems = [];
+  final List<CourseModel> courses = [];
   late bool isRemind = false;
   late ScheduleStore scheduleStore;
 
@@ -35,13 +35,13 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
   Future<void> _initializeData() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final courses = scheduleStore.getTodayCourses();
+      courses.addAll(scheduleStore.getTodayCourses());
 
       if (!mounted) return;
 
       setState(() {
-        isRemind = prefs.getBool('is_remind') ?? false;
+        // 使用SettingsStore中的isRemind值
+        isRemind = SettingsStore.to.isRemind;
         changeScheduleItems(courses);
       });
     } catch (e) {
@@ -116,24 +116,19 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                               await scheduleStore.toggleShowTomorrow();
                                               _initializeData(); // 重新加载数据
                                             }))),
-                                    ListTile(
+                                    Obx(() => ListTile(
                                       title: const Text('课程通知'),
                                       trailing: CupertinoSwitch(
-                                        value: isRemind,
+                                        value: SettingsStore.to.isRemind,
                                         onChanged: (bool value) async {
-                                          setStateDialog(() {
-                                            isRemind = value;
-                                          });
-                                          final prefs = await SharedPreferences
-                                              .getInstance();
-                                          prefs.setBool('is_remind', value);
+                                          await SettingsStore.to.setIsRemind(value);
                                           if (value && context.mounted) {
                                             await NotificationService.set(
                                                 context);
                                           }
                                         },
                                       ),
-                                    )
+                                    ))
                                   ]))));
                 })
           ]),
@@ -172,9 +167,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
               context: context,
               builder: (context) => AlertDialog(
                     title: Text(item.title),
-                    content: Wrap(
-                      children: [buildCourse(item)],
-                    ),
+                    content: buildCourse(item),
                   ));
         },
         child: Padding(
@@ -248,9 +241,6 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
   }
 
   Future<CourseModel> getCourse(ScheduleItem item) async {
-    final (_, courses) =
-        await DataService.getCourse(isTomorrow: scheduleStore.showTomorrow);
-
     return courses.firstWhere((course) {
       return course.startUnit.toString() == item.time[1];
     });

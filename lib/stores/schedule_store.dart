@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/services/time_service.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 
 class ScheduleStore extends GetxController {
   static ScheduleStore get to => Get.find();
@@ -14,16 +16,25 @@ class ScheduleStore extends GetxController {
   final _currentPage = 0.obs;
   final _height = 55.0.obs;
   final _isYanTa = false.obs;
-  final _showTomorrow = false.obs;
 
   List<List<CourseModel>> get allCourses => _allCourses.toList();
+
   bool get isLoading => _isLoading.value;
+
   int get maxWeek => _maxWeek.value;
+
   int get currentWeek => _currentWeek.value;
+
   int get currentPage => _currentPage.value;
+
   double get height => _height.value;
+
   bool get isYanTa => _isYanTa.value;
-  bool get showTomorrow => _showTomorrow.value;
+
+  // 直接使用SettingsStore的showTomorrow变量
+  bool get showTomorrow => SettingsStore.to.isShowTomorrow;
+
+  int weekNow = 0;
 
   @override
   void onInit() {
@@ -38,6 +49,8 @@ class ScheduleStore extends GetxController {
       _handleWeekData(weekData);
       await _loadCourses();
       await _loadPreferences();
+      
+      // 不再需要监听SettingsStore，因为我们直接使用它的值
     } catch (e) {
       // 错误处理
       print('初始化课表数据出错: $e');
@@ -47,6 +60,7 @@ class ScheduleStore extends GetxController {
   /// 处理周数据
   void _handleWeekData(Map<String, dynamic> weekData) {
     _currentWeek.value = weekData['week']!;
+    weekNow = weekData['week']!;
     _maxWeek.value = weekData['maxWeek']!;
     _currentPage.value = _currentWeek.value <= 0 ? 0 : _currentWeek.value;
   }
@@ -57,9 +71,7 @@ class ScheduleStore extends GetxController {
     _allCourses.value = List.generate(_maxWeek.value + 1, (i) {
       return i == 0
           ? courses
-          : courses
-              .where((course) => course.weekIndexes.contains(i))
-              .toList();
+          : courses.where((course) => course.weekIndexes.contains(i)).toList();
     });
     if (courses.isNotEmpty) {
       _isYanTa.value = !(courses[0].room.substring(0, 2) == "草堂");
@@ -71,13 +83,10 @@ class ScheduleStore extends GetxController {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final courseSize = prefs.getDouble('course_size');
-    final showTomorrowPref = prefs.getBool('is_show_tomorrow') ?? false;
 
     if (courseSize != null && courseSize != 0) {
       _height.value = courseSize;
     }
-    
-    _showTomorrow.value = showTomorrowPref;
   }
 
   /// 刷新课程数据
@@ -112,25 +121,73 @@ class ScheduleStore extends GetxController {
   void setCurrentPage(int page) {
     _currentPage.value = page;
   }
-  
+
   /// 切换显示明天课程
   Future<void> toggleShowTomorrow() async {
-    _showTomorrow.value = !_showTomorrow.value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_show_tomorrow', _showTomorrow.value);
+    // 直接调用SettingsStore的方法来切换showTomorrow
+    SettingsStore.to.setIsShowTomorrow(!SettingsStore.to.isShowTomorrow);
   }
-  
+
   /// 获取今天或明天的课程
   List<CourseModel> getTodayCourses() {
     final now = DateTime.now();
-    final targetDate = showTomorrow ? now.add(Duration(days: 1)) : now;
-    final weekday = targetDate.weekday;
-    
-    // 获取当前页面的课程（第0页是所有课程，其他页是特定周的课程）
-    final courses = currentPage == 0 
-        ? allCourses[0] 
-        : allCourses[currentPage];
-        
-    return courses.where((course) => course.weekday == weekday).toList();
+    final weekDay = now.weekday;
+
+    // 处理今天的课程，使用DataService.getCourse中相同的逻辑
+    if (weekNow >= allCourses.length) {
+      return [];
+    }
+
+    var filteredCourses = allCourses[weekNow]
+        .where((course) =>
+            course.weekIndexes.contains(weekNow) && course.weekday == weekDay)
+        .toList();
+
+    // 过滤掉已经结束的课程
+    filteredCourses = filteredCourses.where((course) {
+      var endTime = "";
+      if (course.room.substring(0, 2) == "雁塔") {
+        if (now.month >= 5 && now.month <= 10) {
+          endTime = TimeService.YanTaXia[course.endUnit];
+        } else {
+          endTime = TimeService.YanTaDong[course.endUnit];
+        }
+      } else {
+        endTime = TimeService.CanTangTime[course.endUnit];
+      }
+
+      final l = endTime.split(':');
+      var end = DateTime(
+          now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
+
+      return now.isBefore(end);
+    }).toList();
+
+    filteredCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+
+    // 只有当今天没有课程且showTomorrow为true时，才显示明天的课程
+    if (showTomorrow && filteredCourses.isEmpty) {
+      final tomorrow = now.add(Duration(days: 1));
+      var tomorrowWeekDay = tomorrow.weekday;
+      if (tomorrowWeekDay > 7) {
+        tomorrowWeekDay = 1;
+      }
+
+      // 如果明天是周日，则周数需要增加
+      final targetWeek = tomorrowWeekDay == 7 ? weekNow + 1 : weekNow;
+
+      // 检查targetWeek是否超出范围
+      if (targetWeek >= allCourses.length) {
+        return [];
+      }
+
+      final courses = allCourses[targetWeek];
+      return courses
+          .where((course) => course.weekday == tomorrowWeekDay)
+          .toList()
+        ..sort((a, b) => a.startUnit.compareTo(b.startUnit));
+    }
+
+    return filteredCourses;
   }
 }

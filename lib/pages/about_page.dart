@@ -8,14 +8,12 @@ import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:android_intent_plus/android_intent.dart';
 
 import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/net/git_service.dart';
 import 'package:ios_club_app/system_services/notification_service.dart';
 import 'package:ios_club_app/system_services/download_service.dart';
-import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
@@ -700,16 +698,11 @@ class ShowTomorrowSetting extends StatefulWidget {
 }
 
 class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
-  late bool isShowTomorrow = false;
+  final SettingsStore settingsStore = SettingsStore.to;
 
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        isShowTomorrow = prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
-      });
-    });
   }
 
   @override
@@ -747,16 +740,12 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
               ],
             ),
           ),
-          CupertinoSwitch(
-            value: isShowTomorrow,
+          Obx(() => CupertinoSwitch(
+            value: settingsStore.isShowTomorrow,
             onChanged: (bool value) async {
-              setState(() {
-                isShowTomorrow = value;
-              });
-              final prefs = await SharedPreferences.getInstance();
-              prefs.setBool(PrefsKeys.IS_REMIND, value);
+              await settingsStore.setIsShowTomorrow(value);
             },
-          ),
+          )),
         ],
       ),
     );
@@ -771,19 +760,11 @@ class RemindSetting extends StatefulWidget {
 }
 
 class _RemindSettingState extends State<RemindSetting> {
-  late bool isRemind = false;
-  late int remindTime = 15;
+  final SettingsStore settingsStore = SettingsStore.to;
 
   @override
   void initState() {
     super.initState();
-
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        isRemind = prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
-        remindTime = prefs.getInt(PrefsKeys.NOTIFICATION_TIME) ?? 15;
-      });
-    });
   }
 
   @override
@@ -822,22 +803,18 @@ class _RemindSettingState extends State<RemindSetting> {
                     ],
                   ),
                 ),
-                CupertinoSwitch(
-                  value: isRemind,
+                Obx(() => CupertinoSwitch(
+                  value: settingsStore.isRemind,
                   onChanged: (bool value) async {
-                    setState(() {
-                      isRemind = value;
-                    });
-                    final prefs = await SharedPreferences.getInstance();
-                    prefs.setBool(PrefsKeys.IS_REMIND, value);
+                    await settingsStore.setIsRemind(value);
                     if (value && context.mounted) {
                       await NotificationService.set(context);
                     }
                   },
-                )
+                ))
               ],
             )),
-        if (isRemind)
+        Obx(() => settingsStore.isRemind ? 
           Material(
             color: Colors.transparent,
             child: InkWell(
@@ -858,14 +835,15 @@ class _RemindSettingState extends State<RemindSetting> {
                           ],
                         ),
                       ),
-                      Text('$remindTime分钟')
+                      Text('${settingsStore.remindTime}分钟')
                     ],
                   ),
                 ),
                 onTap: () {
                   _show(context);
                 }),
-          ),
+          ) : const SizedBox.shrink(),
+        ),
       ],
     );
   }
@@ -891,21 +869,15 @@ class _RemindSettingState extends State<RemindSetting> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  NumberPicker(
-                    value: remindTime,
+                  Obx(() => NumberPicker(
+                    value: settingsStore.remindTime,
                     minValue: 10,
                     maxValue: 120,
                     step: 1,
                     onChanged: (value) async {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setInt(PrefsKeys.NOTIFICATION_TIME, value);
-                      setStateBottomSheet(() {
-                        remindTime = value;
-                      });
-                      // 可选：更新主页面的 remindTime
-                      setState(() {});
+                      await settingsStore.setRemindTime(value);
                     },
-                  ),
+                  ))
                 ],
               ),
             );
@@ -924,7 +896,7 @@ class VersionSetting extends StatefulWidget {
 }
 
 class _VersionSettingState extends State<VersionSetting> {
-  late bool updateIgnored = false;
+  final SettingsStore settingsStore = SettingsStore.to;
   late bool isNeedUpdate = false;
   late String version = '';
   late String newVersion = '';
@@ -936,9 +908,6 @@ class _VersionSettingState extends State<VersionSetting> {
     PackageInfo.fromPlatform().then((packageInfo) {
       setState(() {
         version = packageInfo.version;
-        SharedPreferences.getInstance().then((prefs) {
-          updateIgnored = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
-        });
         GiteeService.isNeedUpdate().then((res) {
           isNeedUpdate = res.$1;
           if (res.$1) {
@@ -1035,16 +1004,12 @@ class _VersionSettingState extends State<VersionSetting> {
                   ],
                 ),
               ),
-              CupertinoSwitch(
-                value: updateIgnored,
+              Obx(() => CupertinoSwitch(
+                value: settingsStore.updateIgnored,
                 onChanged: (bool value) async {
-                  setState(() {
-                    updateIgnored = value;
-                  });
-                  final prefs = await SharedPreferences.getInstance();
-                  prefs.setBool(PrefsKeys.UPDATE_IGNORED, value);
+                  await settingsStore.setUpdateIgnored(value);
                 },
-              )
+              ))
             ],
           ),
         ),
@@ -1124,7 +1089,7 @@ class HomePageSetting extends StatefulWidget {
 }
 
 class _HomePageSettingState extends State<HomePageSetting> {
-  int _pageIndex = 0;
+  final SettingsStore settingsStore = SettingsStore.to;
   final List<String> _pageNames = [
     '首页',
     '课程页',
@@ -1135,12 +1100,6 @@ class _HomePageSettingState extends State<HomePageSetting> {
   @override
   void initState() {
     super.initState();
-
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        _pageIndex = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
-      });
-    });
   }
 
   @override
@@ -1170,7 +1129,7 @@ class _HomePageSettingState extends State<HomePageSetting> {
                     ],
                   ),
                 ),
-                Text(_pageNames[_pageIndex]),
+                Obx(() => Text(_pageNames[settingsStore.pageIndex])),
                 const SizedBox(width: 4),
               ],
             )),
@@ -1178,25 +1137,20 @@ class _HomePageSettingState extends State<HomePageSetting> {
           context,
           SizedBox(
             height: 200, // 给 CupertinoPicker 固定高度
-            child: CupertinoPicker(
+            child: Obx(() => CupertinoPicker(
               magnification: 1.22,
               squeeze: 1.2,
               useMagnifier: true,
               itemExtent: 32.0,
               scrollController:
-                  FixedExtentScrollController(initialItem: _pageIndex),
+                  FixedExtentScrollController(initialItem: settingsStore.pageIndex),
               onSelectedItemChanged: (int selectedItem) {
-                setState(() {
-                  _pageIndex = selectedItem;
-                });
-                SharedPreferences.getInstance().then((prefs) {
-                  prefs.setInt(PrefsKeys.PAYMENT_NUM, selectedItem);
-                });
+                settingsStore.setPageIndex(selectedItem);
               },
               children: List.generate(_pageNames.length, (int index) {
                 return Center(child: Text(_pageNames[index]));
               }),
-            ),
+            )),
           ),
         ),
       ),

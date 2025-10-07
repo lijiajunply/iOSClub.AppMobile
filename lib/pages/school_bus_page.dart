@@ -222,7 +222,7 @@ class SchoolBusPage extends StatelessWidget {
     final isTablet = screenWidth > 600;
 
     var content = Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
