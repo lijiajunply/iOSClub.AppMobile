@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/models/user_data.dart';
@@ -52,9 +53,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final iosName = prefs.getString(PrefsKeys.CLUB_NAME);
 
     if (userStore.isLogin && username != null) {
-      if (userStore.isLoginMember && iosName != null){
+      if (userStore.isLoginMember && iosName != null) {
         _username = iosName;
-      }else{
+      } else {
         _username = username;
       }
     } else {
@@ -426,24 +427,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.pushNamed(context, '/iMember');
               }
             }),
-        ProfileButtonItem(
-            icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
-        ProfileButtonItem(
-            icon: Icons.toc,
-            title: '培养方案',
-            onPressed: () {
-              // 未登录教务系统时提示需要登录
-              showClubSnackBar(
-                context,
-                const Text('此功能需要登录教务系统账号后使用'),
-              );
-            }),
-        ProfileButtonItem(
-            icon: Icons.monetization_on_outlined,
-            title: '饭卡',
-            route: '/Payment'),
-        ProfileButtonItem(
-            icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
+        if (!kIsWeb)
+          ProfileButtonItem(
+              icon: CupertinoIcons.bolt_fill,
+              title: '电费',
+              route: '/Electricity'),
+        // ProfileButtonItem(
+        //     icon: Icons.toc,
+        //     title: '培养方案',
+        //     onPressed: () {
+        //       // 未登录教务系统时提示需要登录
+        //       showClubSnackBar(
+        //         context,
+        //         const Text('此功能需要登录教务系统账号后使用'),
+        //       );
+        //     }),
+        if (!kIsWeb)
+          ProfileButtonItem(
+              icon: Icons.monetization_on_outlined,
+              title: '饭卡',
+              route: '/Payment'),
+        if (!kIsWeb)
+          ProfileButtonItem(
+              icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
         // 添加登录教务系统选项
         ProfileButtonItem(
             icon: Icons.login,
@@ -478,12 +484,18 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.pushNamed(context, '/iMember');
             }
           }),
-      ProfileButtonItem(
-          icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
+      if (!kIsWeb)
+        ProfileButtonItem(
+            icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
       ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
-      ProfileButtonItem(
-          icon: Icons.monetization_on_outlined, title: '饭卡', route: '/Payment'),
-      ProfileButtonItem(icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
+      if (!kIsWeb)
+        ProfileButtonItem(
+            icon: Icons.monetization_on_outlined,
+            title: '饭卡',
+            route: '/Payment'),
+      if (!kIsWeb)
+        ProfileButtonItem(
+            icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
     ];
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/controllers/bus_controller.dart';
@@ -203,17 +204,18 @@ class SchoolBusPage extends StatelessWidget {
                       },
                     ),
                   )),
-              const SizedBox(height: 10),
-              Obx(() => ListTile(
-                    title: const Text('是否使用新API'),
-                    subtitle: const Text('新的API接口只能在校园网内使用'),
-                    trailing: CupertinoSwitch(
-                      value: busController.useNewApi.value,
-                      onChanged: (bool value) async {
-                        busController.toggleUseNewApi(value);
-                      },
-                    ),
-                  )),
+              if (!kIsWeb) const SizedBox(height: 10),
+              if (!kIsWeb)
+                Obx(() => ListTile(
+                      title: const Text('是否使用新API'),
+                      subtitle: const Text('新的API接口只能在校园网内使用'),
+                      trailing: CupertinoSwitch(
+                        value: busController.useNewApi.value,
+                        onChanged: (bool value) async {
+                          busController.toggleUseNewApi(value);
+                        },
+                      ),
+                    )),
             ],
           );
         },
