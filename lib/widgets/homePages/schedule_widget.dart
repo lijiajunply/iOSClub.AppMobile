@@ -111,7 +111,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                     ListTile(
                                         title: const Text('显示明天的课表'),
                                         trailing: Obx(() => CupertinoSwitch(
-                                            value: scheduleStore.showTomorrow,
+                                            value: scheduleStore.isShowTomorrow,
                                             onChanged: (value) async {
                                               await scheduleStore.toggleShowTomorrow();
                                               _initializeData(); // 重新加载数据

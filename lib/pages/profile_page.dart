@@ -53,12 +53,13 @@ class _ProfilePageState extends State<ProfilePage> {
     final iosName = prefs.getString(PrefsKeys.CLUB_NAME);
 
     if (userStore.isLogin && username != null) {
-      if (userStore.isLoginMember && iosName != null) {
-        _username = iosName;
-      } else {
-        _username = username;
-      }
-    } else {
+      _username = username;
+    }
+    if (userStore.isLoginMember && iosName != null) {
+      _username = iosName;
+    }
+
+    if (!userStore.isLogin && !userStore.isLoginMember) {
       // 没有登录信息，进入游客模式
       await _enterGuestMode();
     }
@@ -159,6 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_isOnlyLoginMember) {
       await prefs.setString(PrefsKeys.CLUB_NAME, _usernameController.text);
       await prefs.setString(PrefsKeys.CLUB_ID, _passwordController.text);
+      userStore.setLoginMember();
     } else {
       await prefs.setString(PrefsKeys.USERNAME, _usernameController.text);
       await prefs.setString(PrefsKeys.PASSWORD, _passwordController.text);
@@ -170,15 +172,15 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     if (_isLoginMember) {
-      await prefs.setString(PrefsKeys.CLUB_NAME, _usernameController.text);
+      await prefs.setString(PrefsKeys.CLUB_NAME, _nameController.text);
       await prefs.setString(PrefsKeys.CLUB_ID, _passwordController.text);
+      userStore.setLoginMember();
     }
 
     // 移除 isUpdateToClub 相关设置
     setState(() {
       _isLoading = false;
       _isOnlyLoginMember = false;
-      _isLoginMember = false;
       _showLoginForm = false; // 隐藏登录表单
     });
 
@@ -242,6 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                       onPressed: () {
@@ -252,13 +255,38 @@ class _ProfilePageState extends State<ProfilePage> {
                         });
                       },
                       icon: const Icon(Icons.arrow_back)),
-                  const SizedBox(width: 8),
                   const Text(
                     '登录社团账号',
                     style: TextStyle(fontSize: 22),
                   ),
+                  SizedBox(
+                    width: 40,
+                  )
                 ],
               )),
+        if (!_isOnlyLoginMember)
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isLoginMember = false;
+                            _nameController.clear();
+                            _showLoginForm = false; // 添加这行代码来隐藏登录表单
+                          });
+                        },
+                        icon: const Icon(Icons.arrow_back)),
+                    const Text(
+                      '登录教务系统账号',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    SizedBox(
+                      width: 40,
+                    )
+                  ])),
         Padding(
             padding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
             child: Column(
@@ -348,19 +376,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isLoginMember,
-                              onChanged: (value) {
-                                if (value == null) return;
-                                setState(() {
-                                  _isLoginMember = value;
-                                });
-                              },
-                            ),
-                            const Text('登录社团账号'),
-                          ],
+                        if (!userStore.isLoginMember)
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _isLoginMember,
+                                onChanged: (value) {
+                                  if (value == null) return;
+                                  setState(() {
+                                    _isLoginMember = value;
+                                  });
+                                },
+                              ),
+                              const Text('登录社团账号'),
+                            ],
+                          ),
+                        SizedBox(
+                          width: 1,
                         ),
                         TextButton(
                             onPressed: () async {
@@ -403,58 +435,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   List<ProfileButtonItem> get profileButtonItems {
-    // 未登录教务系统时显示的按钮项
-    if (!userStore.isLogin) {
-      return [
-        ProfileButtonItem(
-            icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
-        ProfileButtonItem(
-            icon: Icons.settings, title: '设置/关于', route: '/About'),
-        ProfileButtonItem(
-            title: '校车',
-            icon: Icons.directions_bus_rounded,
-            route: '/SchoolBus'),
-        ProfileButtonItem(
-            icon: Icons.apple,
-            title: userStore.isLoginMember ? '社团详情' : '登录社团iMember',
-            onPressed: () {
-              if (!userStore.isLoginMember) {
-                setState(() {
-                  _isOnlyLoginMember = true;
-                  _showLoginForm = true;
-                });
-              } else {
-                Navigator.pushNamed(context, '/iMember');
-              }
-            }),
-        if (!kIsWeb)
-          ProfileButtonItem(
-              icon: CupertinoIcons.bolt_fill,
-              title: '电费',
-              route: '/Electricity'),
-        if (!kIsWeb)
-          ProfileButtonItem(
-              icon: Icons.monetization_on_outlined,
-              title: '饭卡',
-              route: '/Payment'),
-        if (!kIsWeb)
-          ProfileButtonItem(
-              icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
-        // 添加登录教务系统选项
-        ProfileButtonItem(
-            icon: Icons.login,
-            title: '登录教务系统',
-            onPressed: () {
-              setState(() {
-                _isLoading = true;
-                _showLoginForm = true;
-              });
-              _enterLoginMode();
-            }),
-      ];
-    }
-
-    // 已登录教务系统时显示的按钮项
     return [
       ProfileButtonItem(
           icon: CupertinoIcons.link_circle, title: '建大导航', route: '/Link'),
@@ -477,15 +457,24 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!kIsWeb)
         ProfileButtonItem(
             icon: CupertinoIcons.bolt_fill, title: '电费', route: '/Electricity'),
-      ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
-      if (!kIsWeb)
-        ProfileButtonItem(
-            icon: Icons.monetization_on_outlined,
-            title: '饭卡',
-            route: '/Payment'),
+      if (userStore.isLogin)
+        ProfileButtonItem(icon: Icons.toc, title: '培养方案', route: '/Program'),
+      ProfileButtonItem(
+          icon: Icons.monetization_on_outlined, title: '饭卡', route: '/Payment'),
       if (!kIsWeb)
         ProfileButtonItem(
             icon: Icons.wifi_outlined, title: '校园网', route: '/Net'),
+      if (!userStore.isLogin)
+        ProfileButtonItem(
+            icon: Icons.login,
+            title: '登录教务系统',
+            onPressed: () {
+              setState(() {
+                _isLoading = true;
+                _showLoginForm = true;
+              });
+              _enterLoginMode();
+            }),
     ];
   }
 

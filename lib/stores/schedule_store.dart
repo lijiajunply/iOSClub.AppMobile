@@ -16,6 +16,7 @@ class ScheduleStore extends GetxController {
   final _currentPage = 0.obs;
   final _height = 55.0.obs;
   final _isYanTa = false.obs;
+  final _showTomorrow = false.obs;
 
   List<List<CourseModel>> get allCourses => _allCourses.toList();
 
@@ -32,7 +33,8 @@ class ScheduleStore extends GetxController {
   bool get isYanTa => _isYanTa.value;
 
   // 直接使用SettingsStore的showTomorrow变量
-  bool get showTomorrow => SettingsStore.to.isShowTomorrow;
+  bool get showTomorrow => _showTomorrow.value;
+  bool get isShowTomorrow => SettingsStore.to.isShowTomorrow;
 
   int weekNow = 0;
 
@@ -182,6 +184,7 @@ class ScheduleStore extends GetxController {
       }
 
       final courses = allCourses[targetWeek];
+      _showTomorrow.value = true;
       return courses
           .where((course) => course.weekday == tomorrowWeekDay)
           .toList()

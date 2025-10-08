@@ -4,45 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/course_item_modern_bg"
-    android:padding="16dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
     android:layout_marginBottom="8dp">
-
-    <!-- 时间指示器 -->
-    <LinearLayout
-        android:id="@+id/time_indicator_container"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:background="@drawable/time_indicator_modern_bg"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/time_hour"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="09"
-            android:textColor="@color/time_indicator_text_light"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/time_minute"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00"
-            android:textColor="@color/time_indicator_text_light"
-            android:textSize="12sp"
-            android:layout_marginTop="-2dp" />
-
-    </LinearLayout>
 
     <!-- 课程信息容器 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/time_indicator_container"
         android:layout_centerVertical="true"
         android:layout_marginStart="16dp"
         android:orientation="vertical">
@@ -67,13 +38,6 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="6dp"
-                android:src="@drawable/ic_time_small"
-                android:scaleType="fitXY" />
-
             <TextView
                 android:id="@+id/course_time"
                 android:layout_width="wrap_content"
@@ -91,13 +55,6 @@
             android:layout_marginTop="2dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="6dp"
-                android:src="@drawable/ic_location_small"
-                android:scaleType="fitXY" />
 
             <TextView
                 android:id="@+id/course_location"

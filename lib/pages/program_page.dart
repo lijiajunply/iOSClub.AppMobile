@@ -13,7 +13,13 @@ class ProgramPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('培养方案'),
+        title: Text(
+          '培养方案',
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kTextTabBarHeight),

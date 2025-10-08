@@ -119,7 +119,7 @@ class _DesktopSidebarState extends State<DesktopSidebar> {
               borderRadius: BorderRadius.circular(8),
               border: isSelected
                   ? Border.all(
-                      color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                      color: Colors.transparent,
                       width: 1,
                     )
                   : null,

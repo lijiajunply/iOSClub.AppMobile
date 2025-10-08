@@ -158,10 +158,14 @@ class _MainAppState extends State<MainApp> {
     6: '/Payment',
   };
 
-  final GetMaterialApp _app = GetMaterialApp(
+  GetMaterialApp _app(bool isTablet) => GetMaterialApp(
       title: 'iOS Club App',
       debugShowCheckedModeBanner: false,
-      defaultTransition: Transition.fadeIn,
+      defaultTransition: (kIsWeb)
+          ? Transition.fadeIn
+          : isTablet
+              ? Transition.fadeIn
+              : Transition.native,
       theme: ThemeData(
         fontFamily: SettingsStore.to.fontFamily.isEmpty
             ? (!kIsWeb && Platform.isWindows ? '微软雅黑' : null)
@@ -209,13 +213,13 @@ class _MainAppState extends State<MainApp> {
                   },
                 ),
                 Expanded(
-                  child: _app,
+                  child: _app(isTablet),
                 ),
               ],
             )),
           )
         : Scaffold(
-            body: SafeArea(child: _app),
+            body: SafeArea(child: _app(isTablet)),
             bottomNavigationBar: BottomNavigation(
               destinations: _destinations.sublist(0, 4).map((destination) {
                 return NavigationDestination(
