@@ -83,11 +83,12 @@ class SchoolBusPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final bus = busController.busData[index];
 
-              var bottom = index == busController.busData.length - 1 ? 12.0 : 0.0;
+              var bottom =
+                  index == busController.busData.length - 1 ? 12.0 : 0.0;
 
               return Padding(
-                padding:
-                    EdgeInsets.only(top: 12, left: 12, right: 12, bottom: bottom),
+                padding: EdgeInsets.only(
+                    top: 12, left: 12, right: 12, bottom: bottom),
                 child: Material(
                   borderRadius: BorderRadius.circular(20),
                   child: InkWell(
@@ -104,7 +105,8 @@ class SchoolBusPage extends StatelessWidget {
                                   Text(
                                     bus.departureStation,
                                     style: TextStyle(
-                                        fontSize: 16, fontWeight: FontWeight.bold),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 8),
                                   Text(
@@ -118,7 +120,8 @@ class SchoolBusPage extends StatelessWidget {
                             ),
                             Expanded(
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                   Text(bus.description,
                                       style: TextStyle(
@@ -139,7 +142,8 @@ class SchoolBusPage extends StatelessWidget {
                                   Text(
                                     bus.arrivalStation,
                                     style: TextStyle(
-                                        fontSize: 16, fontWeight: FontWeight.bold),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 8),
                                   Text(
@@ -161,13 +165,15 @@ class SchoolBusPage extends StatelessWidget {
               );
             });
       } else if (busController.selectedDate.value.isNotEmpty) {
-        return ClubCard(
-            margin: EdgeInsets.all(20),
-            child: EmptyWidget(
-              title: '今天没有车了',
-              subtitle: '明天再来吧',
-              icon: Icons.directions_bus,
-            ));
+        return Center(
+          child: ClubCard(
+              margin: EdgeInsets.all(20),
+              child: EmptyWidget(
+                title: '今天没有车了',
+                subtitle: '明天再来吧',
+                icon: Icons.directions_bus,
+              )),
+        );
       }
 
       return Container();
@@ -175,7 +181,8 @@ class SchoolBusPage extends StatelessWidget {
   }
 
   // 新增：显示设置的底部弹窗
-  Future<void> _showSettingsModalBottomSheet(BusController busController) async {
+  Future<void> _showSettingsModalBottomSheet(
+      BusController busController) async {
     await showClubModalBottomSheet(
       Get.context!,
       StatefulBuilder(
@@ -222,7 +229,7 @@ class SchoolBusPage extends StatelessWidget {
     final isTablet = screenWidth > 600;
 
     var content = Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

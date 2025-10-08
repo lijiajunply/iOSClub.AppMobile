@@ -1,6 +1,6 @@
 # iOS Club App
 
-这是一个基于 Flutter 的跨平台移动应用程序，专为 iOS Club 设计，旨在提供课程信息、日程安排、成员管理等功能。该应用支持 Android 和 iOS 平台，并包含一些特定平台的定制功能，如 Android 上的 AppWidget。
+这是一个基于 Flutter 的跨平台移动应用程序，专为 iOS Club 设计，旨在提供课程信息、日程安排、成员管理等功能。
 
 ## 主要功能
 

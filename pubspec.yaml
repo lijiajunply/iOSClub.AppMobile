@@ -102,8 +102,10 @@ flutter_native_splash:
 
 msix_config:
   display_name: iOS Club App
-  msix_version: 1.14.0.0
+  msix_version: 1.1.17.0
   logo_path: C:\Projects\FlutterProjects\ios_club_app\windows\runner\resources\app_icon.ico
-  publisher_display_name: iOS Club of XAUAT
-  identity_name: com.xauatiosclub.clubapp
+  publisher_display_name: LuckyFish
+  identity_name: LuckyFish.iOSClubApp
   timestamp_url: http://timestamp.digicert.com  # 或尝试其他服务器
+  publisher: CN=7B495662-F6FD-47E2-B578-E845127E5AE3
+  capabilities: "runFullTrust"

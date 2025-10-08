@@ -66,21 +66,11 @@ class PaymentPage extends StatelessWidget {
   Widget _buildStatisticsSection() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '统计信息',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          _buildStatCard(
-            '余额',
-            controller.totalRecharge.value,
-            Icons.monetization_on_outlined,
-            Colors.green,
-          ),
-        ],
+      child: _buildStatCard(
+        '余额',
+        controller.totalRecharge.value,
+        Icons.monetization_on_outlined,
+        Colors.green,
       ),
     );
   }

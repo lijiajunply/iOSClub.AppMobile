@@ -57,7 +57,9 @@ class AboutPage extends StatelessWidget {
                   const TodoListSetting(),
                   const HomePageSetting(),
                   const HapticFeedbackSetting(), // 添加触觉反馈设置
-                  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+                  if (Platform.isWindows ||
+                      Platform.isLinux ||
+                      Platform.isMacOS)
                     const FontFamilySetting(), // 添加字体设置
                 ]),
                 const SizedBox(height: 24),
@@ -69,12 +71,16 @@ class AboutPage extends StatelessWidget {
                 ]),
                 const SizedBox(height: 24),
                 // 安卓小组件
-                _buildSectionTitle('小组件', isDark),
-                const SizedBox(height: 12),
-                _buildSettingsGroup([
-                  _buildWidgetTile(context, isDark),
-                ]),
-                const SizedBox(height: 24),
+                if (Platform.isAndroid || Platform.isIOS)
+                  _buildSectionTitle('小组件', isDark),
+                if (Platform.isAndroid || Platform.isIOS)
+                  const SizedBox(height: 12),
+                if (Platform.isAndroid || Platform.isIOS)
+                  _buildSettingsGroup([
+                    _buildWidgetTile(context, isDark),
+                  ]),
+                if (Platform.isAndroid || Platform.isIOS)
+                  const SizedBox(height: 24),
                 // 关于我们
                 _buildSectionTitle('关于', isDark),
                 const SizedBox(height: 12),
@@ -744,11 +750,11 @@ class _ShowTomorrowSettingState extends State<ShowTomorrowSetting> {
             ),
           ),
           Obx(() => CupertinoSwitch(
-            value: settingsStore.isShowTomorrow,
-            onChanged: (bool value) async {
-              await settingsStore.setIsShowTomorrow(value);
-            },
-          )),
+                value: settingsStore.isShowTomorrow,
+                onChanged: (bool value) async {
+                  await settingsStore.setIsShowTomorrow(value);
+                },
+              )),
         ],
       ),
     );
@@ -807,45 +813,47 @@ class _RemindSettingState extends State<RemindSetting> {
                   ),
                 ),
                 Obx(() => CupertinoSwitch(
-                  value: settingsStore.isRemind,
-                  onChanged: (bool value) async {
-                    await settingsStore.setIsRemind(value);
-                    if (value && context.mounted) {
-                      await NotificationService.set(context);
-                    }
-                  },
-                ))
+                      value: settingsStore.isRemind,
+                      onChanged: (bool value) async {
+                        await settingsStore.setIsRemind(value);
+                        if (value && context.mounted) {
+                          await NotificationService.set(context);
+                        }
+                      },
+                    ))
               ],
             )),
-        Obx(() => settingsStore.isRemind ? 
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+        Obx(
+          () => settingsStore.isRemind
+              ? Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        child: Row(
                           children: [
-                            const Text(
-                              '提前几分钟提醒',
-                              style: TextStyle(fontSize: 16),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '提前几分钟提醒',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
                             ),
+                            Text('${settingsStore.remindTime}分钟')
                           ],
                         ),
                       ),
-                      Text('${settingsStore.remindTime}分钟')
-                    ],
-                  ),
-                ),
-                onTap: () {
-                  _show(context);
-                }),
-          ) : const SizedBox.shrink(),
+                      onTap: () {
+                        _show(context);
+                      }),
+                )
+              : const SizedBox.shrink(),
         ),
       ],
     );
@@ -873,14 +881,14 @@ class _RemindSettingState extends State<RemindSetting> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Obx(() => NumberPicker(
-                    value: settingsStore.remindTime,
-                    minValue: 10,
-                    maxValue: 120,
-                    step: 1,
-                    onChanged: (value) async {
-                      await settingsStore.setRemindTime(value);
-                    },
-                  ))
+                        value: settingsStore.remindTime,
+                        minValue: 10,
+                        maxValue: 120,
+                        step: 1,
+                        onChanged: (value) async {
+                          await settingsStore.setRemindTime(value);
+                        },
+                      ))
                 ],
               ),
             );
@@ -1008,11 +1016,11 @@ class _VersionSettingState extends State<VersionSetting> {
                 ),
               ),
               Obx(() => CupertinoSwitch(
-                value: settingsStore.updateIgnored,
-                onChanged: (bool value) async {
-                  await settingsStore.setUpdateIgnored(value);
-                },
-              ))
+                    value: settingsStore.updateIgnored,
+                    onChanged: (bool value) async {
+                      await settingsStore.setUpdateIgnored(value);
+                    },
+                  ))
             ],
           ),
         ),
@@ -1141,19 +1149,19 @@ class _HomePageSettingState extends State<HomePageSetting> {
           SizedBox(
             height: 200, // 给 CupertinoPicker 固定高度
             child: Obx(() => CupertinoPicker(
-              magnification: 1.22,
-              squeeze: 1.2,
-              useMagnifier: true,
-              itemExtent: 32.0,
-              scrollController:
-                  FixedExtentScrollController(initialItem: settingsStore.pageIndex),
-              onSelectedItemChanged: (int selectedItem) {
-                settingsStore.setPageIndex(selectedItem);
-              },
-              children: List.generate(_pageNames.length, (int index) {
-                return Center(child: Text(_pageNames[index]));
-              }),
-            )),
+                  magnification: 1.22,
+                  squeeze: 1.2,
+                  useMagnifier: true,
+                  itemExtent: 32.0,
+                  scrollController: FixedExtentScrollController(
+                      initialItem: settingsStore.pageIndex),
+                  onSelectedItemChanged: (int selectedItem) {
+                    settingsStore.setPageIndex(selectedItem);
+                  },
+                  children: List.generate(_pageNames.length, (int index) {
+                    return Center(child: Text(_pageNames[index]));
+                  }),
+                )),
           ),
         ),
       ),
@@ -1318,12 +1326,11 @@ class _FontFamilySettingState extends State<FontFamilySetting> {
                     ],
                   ),
                 ),
-                Obx(() => Text(
-                    _fontOptions.contains(settingsStore.fontFamily)
-                        ? settingsStore.fontFamily.isEmpty
-                            ? '系统默认'
-                            : settingsStore.fontFamily
-                        : '自定义')),
+                Obx(() => Text(_fontOptions.contains(settingsStore.fontFamily)
+                    ? settingsStore.fontFamily.isEmpty
+                        ? '系统默认'
+                        : settingsStore.fontFamily
+                    : '自定义')),
                 const SizedBox(width: 4),
               ],
             )),
@@ -1337,8 +1344,8 @@ class _FontFamilySettingState extends State<FontFamilySetting> {
                   useMagnifier: true,
                   itemExtent: 32.0,
                   scrollController: FixedExtentScrollController(
-                      initialItem: _fontOptions
-                          .indexWhere((element) => element == settingsStore.fontFamily)),
+                      initialItem: _fontOptions.indexWhere(
+                          (element) => element == settingsStore.fontFamily)),
                   onSelectedItemChanged: (int selectedItem) {
                     settingsStore.setFontFamily(_fontOptions[selectedItem]);
                   },
