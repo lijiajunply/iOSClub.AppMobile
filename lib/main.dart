@@ -11,6 +11,7 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:io';
 
 import 'main_app.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,19 +46,31 @@ void main() async {
   initApp();
 }
 
+String? _getFontFamily() {
+  // 检查是否为桌面平台
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    // 获取设置存储实例
+    final settingsStore = SettingsStore.to;
+    // 如果设置了自定义字体，则使用自定义字体，否则使用系统默认字体
+    return settingsStore.fontFamily.isEmpty ? null : settingsStore.fontFamily;
+  }
+  // 非桌面平台保持原有逻辑
+  return Platform.isWindows ? '微软雅黑' : null;
+}
+
 void initApp() {
   runApp(MaterialApp(
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-        fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        fontFamily: _getFontFamily(),
         appBarTheme: AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           foregroundColor: Colors.black,
           elevation: 0,
         )),
     darkTheme: ThemeData(
-      fontFamily: Platform.isWindows ? '微软雅黑' : null,
+      fontFamily: _getFontFamily(),
       brightness: Brightness.dark,
       appBarTheme: const AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle.light,

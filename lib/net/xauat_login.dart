@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:encrypt/encrypt.dart';
 
@@ -29,7 +29,7 @@ class LoginTokenModel {
 
 /// 西安建筑科技大学登录客户端
 class XAUATLogin {
-  late final http.Client _client;
+  late final Dio _dio;
   final String loginUrl = "http://authserver.xauat.edu.cn/authserver/login";
   final String serviceUrl = "https://swjw.xauat.edu.cn/student/sso/login";
 
@@ -40,7 +40,9 @@ class XAUATLogin {
   static const String aesChars = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678";
 
   XAUATLogin() {
-    _client = http.Client();
+    _dio = Dio();
+    _dio.options.connectTimeout = const Duration(seconds: 15);
+    _dio.options.receiveTimeout = const Duration(seconds: 15);
   }
 
   /// 生成随机字符串
@@ -91,13 +93,12 @@ class XAUATLogin {
   }
 
   /// 从响应头提取Cookie
-  Map<String, String> _extractCookies(Map<String, String> headers) {
+  Map<String, String> _extractCookies(Map<String, List<String>> headers) {
     final cookies = <String, String>{};
-    final cookieHeader = headers['set-cookie'];
+    final cookieHeaders = headers['set-cookie'];
 
-    if (cookieHeader != null) {
-      final cookieStrings = cookieHeader.split(',');
-      for (final cookie in cookieStrings) {
+    if (cookieHeaders != null) {
+      for (final cookie in cookieHeaders) {
         final parts = cookie.split(';')[0].split('=');
         if (parts.length >= 2) {
           cookies[parts[0].trim()] = parts[1].trim();
@@ -124,20 +125,18 @@ class XAUATLogin {
         queryParameters: {'service': serviceUrl},
       );
 
-      final response = await _client.get(
-        uri,
-        headers: {'Cookie': _buildCookieString(_cookies)},
+      final response = await _dio.get(
+        uri.toString(),
+        options: Options(
+          headers: {'Cookie': _buildCookieString(_cookies)},
+        ),
       );
 
-      if (response.statusCode != 200) {
-        throw Exception('获取登录页面失败: ${response.statusCode}');
-      }
-
       // 更新Cookies
-      _updateCookies(_extractCookies(response.headers));
+      _updateCookies(_extractCookies(response.headers.map));
 
       // 解析HTML
-      final document = html_parser.parse(response.body);
+      final document = html_parser.parse(response.data);
 
       final params = <String, String>{};
 
@@ -201,18 +200,19 @@ class XAUATLogin {
       );
 
       // 发送登录请求
-      final response = await _client.post(
-        uri,
-        headers: {
-          'Cookie': _buildCookieString(_cookies),
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: loginData,
-      ).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () {
-          throw Exception('登录请求超时');
-        },
+      final response = await _dio.post(
+        uri.toString(),
+        data: loginData,
+        options: Options(
+          headers: {
+            'Cookie': _buildCookieString(_cookies),
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          followRedirects: false,
+          validateStatus: (status) {
+            return status != null && status < 500;
+          },
+        ),
       );
 
       // 处理登录响应
@@ -220,19 +220,22 @@ class XAUATLogin {
         print('正在处理登录重定向...');
 
         // 提取SSO Cookies
-        final ssoCookies = _extractCookies(response.headers);
+        final ssoCookies = _extractCookies(response.headers.map);
         _updateCookies(ssoCookies);
 
         // 如果有重定向，跟随重定向获取edu cookies
         String eduCookieString = '';
-        if (response.headers['location'] != null) {
-          final redirectUri = Uri.parse(response.headers['location']!);
-          final redirectResponse = await _client.get(
-            redirectUri,
-            headers: {'Cookie': _buildCookieString(_cookies)},
+        final location = response.headers.value('location');
+        if (location != null) {
+          final redirectUri = Uri.parse(location);
+          final redirectResponse = await _dio.get(
+            redirectUri.toString(),
+            options: Options(
+              headers: {'Cookie': _buildCookieString(_cookies)},
+            ),
           );
 
-          final eduCookies = _extractCookies(redirectResponse.headers);
+          final eduCookies = _extractCookies(redirectResponse.headers.map);
           if (eduCookies.isNotEmpty) {
             _updateCookies(eduCookies);
             eduCookieString = _buildCookieString(eduCookies);
@@ -252,7 +255,7 @@ class XAUATLogin {
         );
       } else {
         // 解析错误信息
-        final document = html_parser.parse(response.body);
+        final document = html_parser.parse(response.data);
         final errorMsg = document.querySelector('span#msg');
 
         if (errorMsg != null) {
@@ -282,25 +285,26 @@ class XAUATLogin {
         queryParameters: {'service': serviceUrl},
       );
 
-      final response = await _client.get(
-        uri,
-        headers: {'Cookie': ssoKey},
-      ).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () {
-          throw Exception('SSO登录请求超时');
-        },
+      final response = await _dio.get(
+        uri.toString(),
+        options: Options(
+          headers: {'Cookie': ssoKey},
+          followRedirects: false,
+          validateStatus: (status) {
+            return status != null && status < 500;
+          },
+        ),
       );
 
       if (response.statusCode != 200) {
         return LoginTokenModel(
           success: false,
-          message: 'SSO登录失败：${response.body}',
+          message: 'SSO登录失败：${response.statusMessage}',
         );
       }
 
       // 获取edu cookie
-      final eduCookies = _extractCookies(response.headers);
+      final eduCookies = _extractCookies(response.headers.map);
       if (eduCookies.isNotEmpty) {
         _updateCookies(eduCookies);
       }
@@ -324,8 +328,12 @@ class XAUATLogin {
 
   /// 清理资源
   void dispose() {
-    _client.close();
+    _dio.close();
   }
+
+  // 测试辅助方法 - 仅为测试目的暴露私有方法
+  String randomStringTest(int length) => _randomString(length);
+  String buildCookieStringTest(Map<String, String> cookies) => _buildCookieString(cookies);
 }
 
 // 使用示例
@@ -333,7 +341,7 @@ void main() async {
   final loginClient = XAUATLogin();
 
   // 示例1：使用账号密码登录
-  final result = await loginClient.login('学号', '密码');
+  final result = await loginClient.login('2211030217', 'LIjiajun123456');
 
   if (result.success) {
     print('登录成功！');

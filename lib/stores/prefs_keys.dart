@@ -65,4 +65,7 @@ class PrefsKeys {
   
   /// 触觉反馈相关
   static const String ENABLE_HAPTIC_FEEDBACK = 'enable_haptic_feedback';
+  
+  /// 字体设置相关
+  static const String FONT_FAMILY = 'font_family';
 }

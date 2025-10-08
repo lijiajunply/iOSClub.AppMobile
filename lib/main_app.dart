@@ -8,6 +8,7 @@ import 'package:ios_club_app/router.dart';
 import 'package:ios_club_app/system_services/download_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 
 import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
@@ -23,6 +24,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   int _currentIndex = 0;
+  final SettingsStore settingsStore = SettingsStore.to;
 
   @override
   void initState() {
@@ -159,7 +161,9 @@ class _MainAppState extends State<MainApp> {
 
   final GetMaterialApp _app = GetMaterialApp(
       theme: ThemeData(
-        fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        fontFamily: SettingsStore.to.fontFamily.isEmpty ? 
+            (Platform.isWindows ? '微软雅黑' : null) : 
+            SettingsStore.to.fontFamily,
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
             // 为不同平台配置不同的转场动画
@@ -174,7 +178,9 @@ class _MainAppState extends State<MainApp> {
         ),
       ),
       darkTheme: ThemeData(
-        fontFamily: Platform.isWindows ? '微软雅黑' : null,
+        fontFamily: SettingsStore.to.fontFamily.isEmpty ? 
+            (Platform.isWindows ? '微软雅黑' : null) : 
+            SettingsStore.to.fontFamily,
         brightness: Brightness.dark,
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.light,

@@ -23,6 +23,9 @@ class SettingsStore extends GetxController {
   
   // 忽略更新设置
   final _updateIgnored = false.obs;
+  
+  // 字体设置
+  final _fontFamily = ''.obs;
 
   bool get isRemind => _isRemind.value;
 
@@ -37,6 +40,8 @@ class SettingsStore extends GetxController {
   bool get enableHapticFeedback => _enableHapticFeedback.value;
   
   bool get updateIgnored => _updateIgnored.value;
+  
+  String get fontFamily => _fontFamily.value;
 
   @override
   void onInit() {
@@ -55,6 +60,7 @@ class SettingsStore extends GetxController {
     _pageIndex.value = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
     _enableHapticFeedback.value = prefs.getBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK) ?? false;
     _updateIgnored.value = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
+    _fontFamily.value = prefs.getString(PrefsKeys.FONT_FAMILY) ?? '';
   }
 
   /// 设置课程通知开关
@@ -104,5 +110,12 @@ class SettingsStore extends GetxController {
     _updateIgnored.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(PrefsKeys.UPDATE_IGNORED, value);
+  }
+  
+  /// 设置字体
+  Future<void> setFontFamily(String value) async {
+    _fontFamily.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(PrefsKeys.FONT_FAMILY, value);
   }
 }

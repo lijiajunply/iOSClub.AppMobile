@@ -254,6 +254,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [

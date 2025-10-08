@@ -91,7 +91,7 @@ class PaymentTile extends StatelessWidget {
                     Text(
                       '¥${amount.toStringAsFixed(2)}',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: isLow ? Colors.red : Colors.orange,
                       ),
