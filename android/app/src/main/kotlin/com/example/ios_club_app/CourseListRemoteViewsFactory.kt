@@ -34,6 +34,7 @@ class CourseListRemoteViewsFactory(
             views.setTextViewText(R.id.course_title, course.title)
             views.setTextViewText(R.id.course_time, course.time)
             views.setTextViewText(R.id.course_location, course.location)
+            views.setTextViewText(R.id.course_teacher, course.teacher)
         }
 
         return views
@@ -56,7 +57,8 @@ class CourseListRemoteViewsFactory(
                 courses.add(TodayCoursesWidgetProvider.Course(
                     title = courseObj.optString("title", ""),
                     time = courseObj.optString("time", ""),
-                    location = courseObj.optString("location", "")
+                    location = courseObj.optString("location", ""),
+                    teacher = courseObj.optString("teacher", "")
                 ))
             }
         } catch (e: Exception) {

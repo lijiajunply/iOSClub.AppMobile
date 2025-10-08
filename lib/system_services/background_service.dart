@@ -15,10 +15,10 @@ import 'package:ios_club_app/system_services/notification_service.dart';
 @pragma('vm:entry-point')
 void backgroundTask() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // 执行课程提醒检查
   await TaskExecutor.checkAndSendCourseReminder();
-  
+
   // 更新小组件
   await TaskExecutor.updateTodayWidget();
 }
@@ -32,22 +32,22 @@ class BackgroundService {
   static Future<void> initializeService() async {
     // 初始化 Android Alarm Manager
     await AndroidAlarmManager.initialize();
-    
+
     // 注册后台任务
     await AndroidAlarmManager.periodic(
-      const Duration(hours: 8), 
-      _reminderAlarmId, 
+      const Duration(hours: 8),
+      _reminderAlarmId,
       backgroundTask,
       wakeup: true,
       exact: true,
       rescheduleOnReboot: true,
     );
-    
+
     // 立即执行一次任务以测试功能
     Future.delayed(const Duration(seconds: 5), () {
       backgroundTask();
     });
-    
+
     debugPrint('Android Alarm Manager 初始化完成');
   }
 
@@ -55,29 +55,29 @@ class BackgroundService {
   static Future<void> startService() async {
     // 启动周期性任务
     await AndroidAlarmManager.periodic(
-      const Duration(hours: 8), 
-      _reminderAlarmId, 
+      const Duration(hours: 8),
+      _reminderAlarmId,
       backgroundTask,
       wakeup: true,
       exact: true,
       rescheduleOnReboot: true,
     );
-    
+
     await AndroidAlarmManager.periodic(
-      const Duration(minutes: 30), 
-      _widgetAlarmId, 
+      const Duration(minutes: 30),
+      _widgetAlarmId,
       TaskExecutor.updateTodayWidget,
       wakeup: false, // 小组件更新不需要唤醒设备
       exact: true,
       rescheduleOnReboot: true,
     );
-    
+
     // 立即执行一次任务以测试功能
     Future.delayed(const Duration(seconds: 1), () {
       backgroundTask();
       TaskExecutor.updateTodayWidget();
     });
-    
+
     debugPrint('周期性任务已注册');
   }
 
@@ -157,7 +157,8 @@ class TaskExecutor {
           await NotificationService.toList(result.$2);
 
           // 记录提醒时间（使用ISO格式字符串）
-          await prefs.setString(PrefsKeys.LAST_REMIND_DATE, now.toIso8601String());
+          await prefs.setString(
+              PrefsKeys.LAST_REMIND_DATE, now.toIso8601String());
           debugPrint('课程提醒发送成功: ${now.toIso8601String()}');
         } else {
           debugPrint('没有需要提醒的课程');
@@ -232,6 +233,7 @@ class TaskExecutor {
           time:
               '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
           location: course.room,
+          teacher: course.teachers.join(','),
         ));
       } catch (e) {
         debugPrint('转换课程 ${course.courseName} 失败: $e');

@@ -92,7 +92,8 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
                 courses.add(Course(
                     title = courseObj.optString("title", ""),
                     time = courseObj.optString("time", ""),
-                    location = courseObj.optString("location", "")
+                    location = courseObj.optString("location", ""),
+                    teacher = courseObj.optString("teacher", "")
                 ))
             }
         } catch (e: Exception) {
@@ -104,6 +105,7 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
     data class Course(
         val title: String,
         val time: String,
-        val location: String
+        val location: String,
+        val teacher: String
     )
 }

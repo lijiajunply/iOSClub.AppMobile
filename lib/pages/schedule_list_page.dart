@@ -527,14 +527,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final weekdayName = ['日', '一', '二', '三', '四', '五', '六', '日'];
 
     var content = Container(
-        padding: const EdgeInsets.all(16),
+        padding:
+            EdgeInsets.symmetric(vertical: isTablet ? 16 : 0, horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               course.courseName,
               style: TextStyle(
-                fontSize: isTablet ? 18 : 16,
+                fontSize: isTablet ? 18 : 20,
                 overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.bold,
               ),
