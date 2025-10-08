@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   @override
   Widget build(BuildContext context) {
     final isDesktop =
-        Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+        !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
 
     final setting = Row(
       children: [

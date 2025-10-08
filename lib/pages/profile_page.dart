@@ -49,13 +49,14 @@ class _ProfilePageState extends State<ProfilePage> {
     // 检查是否已有登录信息
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString(PrefsKeys.USERNAME);
-    final password = prefs.getString(PrefsKeys.PASSWORD);
+    final iosName = prefs.getString(PrefsKeys.CLUB_NAME);
 
-    if (username != null &&
-        password != null &&
-        username.isNotEmpty &&
-        password.isNotEmpty) {
-      _username = username;
+    if (userStore.isLogin && username != null) {
+      if (userStore.isLoginMember && iosName != null){
+        _username = iosName;
+      }else{
+        _username = username;
+      }
     } else {
       // 没有登录信息，进入游客模式
       await _enterGuestMode();

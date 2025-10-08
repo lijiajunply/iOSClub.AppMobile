@@ -47,6 +47,27 @@
    flutter run
    ```
 
+## 部署
+
+1. Windows (msix):
+
+   ```bash
+   dart run msix:create --store
+   ```
+
+2. Android (apk):
+   ```bash
+   flutter build apk --obfuscate --split-debug-info=xx --no-tree-shake-icons --target-platform android-arm64 --split-per-abi
+   ```
+
+3. Web (wasm):
+
+   ```bash
+   flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true --no-tree-shake-icons --wasm
+   ```
+
+
+
 ## 贡献指南
 
 欢迎贡献代码和报告问题。请遵循以下步骤：

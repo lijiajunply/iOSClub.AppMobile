@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
   @override
   Widget build(BuildContext context) {
     final isDesktop =
-        Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+        !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
 
     super.build(context);
     return Scaffold(
@@ -112,7 +113,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                   }
                   // 尝试启动系统日历
 
-                  if (Platform.isAndroid) {
+                  if (!kIsWeb && Platform.isAndroid) {
                     final intent = AndroidIntent(
                       action: 'android.intent.action.VIEW',
                       data: 'webcal$url',

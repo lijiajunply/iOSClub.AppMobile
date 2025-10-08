@@ -165,15 +165,13 @@ class SchoolBusPage extends StatelessWidget {
               );
             });
       } else if (busController.selectedDate.value.isNotEmpty) {
-        return Center(
-          child: ClubCard(
-              margin: EdgeInsets.all(20),
-              child: EmptyWidget(
-                title: '今天没有车了',
-                subtitle: '明天再来吧',
-                icon: Icons.directions_bus,
-              )),
-        );
+        return ClubCard(
+            margin: EdgeInsets.all(20),
+            child: EmptyWidget(
+              title: '今天没有车了',
+              subtitle: '明天再来吧',
+              icon: Icons.directions_bus,
+            ));
       }
 
       return Container();

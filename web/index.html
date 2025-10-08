@@ -1,4 +1,6 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html>
+<html>
+<head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -16,22 +18,35 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="iOS Club App - 试着把建大囊括其中">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="ios_club_app">
+  <meta name="apple-mobile-web-app-title" content="iOS Club App">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>ios_club_app</title>
+  <!-- PWA相关配置 -->
+  <meta name="theme-color" content="#0175C2">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <title>iOS Club App</title>
   <link rel="manifest" href="manifest.json">
   
-  
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+  
+  <!-- 性能优化配置 -->
+  <script>
+    // 启用生产模式以提高性能
+    window.flutterProperties = {
+      useSkia: true,
+      renderer: "canvaskit"
+    };
+  </script>
+  
   <style id="splash-screen-style">
     html {
       height: 100%
@@ -107,5 +122,5 @@
   
   <script src="flutter_bootstrap.js" async=""></script>
 
-
-</body></html>
+</body>
+</html>

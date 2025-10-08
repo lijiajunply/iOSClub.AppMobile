@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:display_mode/display_mode.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/system_services/background_service.dart';
@@ -21,7 +22,7 @@ void main() async {
 
   requestPermissions();
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     // 初始化 window_manager
     await windowManager.ensureInitialized();
 
@@ -37,10 +38,14 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
-  } else {
-    await FlutterDisplayMode.setHighRefreshRate();
-    await BackgroundService.initializeService();
-    await BackgroundService.startService();
+  } else if (kIsWeb ||
+      !(Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    // 只在非Web平台调用FlutterDisplayMode
+    if (!kIsWeb) {
+      await FlutterDisplayMode.setHighRefreshRate();
+      await BackgroundService.initializeService();
+      await BackgroundService.startService();
+    }
   }
 
   initApp();
@@ -48,14 +53,14 @@ void main() async {
 
 String? _getFontFamily() {
   // 检查是否为桌面平台
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     // 获取设置存储实例
     final settingsStore = SettingsStore.to;
     // 如果设置了自定义字体，则使用自定义字体，否则使用系统默认字体
     return settingsStore.fontFamily.isEmpty ? null : settingsStore.fontFamily;
   }
   // 非桌面平台保持原有逻辑
-  return Platform.isWindows ? '微软雅黑' : null;
+  return !kIsWeb && Platform.isWindows ? '微软雅黑' : null;
 }
 
 void initApp() {
@@ -63,12 +68,13 @@ void initApp() {
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-        fontFamily: _getFontFamily(),
-        appBarTheme: AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-          foregroundColor: Colors.black,
-          elevation: 0,
-        )),
+      fontFamily: _getFontFamily(),
+      appBarTheme: AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+    ),
     darkTheme: ThemeData(
       fontFamily: _getFontFamily(),
       brightness: Brightness.dark,
@@ -78,17 +84,25 @@ void initApp() {
         elevation: 0,
       ),
     ),
-    home: Platform.isWindows ? const WindowPage() : const MainApp(),
+    home: !kIsWeb && Platform.isWindows ? const WindowPage() : const MainApp(),
   ));
 }
 
 void requestPermissions() async {
-  await [
-    Permission.storage,
+  List<Permission> permissions = [
     Permission.notification,
-    Permission.backgroundRefresh,
-    Permission.requestInstallPackages,
-  ].request();
+  ];
+
+  // 只在非Web平台请求权限
+  if (!kIsWeb) {
+    permissions.addAll([
+      Permission.backgroundRefresh,
+      Permission.storage,
+      Permission.requestInstallPackages,
+    ]);
+  }
+
+  await permissions.request();
 }
 
 class WindowPage extends StatefulWidget {
@@ -121,7 +135,7 @@ class _WindowPageState extends State<WindowPage>
     await windowManager.setPreventClose(true);
 
     await trayManager.setIcon(
-      Platform.isWindows ? 'assets/icon.ico' : 'assets/icon.webp',
+      !kIsWeb && Platform.isWindows ? 'assets/icon.ico' : 'assets/icon.webp',
     );
   }
 

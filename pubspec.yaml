@@ -21,7 +21,6 @@ version: 1.1.17+1
 environment:
   sdk: '>=3.5.3 <4.0.0'
 
-
 dependencies:
   flutter:
     sdk: flutter
@@ -90,7 +89,6 @@ flutter:
       fonts:
         - asset: assets/iconfont/iconfont.ttf
 
-
 flutter_native_splash:
   color: "#FFFFFF"
   image: assets/icon.png
@@ -109,3 +107,11 @@ msix_config:
   timestamp_url: http://timestamp.digicert.com  # 或尝试其他服务器
   publisher: CN=7B495662-F6FD-47E2-B578-E845127E5AE3
   capabilities: "runFullTrust"
+
+# Web构建配置
+web:
+  compiler: dart2js
+  dart2js_args:
+    - --no-frequency-based-minification
+    - --no-source-maps
+    - -O4

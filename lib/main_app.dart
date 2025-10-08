@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -30,7 +31,7 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
 
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       GiteeService.isNeedUpdate().then((result) async {
         if (result.$1) {
           showUpdateDialog(result.$2);
@@ -60,8 +61,6 @@ class _MainAppState extends State<MainApp> {
   }
 
   void showUpdateDialog(ReleaseModel model) {
-    // 这里我们保留原来的 Material 风格对话框，因为它包含复杂的内容和多个按钮
-    // 对于这种复杂的对话框，我们不使用 PlatformDialog
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -160,44 +159,22 @@ class _MainAppState extends State<MainApp> {
   };
 
   final GetMaterialApp _app = GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      defaultTransition: Transition.fadeIn,
       theme: ThemeData(
         fontFamily: SettingsStore.to.fontFamily.isEmpty ? 
-            (Platform.isWindows ? '微软雅黑' : null) : 
+            (!kIsWeb && Platform.isWindows ? '微软雅黑' : null) :
             SettingsStore.to.fontFamily,
-        pageTransitionsTheme: PageTransitionsTheme(
-          builders: {
-            // 为不同平台配置不同的转场动画
-            TargetPlatform.android: CustomPageTransitionBuilder(),
-            TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CustomPageTransitionBuilder(),
-            TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
-            TargetPlatform.linux: CustomPageTransitionBuilder(),
-            TargetPlatform.fuchsia: const FadeUpwardsPageTransitionsBuilder(),
-            // 其他平台也可以添加
-          },
-        ),
       ),
       darkTheme: ThemeData(
         fontFamily: SettingsStore.to.fontFamily.isEmpty ? 
-            (Platform.isWindows ? '微软雅黑' : null) : 
+            (!kIsWeb && Platform.isWindows ? '微软雅黑' : null) :
             SettingsStore.to.fontFamily,
         brightness: Brightness.dark,
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.light,
           foregroundColor: Colors.white,
           elevation: 0,
-        ),
-        pageTransitionsTheme: PageTransitionsTheme(
-          builders: {
-            // 为不同平台配置不同的转场动画
-            TargetPlatform.android: CustomPageTransitionBuilder(),
-            TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CustomPageTransitionBuilder(),
-            TargetPlatform.macOS: const CupertinoPageTransitionsBuilder(),
-            TargetPlatform.linux: CustomPageTransitionBuilder(),
-            TargetPlatform.fuchsia: const FadeUpwardsPageTransitionsBuilder(),
-            // 其他平台也可以添加
-          },
         ),
       ),
       getPages: AppRouter.getPages,
@@ -258,25 +235,5 @@ class _MainAppState extends State<MainApp> {
                   .withValues(alpha: 0.95),
             ) // 不显示底部导航,
             );
-  }
-}
-
-class CustomPageTransitionBuilder extends PageTransitionsBuilder {
-  @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    // 或者滑动效果
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(1, 0),
-        end: Offset.zero,
-      ).animate(animation),
-      child: child,
-    );
   }
 }

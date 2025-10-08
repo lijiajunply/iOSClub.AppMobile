@@ -1,11 +1,11 @@
 {
-    "name": "ios_club_app",
-    "short_name": "ios_club_app",
+    "name": "iOS Club App",
+    "short_name": "iOS Club",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
+    "background_color": "#FFFFFF",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "iOS Club App - 试着把建大囊括其中",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

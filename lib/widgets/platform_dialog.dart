@@ -24,7 +24,7 @@ class PlatformDialog {
         confirmText: confirmText,
         cancelText: cancelText,
       );
-    } else if (Platform.isIOS || Platform.isMacOS) {
+    } else if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
       // iOS 和 macOS 使用 Cupertino 风格
       return _showCupertinoConfirmDialog(
         context,
@@ -64,7 +64,7 @@ class PlatformDialog {
         confirmText: confirmText,
         cancelText: cancelText,
       );
-    } else if (Platform.isIOS || Platform.isMacOS) {
+    } else if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
       // iOS 和 macOS 使用 Cupertino 风格
       return _showCupertinoInputDialog(
         context,

@@ -20,6 +20,7 @@ import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/platform_dialog.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -53,13 +54,15 @@ class AboutPage extends StatelessWidget {
                 _buildSettingsGroup([
                   _buildRefreshTile(context, isDark),
                   const ShowTomorrowSetting(),
-                  const RemindSetting(),
+                  if (!kIsWeb) const RemindSetting(),
                   const TodoListSetting(),
                   const HomePageSetting(),
-                  const HapticFeedbackSetting(), // 添加触觉反馈设置
-                  if (Platform.isWindows ||
-                      Platform.isLinux ||
-                      Platform.isMacOS)
+                  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+                    const HapticFeedbackSetting(), // 添加触觉反馈设置
+                  if (!kIsWeb &&
+                      (Platform.isWindows ||
+                          Platform.isLinux ||
+                          Platform.isMacOS))
                     const FontFamilySetting(), // 添加字体设置
                 ]),
                 const SizedBox(height: 24),
@@ -71,15 +74,15 @@ class AboutPage extends StatelessWidget {
                 ]),
                 const SizedBox(height: 24),
                 // 安卓小组件
-                if (Platform.isAndroid || Platform.isIOS)
+                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                   _buildSectionTitle('小组件', isDark),
-                if (Platform.isAndroid || Platform.isIOS)
+                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                   const SizedBox(height: 12),
-                if (Platform.isAndroid || Platform.isIOS)
+                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                   _buildSettingsGroup([
                     _buildWidgetTile(context, isDark),
                   ]),
-                if (Platform.isAndroid || Platform.isIOS)
+                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                   const SizedBox(height: 24),
                 // 关于我们
                 _buildSectionTitle('关于', isDark),
@@ -919,12 +922,14 @@ class _VersionSettingState extends State<VersionSetting> {
     PackageInfo.fromPlatform().then((packageInfo) {
       setState(() {
         version = packageInfo.version;
-        GiteeService.isNeedUpdate().then((res) {
-          isNeedUpdate = res.$1;
-          if (res.$1) {
-            newVersion = res.$2.name;
-          }
-        });
+        if (!kIsWeb && Platform.isAndroid) {
+          GiteeService.isNeedUpdate().then((res) {
+            isNeedUpdate = res.$1;
+            if (res.$1) {
+              newVersion = res.$2.name;
+            }
+          });
+        }
       });
     });
   }
@@ -989,41 +994,42 @@ class _VersionSettingState extends State<VersionSetting> {
                 }
               }),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            children: [
-              Icon(
-                Icons.update,
-                size: 20,
-                color: Colors.amber,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '更新日志',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '忽略版本更新',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
+        if (!kIsWeb && Platform.isAndroid)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.update,
+                  size: 20,
+                  color: Colors.amber,
                 ),
-              ),
-              Obx(() => CupertinoSwitch(
-                    value: settingsStore.updateIgnored,
-                    onChanged: (bool value) async {
-                      await settingsStore.setUpdateIgnored(value);
-                    },
-                  ))
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '更新日志',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '忽略版本更新',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                Obx(() => CupertinoSwitch(
+                      value: settingsStore.updateIgnored,
+                      onChanged: (bool value) async {
+                        await settingsStore.setUpdateIgnored(value);
+                      },
+                    ))
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
