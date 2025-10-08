@@ -432,16 +432,6 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: CupertinoIcons.bolt_fill,
               title: '电费',
               route: '/Electricity'),
-        // ProfileButtonItem(
-        //     icon: Icons.toc,
-        //     title: '培养方案',
-        //     onPressed: () {
-        //       // 未登录教务系统时提示需要登录
-        //       showClubSnackBar(
-        //         context,
-        //         const Text('此功能需要登录教务系统账号后使用'),
-        //       );
-        //     }),
         if (!kIsWeb)
           ProfileButtonItem(
               icon: Icons.monetization_on_outlined,
@@ -550,11 +540,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     )
                   ],
                 ),
-                if (!userStore.isLogin)
-                  IconButton(
-                    icon: const Icon(Icons.logout),
-                    onPressed: _enterLoginMode,
-                  ),
               ],
             ),
           ),

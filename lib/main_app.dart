@@ -159,17 +159,18 @@ class _MainAppState extends State<MainApp> {
   };
 
   final GetMaterialApp _app = GetMaterialApp(
+      title: 'iOS Club App',
       debugShowCheckedModeBanner: false,
       defaultTransition: Transition.fadeIn,
       theme: ThemeData(
-        fontFamily: SettingsStore.to.fontFamily.isEmpty ? 
-            (!kIsWeb && Platform.isWindows ? '微软雅黑' : null) :
-            SettingsStore.to.fontFamily,
+        fontFamily: SettingsStore.to.fontFamily.isEmpty
+            ? (!kIsWeb && Platform.isWindows ? '微软雅黑' : null)
+            : SettingsStore.to.fontFamily,
       ),
       darkTheme: ThemeData(
-        fontFamily: SettingsStore.to.fontFamily.isEmpty ? 
-            (!kIsWeb && Platform.isWindows ? '微软雅黑' : null) :
-            SettingsStore.to.fontFamily,
+        fontFamily: SettingsStore.to.fontFamily.isEmpty
+            ? (!kIsWeb && Platform.isWindows ? '微软雅黑' : null)
+            : SettingsStore.to.fontFamily,
         brightness: Brightness.dark,
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle.light,
