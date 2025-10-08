@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -31,6 +32,18 @@ class _ElectricityPageState extends State<ElectricityPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Scaffold(
+        appBar: ClubAppBar(
+          title: '电费管理',
+        ),
+        body: EmptyWidget(
+          title: '暂不支持Web版',
+          subtitle: '请使用其他版本',
+          icon: Icons.error,
+        ),
+      );
+    }
     return Scaffold(
         appBar: ClubAppBar(
           title: '电费管理',
@@ -46,9 +59,12 @@ class _ElectricityPageState extends State<ElectricityPage> {
               SizedBox(height: 20),
 
               // 电费图表卡片
-              Obx(() => controller.hasData.value ? _buildChartCard() : Container()),
+              Obx(() =>
+                  controller.hasData.value ? _buildChartCard() : Container()),
 
-              Obx(() => controller.hasData.value ? SizedBox(height: 20) : Container()),
+              Obx(() => controller.hasData.value
+                  ? SizedBox(height: 20)
+                  : Container()),
 
               // 设置选项
               _buildSettingsSection(),
@@ -90,57 +106,61 @@ class _ElectricityPageState extends State<ElectricityPage> {
                 ),
                 Spacer(),
                 Obx(() => CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: _handleElectricityAction,
-                  child: Icon(
-                    controller.hasData.value ? CupertinoIcons.refresh : CupertinoIcons.add,
-                    color: CupertinoColors.systemBlue,
-                  ),
-                )),
+                      padding: EdgeInsets.zero,
+                      onPressed: _handleElectricityAction,
+                      child: Icon(
+                        controller.hasData.value
+                            ? CupertinoIcons.refresh
+                            : CupertinoIcons.add,
+                        color: CupertinoColors.systemBlue,
+                      ),
+                    )),
               ],
             ),
             SizedBox(height: 16),
-            Obx(() => controller.hasData.value ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '¥${controller.electricity.value.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  controller.electricity.value <= 10 ? '余额不足' : '余额充足',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: controller.electricity.value <= 10
-                        ? CupertinoColors.systemRed
-                        : CupertinoColors.systemGreen,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ) : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '暂无数据',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  '点击右上角添加电费数据',
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            )),
+            Obx(() => controller.hasData.value
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '¥${controller.electricity.value.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        controller.electricity.value <= 10 ? '余额不足' : '余额充足',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: controller.electricity.value <= 10
+                              ? CupertinoColors.systemRed
+                              : CupertinoColors.systemGreen,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '暂无数据',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '点击右上角添加电费数据',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  )),
           ],
         ),
       ),
@@ -285,33 +305,36 @@ class _ElectricityPageState extends State<ElectricityPage> {
     return ClubCard(
       child: Column(
         children: [
-          Obx(() => controller.hasData.value ? Column(
-            children: [
-              ListTile(
-                leading: Icon(Icons.home),
-                title: Text('添加到首页'),
-                subtitle: Text('在首页显示电费磁贴'),
-                trailing: Obx(() => CupertinoSwitch(
-                  value: controller.tiles.contains('电费'),
-                  onChanged: (value) async {
-                    controller.toggleTile('电费', value);
-                    await TileService.setTiles(controller.tiles);
-                  },
-                )),
-              ),
-              ListTile(
-                leading: Icon(Icons.monetization_on_outlined),
-                title: Text('电费充值'),
-                subtitle: Text('跳转至浏览器进行电费充值'),
-                onTap: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  var url = prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
-                  url = url.replaceAll('wxAccount', 'wxCharge');
-                  await TileService.openInWeChat(url);
-                },
-              )
-            ],
-          ) : Container()),
+          Obx(() => controller.hasData.value
+              ? Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.home),
+                      title: Text('添加到首页'),
+                      subtitle: Text('在首页显示电费磁贴'),
+                      trailing: Obx(() => CupertinoSwitch(
+                            value: controller.tiles.contains('电费'),
+                            onChanged: (value) async {
+                              controller.toggleTile('电费', value);
+                              await TileService.setTiles(controller.tiles);
+                            },
+                          )),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.monetization_on_outlined),
+                      title: Text('电费充值'),
+                      subtitle: Text('跳转至浏览器进行电费充值'),
+                      onTap: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        var url =
+                            prefs.getString(PrefsKeys.ELECTRICITY_URL) ?? '';
+                        url = url.replaceAll('wxAccount', 'wxCharge');
+                        await TileService.openInWeChat(url);
+                      },
+                    )
+                  ],
+                )
+              : Container()),
         ],
       ),
     );
