@@ -223,53 +223,63 @@ class _ElectricityPageState extends State<ElectricityPage> {
     double dataMaxValue = data.map((e) => e.value).reduce(max);
     final calculatedMaxY = dataMaxValue.ceilToDouble() * 1.2;
 
-    return BarChart(
-      BarChartData(
-        barTouchData: BarTouchData(
-          enabled: false,
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (group) =>
-                CupertinoColors.systemBlue.withOpacity(0.8),
-            tooltipPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              return BarTooltipItem(
-                '${rod.toY.toStringAsFixed(1)}元',
-                TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                ),
-              );
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (value, meta) {
-                final style = TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                );
-                final hour = data[value.toInt()].timestamp.hour;
-                return SideTitleWidget(
-                  meta: meta,
-                  space: 4,
-                  child: Text('${hour}h', style: style),
-                );
-              },
+    // 计算图表的宽度，每个柱子占据40像素宽度
+    final chartWidth = data.length * 40.0;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        width: chartWidth,
+        height: 200,
+        child: BarChart(
+          BarChartData(
+            barTouchData: BarTouchData(
+              enabled: false,
+              touchTooltipData: BarTouchTooltipData(
+                getTooltipColor: (group) =>
+                    CupertinoColors.systemBlue.withOpacity(0.8),
+                tooltipPadding:
+                EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  return BarTooltipItem(
+                    '${rod.toY.toStringAsFixed(1)}元',
+                    TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        barGroups: data
-            .asMap()
-            .map((index, electricData) {
+            titlesData: FlTitlesData(
+              show: true,
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                  getTitlesWidget: (value, meta) {
+                    final style = TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    );
+                    final hour = data[value.toInt()].timestamp.hour;
+                    return SideTitleWidget(
+                      meta: meta,
+                      space: 4,
+                      child: Text('${hour}h', style: style),
+                    );
+                  },
+                ),
+              ),
+              leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+              AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            ),
+            borderData: FlBorderData(show: false),
+            barGroups: data
+                .asMap()
+                .map((index, electricData) {
               return MapEntry(
                 index,
                 BarChartGroupData(
@@ -292,11 +302,13 @@ class _ElectricityPageState extends State<ElectricityPage> {
                 ),
               );
             })
-            .values
-            .toList(),
-        gridData: FlGridData(show: false),
-        alignment: BarChartAlignment.spaceAround,
-        maxY: calculatedMaxY,
+                .values
+                .toList(),
+            gridData: FlGridData(show: false),
+            alignment: BarChartAlignment.spaceAround,
+            maxY: calculatedMaxY,
+          ),
+        ),
       ),
     );
   }

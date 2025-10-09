@@ -8,7 +8,7 @@ import 'package:ios_club_app/stores/prefs_keys.dart';
 class BusTileStore extends GetxController {
   final RxBool isLoading = true.obs;
   final RxInt busCount = 0.obs;
-  final Rx<BusModel> busData = BusModel(records: [], total: 0).obs;
+  //final Rx<BusModel> busData = BusModel(records: [], total: 0).obs;
   final RxBool useNewApi = false.obs;
 
   @override
@@ -38,8 +38,8 @@ class BusTileStore extends GetxController {
         data = await EduService.getBus();
       }
 
-      busData.value = data;
-      busCount.value = data.total;
+      //busData.value = data;
+      busCount.value = data.records.length;
     } finally {
       isLoading.value = false;
     }

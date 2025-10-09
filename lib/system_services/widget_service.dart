@@ -9,6 +9,7 @@ class WidgetService {
   static const String appWidgetProviderClass = 'TodayCoursesWidgetProvider';
 
   // 更新小组件数据
+  @pragma('vm:entry-point')
   static Future<void> updateTodayCourses(
       List<ScheduleItem> todayCourses) async {
     final now = DateTime.now();

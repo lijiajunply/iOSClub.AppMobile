@@ -550,17 +550,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   physics: const NeverScrollableScrollPhysics(),
                 )),
           ),
-          const SizedBox(height: 16),
-          FutureBuilder(
-              future: DataService.getInfoList(),
-              builder: (context, snapshot) => snapshot.hasData
-                  ? ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data?.length,
-                      itemBuilder: (context, index) =>
-                          StudyCreditCard(data: snapshot.data![index]))
-                  : const CircularProgressIndicator()),
+          if (userStore.isLogin) const SizedBox(height: 16),
+          if (userStore.isLogin)
+            FutureBuilder(
+                future: DataService.getInfoList(),
+                builder: (context, snapshot) => snapshot.hasData
+                    ? ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: snapshot.data?.length,
+                        itemBuilder: (context, index) =>
+                            StudyCreditCard(data: snapshot.data![index]))
+                    : const CircularProgressIndicator()),
         ],
       ),
     );

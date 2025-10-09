@@ -18,9 +18,6 @@ void backgroundTask() async {
 
   // 执行课程提醒检查
   await TaskExecutor.checkAndSendCourseReminder();
-
-  // 更新小组件
-  await TaskExecutor.updateTodayWidget();
 }
 
 /// 后台服务管理类
@@ -32,21 +29,6 @@ class BackgroundService {
   static Future<void> initializeService() async {
     // 初始化 Android Alarm Manager
     await AndroidAlarmManager.initialize();
-
-    // 注册后台任务
-    await AndroidAlarmManager.periodic(
-      const Duration(hours: 8),
-      _reminderAlarmId,
-      backgroundTask,
-      wakeup: true,
-      exact: true,
-      rescheduleOnReboot: true,
-    );
-
-    // 立即执行一次任务以测试功能
-    Future.delayed(const Duration(seconds: 5), () {
-      backgroundTask();
-    });
 
     debugPrint('Android Alarm Manager 初始化完成');
   }
@@ -172,6 +154,7 @@ class TaskExecutor {
   }
 
   /// 更新今日课程小组件
+  @pragma('vm:entry-point')
   static Future<void> updateTodayWidget() async {
     try {
       final (isShowingTomorrow, courses) = await DataService.getCourse(
@@ -215,7 +198,7 @@ class TaskExecutor {
           startTime = TimeService.CanTangTime[course.startUnit];
           endTime = TimeService.CanTangTime[course.endUnit];
         } else {
-          // 研塔校区时间（根据季节）
+          // 雁塔校区时间（根据季节）
           final now = DateTime.now();
           final isSummer = now.month >= 5 && now.month <= 10;
 

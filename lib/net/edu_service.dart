@@ -571,7 +571,7 @@ class EduService {
         final now = DateTime.now();
         var result = BusModel.fromJson(jsonDecode(response.body));
         if (result.records.isNotEmpty &&
-            dayDate == DateFormat('yyyy-MM-dd').format(now)) {
+            (dayDate == null || dayDate.isEmpty || dayDate == DateFormat('yyyy-MM-dd').format(now))) {
           result.records = result.records.where((element) {
             final split = element.runTime.split(':');
             if (split.length < 2) return false;
