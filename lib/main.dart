@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_club_app/system_services/background_service.dart';
 import 'package:ios_club_app/stores/init.dart';
+import 'package:ios_club_app/system_services/check_update_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -48,6 +49,9 @@ void main() async {
     }
   }
 
+  // 初始化更新管理器
+  await CheckUpdateManager.init();
+  
   initApp();
 }
 

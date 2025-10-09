@@ -47,6 +47,15 @@
    flutter run
    ```
 
+## env注意
+
+```env
+# 可选值: 
+# - gitee (默认，使用Gitee发行版更新)
+# - appstore (应用商店版本，不检查更新)
+UPDATE_CHANNEL=gitee
+```
+
 ## 部署
 
 1. Windows (msix):

@@ -44,3 +44,6 @@ app.*.map.json
 
 my-release-key.jks
 /android/key.properties
+
+.env
+.env.example

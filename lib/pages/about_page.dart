@@ -22,6 +22,8 @@ import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import '../system_services/check_update_manager.dart';
+
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
@@ -923,7 +925,7 @@ class _VersionSettingState extends State<VersionSetting> {
       setState(() {
         version = packageInfo.version;
         if (!kIsWeb && Platform.isAndroid) {
-          GiteeService.isNeedUpdate().then((res) {
+          CheckUpdateManager.checkForUpdates().then((res) {
             isNeedUpdate = res.$1;
             if (res.$1) {
               newVersion = res.$2.name;
@@ -994,7 +996,7 @@ class _VersionSettingState extends State<VersionSetting> {
                 }
               }),
         ),
-        if (!kIsWeb && Platform.isAndroid)
+        if (CheckUpdateManager.shouldCheckForUpdates())
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Row(

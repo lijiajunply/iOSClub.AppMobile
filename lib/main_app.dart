@@ -14,6 +14,7 @@ import 'package:ios_club_app/stores/settings_store.dart';
 import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
 import 'net/git_service.dart';
+import 'system_services/check_update_manager.dart';
 import 'under_maintenance_screen.dart';
 
 class MainApp extends StatefulWidget {
@@ -32,7 +33,7 @@ class _MainAppState extends State<MainApp> {
     super.initState();
 
     if (!kIsWeb && Platform.isAndroid) {
-      GiteeService.isNeedUpdate().then((result) async {
+      CheckUpdateManager.checkForUpdates().then((result) async {
         if (result.$1) {
           showUpdateDialog(result.$2);
         }
