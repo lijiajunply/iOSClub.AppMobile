@@ -48,9 +48,17 @@ class CheckUpdateManager {
     }
     
     // 然后检查.env文件中的配置
-    final dotenvUpdateChannel = dotenv.env['UPDATE_CHANNEL'];
-    if (dotenvUpdateChannel == 'appstore') {
-      return false;
+    // 添加对 dotenv 是否已初始化的检查
+    try {
+      final dotenvUpdateChannel = dotenv.maybeGet('UPDATE_CHANNEL');
+      if (dotenvUpdateChannel == 'appstore') {
+        return false;
+      }
+    } catch (e) {
+      // 如果 dotenv 未初始化则忽略
+      if (kDebugMode) {
+        print("DotEnv 未初始化: $e");
+      }
     }
     
     // 默认情况下检查更新

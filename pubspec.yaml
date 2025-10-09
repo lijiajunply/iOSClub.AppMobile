@@ -84,6 +84,7 @@ flutter:
     - assets/男生.webp
     - assets/iconfont/iconfont.json
     - assets/iconfont/iconfont.ttf
+    - .env
 
   fonts:
     - family: IconFont
