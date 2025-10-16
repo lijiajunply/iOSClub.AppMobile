@@ -9,52 +9,35 @@
     <!-- 标题栏 -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="6dp">
+        android:layout_height="wrap_content">
 
         <!-- 左侧标题区域 -->
         <LinearLayout
             android:id="@+id/title_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <!-- 指示器条 -->
             <TextView
-                android:layout_width="4dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/modern_accent_indicator"
-                android:text="" />
-
-            <LinearLayout
+                android:id="@+id/widget_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/widget_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="今日课程"
-                    android:textColor="@color/widget_title_text_light"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
+                android:text="今日课程"
+                android:textColor="@color/widget_title_text_light"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
         <!-- 右侧日期区域 -->
         <LinearLayout
+            android:id="@+id/date_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:gravity="end"
             android:orientation="vertical">
 
             <TextView
@@ -73,9 +56,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/widget_divider_light"
-        android:text="" />
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/widget_divider_light" />
 
     <!-- 课程列表容器 -->
     <FrameLayout
@@ -89,17 +72,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@android:color/transparent"
-            android:dividerHeight="0dp"
-            android:fadingEdge="none"
-            android:scrollbars="none" />
+            android:dividerHeight="8dp" />
 
         <!-- 空状态视图 -->
         <LinearLayout
             android:id="@+id/empty_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
             android:orientation="vertical"
+            android:gravity="center"
             android:visibility="gone">
 
             <TextView

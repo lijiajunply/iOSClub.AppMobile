@@ -113,17 +113,28 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       // Callback that sets the selected segmented control.
                       onValueChanged: (CourseStyle? value) async {
                         if (value != null) {
+                          final a = courseStyle;
                           setState(() {
                             courseStyle = value;
                           });
                           double height = 55;
                           if (value == CourseStyle.small) {
+                            if (a == CourseStyle.fool) {
+                              await scheduleStore.refreshCourses();
+                            }
                             height = 50;
                           } else if (value == CourseStyle.normal) {
+                            if (a == CourseStyle.fool) {
+                              await scheduleStore.refreshCourses();
+                            }
                             height = 55;
                           } else if (value == CourseStyle.large) {
+                            if (a == CourseStyle.fool) {
+                              await scheduleStore.refreshCourses();
+                            }
                             height = 60;
                           } else if (value == CourseStyle.fool) {
+                            scheduleStore.clean();
                             showClubSnackBar(context, Text('是的，我没有课了'));
                             return;
                           }
@@ -131,22 +142,10 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                         }
                       },
                       children: {
-                        CourseStyle.small: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text('较小'),
-                        ),
-                        CourseStyle.normal: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text('默认'),
-                        ),
-                        CourseStyle.large: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text('较大'),
-                        ),
-                        CourseStyle.fool: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text('愚人节'),
-                        ),
+                        CourseStyle.small: Text('较小'),
+                        CourseStyle.normal: Text('默认'),
+                        CourseStyle.large: Text('较大'),
+                        CourseStyle.fool: Text('愚人节'),
                       },
                     ),
                   )

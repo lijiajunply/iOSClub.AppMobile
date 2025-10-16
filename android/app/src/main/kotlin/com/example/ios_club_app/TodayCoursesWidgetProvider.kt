@@ -24,6 +24,12 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        
+        // 移除了课程项点击事件处理
+    }
+
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -56,6 +62,7 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
                 // 设置RemoteViewsService
                 val intent = Intent(context, CourseListRemoteViewsService::class.java)
                 intent.putExtra("courses", coursesJson)
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 views.setRemoteAdapter(R.id.widget_courses_list, intent)
             }
 
@@ -76,10 +83,15 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
         }
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
+        // 只有在列表可见时才通知数据改变
+        if (widgetData.getString("flutter.courses", null) != null && 
+            widgetData.getString("flutter.courses", null) != "[]") {
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_courses_list)
+        }
     }
 
     private fun getCurrentDate(): String {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formatter = SimpleDateFormat("MM月 dd日", Locale.getDefault())
         return formatter.format(Date())
     }
 

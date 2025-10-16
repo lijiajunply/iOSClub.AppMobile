@@ -379,10 +379,11 @@ class _ScorePageState extends State<ScorePage>
                       ? Icons.calendar_today_rounded
                       : Icons.calendar_view_day_rounded),
                 ),
-                IconButton(
-                  onPressed: _handleFoolishMode,
-                  icon: const Icon(Icons.mood),
-                ),
+                if (!_isFool)
+                  IconButton(
+                    onPressed: _handleFoolishMode,
+                    icon: const Icon(Icons.mood),
+                  ),
                 IconButton(
                   onPressed: () => refresh(isRefresh: true),
                   icon: const Icon(Icons.refresh),

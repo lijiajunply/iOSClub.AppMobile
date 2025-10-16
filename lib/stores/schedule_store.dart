@@ -197,4 +197,8 @@ class ScheduleStore extends GetxController {
 
     return filteredCourses;
   }
+
+  void clean() {
+    _allCourses.clear();
+  }
 }

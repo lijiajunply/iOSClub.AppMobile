@@ -20,9 +20,13 @@ class CourseListRemoteViewsFactory(
 
     override fun onCreate() {}
 
-    override fun onDataSetChanged() {}
+    override fun onDataSetChanged() {
+        // 当数据集改变时重新解析数据
+    }
 
-    override fun onDestroy() {}
+    override fun onDestroy() {
+        courses.clear()
+    }
 
     override fun getCount(): Int = courses.size
 
@@ -35,6 +39,8 @@ class CourseListRemoteViewsFactory(
             views.setTextViewText(R.id.course_time, course.time)
             views.setTextViewText(R.id.course_location, course.location)
             views.setTextViewText(R.id.course_teacher, course.teacher)
+            
+            // 移除了点击事件处理
         }
 
         return views
