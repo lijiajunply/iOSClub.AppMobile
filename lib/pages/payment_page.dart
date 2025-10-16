@@ -300,11 +300,10 @@ class PaymentPage extends StatelessWidget {
                 borderSide: BorderSide.none,
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue, width: 2),
+                borderSide: BorderSide(color: Colors.blue, width: 1),
               ),
               prefixIcon: Icon(
                 Icons.numbers,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             keyboardType: TextInputType.number,

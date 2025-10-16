@@ -34,6 +34,7 @@ class ScheduleStore extends GetxController {
 
   // 直接使用SettingsStore的showTomorrow变量
   bool get showTomorrow => _showTomorrow.value;
+
   bool get isShowTomorrow => SettingsStore.to.isShowTomorrow;
 
   int weekNow = 0;
@@ -51,7 +52,7 @@ class ScheduleStore extends GetxController {
       _handleWeekData(weekData);
       await _loadCourses();
       await _loadPreferences();
-      
+
       // 不再需要监听SettingsStore，因为我们直接使用它的值
     } catch (e) {
       // 错误处理
@@ -134,6 +135,7 @@ class ScheduleStore extends GetxController {
   List<CourseModel> getTodayCourses() {
     final now = DateTime.now();
     final weekDay = now.weekday;
+    var a = false;
 
     // 处理今天的课程，使用DataService.getCourse中相同的逻辑
     if (weekNow >= allCourses.length) {
@@ -167,8 +169,8 @@ class ScheduleStore extends GetxController {
 
     filteredCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
 
-    // 只有当今天没有课程且showTomorrow为true时，才显示明天的课程
-    if (showTomorrow && filteredCourses.isEmpty) {
+    // 只有当今天没有课程且isShowTomorrow为true时，才显示明天的课程
+    if (isShowTomorrow && filteredCourses.isEmpty) {
       final tomorrow = now.add(Duration(days: 1));
       var tomorrowWeekDay = tomorrow.weekday;
       if (tomorrowWeekDay > 7) {
@@ -184,12 +186,14 @@ class ScheduleStore extends GetxController {
       }
 
       final courses = allCourses[targetWeek];
-      _showTomorrow.value = true;
-      return courses
+      a = true;
+      filteredCourses = courses
           .where((course) => course.weekday == tomorrowWeekDay)
           .toList()
         ..sort((a, b) => a.startUnit.compareTo(b.startUnit));
     }
+
+    _showTomorrow.value = a;
 
     return filteredCourses;
   }

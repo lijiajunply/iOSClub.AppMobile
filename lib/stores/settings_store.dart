@@ -20,10 +20,10 @@ class SettingsStore extends GetxController {
 
   // 触觉反馈设置
   final _enableHapticFeedback = false.obs;
-  
+
   // 忽略更新设置
   final _updateIgnored = false.obs;
-  
+
   // 字体设置
   final _fontFamily = ''.obs;
 
@@ -38,9 +38,9 @@ class SettingsStore extends GetxController {
   int get pageIndex => _pageIndex.value;
 
   bool get enableHapticFeedback => _enableHapticFeedback.value;
-  
+
   bool get updateIgnored => _updateIgnored.value;
-  
+
   String get fontFamily => _fontFamily.value;
 
   @override
@@ -58,7 +58,8 @@ class SettingsStore extends GetxController {
     _isShowTomorrow.value = prefs.getBool(PrefsKeys.IS_SHOW_TOMORROW) ?? false;
     _isUpdateToClub.value = prefs.getBool(PrefsKeys.IS_UPDATE_CLUB) ?? false;
     _pageIndex.value = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
-    _enableHapticFeedback.value = prefs.getBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK) ?? false;
+    _enableHapticFeedback.value =
+        prefs.getBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK) ?? false;
     _updateIgnored.value = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
     _fontFamily.value = prefs.getString(PrefsKeys.FONT_FAMILY) ?? '';
   }
@@ -104,14 +105,14 @@ class SettingsStore extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK, value);
   }
-  
+
   /// 设置是否忽略更新
   Future<void> setUpdateIgnored(bool value) async {
     _updateIgnored.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(PrefsKeys.UPDATE_IGNORED, value);
   }
-  
+
   /// 设置字体
   Future<void> setFontFamily(String value) async {
     _fontFamily.value = value;

@@ -66,7 +66,7 @@ class NotificationService {
         ?.createNotificationChannel(const AndroidNotificationChannel(
           'ios_club_app_course_reminders',
           '课程通知',
-          description: '进行每日课表的课程通知，提前15分钟进行通知',
+          description: '进行每日课表的课程通知',
           importance: Importance.max,
         ));
 
@@ -108,7 +108,7 @@ class NotificationService {
       await notifications.zonedSchedule(
         id,
         title,
-        body,
+        '$body 将在$notificationTime分钟后开始',
         tzDateTime,
         NotificationDetails(
           android: AndroidNotificationDetails(
@@ -195,7 +195,7 @@ class NotificationService {
       await NotificationService.instance.scheduleCourseReminder(
           id: course.hashCode,
           title: '课程提醒',
-          body: '${course.courseName} 将在15分钟后开始',
+          body: course.courseName,
           courseTime: DateTime(now.year, now.month, now.day,
               int.parse(spilt[0]), int.parse(spilt[1])));
     }
@@ -227,7 +227,7 @@ class NotificationService {
       await NotificationService.instance.scheduleCourseReminder(
           id: course.hashCode,
           title: '课程提醒',
-          body: '${course.courseName} 将在15分钟后开始',
+          body: course.courseName,
           courseTime: DateTime(now.year, now.month, now.day,
               int.parse(spilt[0]), int.parse(spilt[1])));
     }

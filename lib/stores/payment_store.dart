@@ -33,14 +33,10 @@ class PaymentStore extends GetxController {
       final recordsResult = await TurnoverAnalyzer.fetchData(num.value);
       final newTiles = await TileService.getTiles();
 
-      if (recordsResult.payments.isNotEmpty) {
-        records.assignAll(recordsResult.payments);
-        totalRecharge.value = recordsResult.total;
-        tiles.assignAll(newTiles);
-        isShowTile.value = tiles.contains("饭卡");
-      } else {
-        errorMessage.value = '数据加载失败';
-      }
+      records.assignAll(recordsResult.payments);
+      totalRecharge.value = recordsResult.total;
+      tiles.assignAll(newTiles);
+      isShowTile.value = tiles.contains("饭卡");
     } finally {
       isLoading.value = false;
     }

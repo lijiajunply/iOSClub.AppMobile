@@ -173,15 +173,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   child: const Text('上一周'))),
                           Expanded(
                               child: Center(
-                            child: Text(
-                              scheduleStore.currentPage <= 0
-                                  ? '全部课表'
-                                  : '第 ${scheduleStore.currentPage} 周 ${scheduleStore.currentPage == scheduleStore.currentWeek ? "(本周)" : ""}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
+                            child: Obx(() => Text(
+                                  scheduleStore.currentPage <= 0
+                                      ? '全部课表'
+                                      : '第 ${scheduleStore.currentPage} 周 ${scheduleStore.currentPage == scheduleStore.currentWeek ? "(本周)" : ""}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                )),
                           )),
                           Expanded(
                               child: TextButton(
