@@ -9,6 +9,7 @@ class CourseModel {
   int endUnit = 0;
   String credits = '';
   String lessonId = '';
+  String campus = '';
 
   CourseModel({
     List<int>? weekIndexes,
@@ -21,6 +22,7 @@ class CourseModel {
     int? endUnit,
     String? credits,
     String? lessonId,
+    String? campus,
   }) {
     this.weekIndexes = weekIndexes ?? [];
     this.teachers = teachers ?? [];
@@ -32,6 +34,7 @@ class CourseModel {
     this.endUnit = endUnit ?? 0;
     this.credits = credits ?? '';
     this.lessonId = lessonId ?? '';
+    this.campus = campus ?? '';
   }
 
   // 如果需要从 JSON 创建对象
@@ -47,6 +50,7 @@ class CourseModel {
       endUnit: json['endUnit'] ?? 0,
       credits: json['credits'] ?? '',
       lessonId: json['lessonId'] ?? '',
+      campus: json['campus'] ?? '',
     );
   }
 }

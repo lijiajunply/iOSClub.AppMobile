@@ -178,7 +178,9 @@ class NotificationService {
 
     for (var course in a.$2) {
       var startTime = "";
-      if (course.room.substring(0, 2) == "草堂") {
+      final isCaoTang = course.campus == "草堂校区" ||
+          (course.room.length >= 2 && course.room.startsWith("草堂"));
+      if (isCaoTang) {
         startTime = TimeService.CanTangTime[course.startUnit];
       } else {
         if (now.month >= 5 && now.month <= 10) {

@@ -190,8 +190,8 @@ class TaskExecutor {
         String endTime = "";
 
         // 安全的字符串判断
-        final isCaoTang =
-            course.room.length >= 2 && course.room.startsWith("草堂");
+        final isCaoTang = course.campus == "草堂校区" ||
+            (course.room.length >= 2 && course.room.startsWith("草堂"));
 
         if (isCaoTang) {
           // 草堂校区时间

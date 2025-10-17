@@ -159,7 +159,9 @@ class DataService {
 
     filteredCourses = filteredCourses.where((course) {
       var endTime = "";
-      if (course.room.substring(0, 2) == "雁塔") {
+      final isYanTa = course.campus == "雁塔校区" ||
+          (course.room.length >= 2 && course.room.startsWith("雁塔"));
+      if (isYanTa) {
         if (now.month >= 5 && now.month <= 10) {
           endTime = TimeService.YanTaXia[course.endUnit];
         } else {
@@ -313,7 +315,7 @@ class DataService {
       for (var courseToday in dayCourses) {
         var startTime = "";
         var endTime = "";
-        if (courseToday.room.substring(0, 2) == "草堂") {
+        if (courseToday.campus == "草堂校区") {
           startTime = TimeService.CanTangTime[courseToday.startUnit];
           endTime = TimeService.CanTangTime[courseToday.endUnit];
         } else {

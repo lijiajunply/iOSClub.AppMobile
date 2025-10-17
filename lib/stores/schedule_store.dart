@@ -150,7 +150,9 @@ class ScheduleStore extends GetxController {
     // 过滤掉已经结束的课程
     filteredCourses = filteredCourses.where((course) {
       var endTime = "";
-      if (course.room.substring(0, 2) == "雁塔") {
+      final isYanTa = course.campus == "雁塔校区" ||
+          (course.room.length >= 2 && course.room.startsWith("雁塔"));
+      if (isYanTa) {
         if (now.month >= 5 && now.month <= 10) {
           endTime = TimeService.YanTaXia[course.endUnit];
         } else {
