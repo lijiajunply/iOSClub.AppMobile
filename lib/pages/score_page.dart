@@ -822,7 +822,7 @@ class _ScorePageState extends State<ScorePage>
         overflow: expanded ? TextOverflow.ellipsis : null,
       ),
       softWrap: true,
-      maxLines: expanded ? 3 : 1,
+      maxLines: expanded ? 5 : 1,
     );
 
     return Row(

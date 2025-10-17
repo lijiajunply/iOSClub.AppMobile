@@ -72,7 +72,7 @@ UPDATE_CHANNEL=gitee
 3. Web (wasm):
 
    ```bash
-   flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true --no-tree-shake-icons --wasm
+   flutter build web --no-tree-shake-icons --wasm
    ```
 
 
