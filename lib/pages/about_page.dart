@@ -63,8 +63,7 @@ class AboutPage extends StatelessWidget {
                     const HapticFeedbackSetting(), // 添加触觉反馈设置
                   if (!kIsWeb &&
                       (Platform.isWindows ||
-                          Platform.isLinux ||
-                          Platform.isMacOS))
+                          Platform.isLinux))
                     const FontFamilySetting(), // 添加字体设置
                 ]),
                 const SizedBox(height: 24),

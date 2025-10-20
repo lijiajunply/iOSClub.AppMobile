@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:display_mode/display_mode.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ import 'main_app.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
 
 void main() async {
+  // 确保在所有平台上都初始化 WidgetsFlutterBinding
   WidgetsFlutterBinding.ensureInitialized();
 
   // 初始化Stores
@@ -27,7 +29,7 @@ void main() async {
     requestPermissions();
   }
 
-  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
     // 初始化 window_manager
     await windowManager.ensureInitialized();
 
@@ -43,40 +45,36 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
-  } else if (kIsWeb ||
-      !(Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+  } else if (!kIsWeb && Platform.isMacOS) {
     // 只在非Web平台调用FlutterDisplayMode
     if (!kIsWeb) {
-      await FlutterDisplayMode.setHighRefreshRate();
-      await BackgroundService.initializeService();
-      await BackgroundService.startService();
-
-      if (Platform.isMacOS) {
-        await _configureMacosWindowUtils();
+      if (Platform.isAndroid){
+        await FlutterDisplayMode.setHighRefreshRate();
+        await BackgroundService.initializeService();
+        await BackgroundService.startService();
       }
     }
   }
 
+  if (!kIsWeb && Platform.isMacOS){
+    await _configureMacosWindowUtils();
+  }
+
   // 初始化更新管理器
   await CheckUpdateManager.init();
-  
+
   initApp();
 }
 
 /// 配置macOS窗口样式
 Future<void> _configureMacosWindowUtils() async {
-  // 仅在macOS平台上应用配置
-  if (!kIsWeb && Platform.isMacOS) {
-    const config = MacosWindowUtilsConfig(
-      toolbarStyle:NSWindowToolbarStyle.unified,
-    );
-    await config.apply();
-  }
+  const config = MacosWindowUtilsConfig();
+  await config.apply();
 }
 
 String? _getFontFamily() {
   // 检查是否为桌面平台
-  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
     // 获取设置存储实例
     final settingsStore = SettingsStore.to;
     // 如果设置了自定义字体，则使用自定义字体，否则使用系统默认字体
@@ -87,10 +85,40 @@ String? _getFontFamily() {
 }
 
 void initApp() {
-  if (!kIsWeb && (Platform.isMacOS)){
-    runApp(const MainApp());
+  if (!kIsWeb && (Platform.isMacOS)) {
+    runApp(PlatformMenuBar(
+        menus: [
+          PlatformMenu(
+            label: 'App',
+            menus: [
+              PlatformMenuItem(
+                label: '退出',
+                onSelected: () async {
+                  await _exitApp();
+                },
+              ),
+            ],
+          ),
+        ],
+        child: MacosApp(
+          title: 'iOS Club App',
+          debugShowCheckedModeBanner: false,
+          theme: MacosThemeData.light(),
+          darkTheme: MacosThemeData.dark(),
+          themeMode: ThemeMode.system,
+          home: MainApp(),
+        )));
     return;
   }
+
+  if (!kIsWeb && Platform.isIOS) {
+    runApp(const CupertinoApp(
+      title: 'iOS Club App',
+      debugShowCheckedModeBanner: false,
+      home: MainApp(),
+    ));
+  }
+
   runApp(MaterialApp(
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,
@@ -115,12 +143,22 @@ void initApp() {
   ));
 }
 
+// 优化的退出方法
+Future<void> _exitApp() async {
+  // 如果是在 macOS 上运行，直接退出应用
+  if (!kIsWeb && Platform.isMacOS) {
+    exit(0);
+  }
+  // 如果是 Windows/Linux 平台，使用 WindowPage 中的逻辑
+  // 注意：这个方法在 Windows/Linux 上可能不会被直接调用
+}
+
 void requestPermissions() async {
   // 在 macOS 平台上不请求权限，避免 MissingPluginException
   if (kIsWeb || Platform.isMacOS) {
     return;
   }
-  
+
   List<Permission> permissions = [
     Permission.notification,
   ];

@@ -4,15 +4,15 @@ import 'package:ios_club_app/pages/electricity_page.dart';
 import 'package:ios_club_app/pages/payment_page.dart';
 import 'package:ios_club_app/pages/program_page.dart';
 
-import 'Pages/about_page.dart';
-import 'Pages/home_page.dart';
-import 'Pages/link_page.dart';
-import 'Pages/member_page.dart';
-import 'Pages/profile_page.dart';
-import 'Pages/schedule_list_page.dart';
-import 'Pages/schedule_setting_page.dart';
-import 'Pages/school_bus_page.dart';
-import 'Pages/score_page.dart';
+import 'pages/about_page.dart';
+import 'pages/home_page.dart';
+import 'pages/link_page.dart';
+import 'pages/member_page.dart';
+import 'pages/profile_page.dart';
+import 'pages/schedule_list_page.dart';
+import 'pages/schedule_setting_page.dart';
+import 'pages/school_bus_page.dart';
+import 'pages/score_page.dart';
 
 class AppRouter {
   static List<GetPage> get getPages => [

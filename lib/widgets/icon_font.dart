@@ -28,13 +28,18 @@ class IconUtil {
     var a = iconMap['glyphs'] as List<dynamic>;
     var re = a.firstWhere((element) => element['font_class'] == model.icon);
     return Icon(
-      IconData(
-        re['unicode_decimal'],
-        fontFamily: 'IconFont',
-        matchTextDirection: false,
-      ),
+      createIconData(re['unicode_decimal']), // 使用静态方法创建 IconData
       size: 35,
       color: CourseColorManager.generateSoftColor(model, isDark: true),
+    );
+  }
+  
+  // 添加一个静态方法来创建 IconData 实例，以解决 tree shaking 问题
+  static IconData createIconData(int codePoint) {
+    return IconData(
+      codePoint,
+      fontFamily: 'IconFont',
+      matchTextDirection: false,
     );
   }
 }
