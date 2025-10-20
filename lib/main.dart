@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:ios_club_app/system_services/background_service.dart';
 import 'package:ios_club_app/stores/init.dart';
 import 'package:ios_club_app/system_services/check_update_manager.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -21,7 +22,10 @@ void main() async {
   // 初始化Stores
   initStores();
 
-  requestPermissions();
+  // 只在非 macOS 平台上请求权限，因为 macOS 上 permission_handler 有兼容性问题
+  if (!kIsWeb && !Platform.isMacOS) {
+    requestPermissions();
+  }
 
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     // 初始化 window_manager
@@ -46,6 +50,10 @@ void main() async {
       await FlutterDisplayMode.setHighRefreshRate();
       await BackgroundService.initializeService();
       await BackgroundService.startService();
+
+      if (Platform.isMacOS) {
+        await _configureMacosWindowUtils();
+      }
     }
   }
 
@@ -53,6 +61,17 @@ void main() async {
   await CheckUpdateManager.init();
   
   initApp();
+}
+
+/// 配置macOS窗口样式
+Future<void> _configureMacosWindowUtils() async {
+  // 仅在macOS平台上应用配置
+  if (!kIsWeb && Platform.isMacOS) {
+    const config = MacosWindowUtilsConfig(
+      toolbarStyle:NSWindowToolbarStyle.unified,
+    );
+    await config.apply();
+  }
 }
 
 String? _getFontFamily() {
@@ -68,6 +87,10 @@ String? _getFontFamily() {
 }
 
 void initApp() {
+  if (!kIsWeb && (Platform.isMacOS)){
+    runApp(const MainApp());
+    return;
+  }
   runApp(MaterialApp(
     title: 'iOS Club App',
     debugShowCheckedModeBanner: false,
@@ -93,6 +116,11 @@ void initApp() {
 }
 
 void requestPermissions() async {
+  // 在 macOS 平台上不请求权限，避免 MissingPluginException
+  if (kIsWeb || Platform.isMacOS) {
+    return;
+  }
+  
   List<Permission> permissions = [
     Permission.notification,
   ];

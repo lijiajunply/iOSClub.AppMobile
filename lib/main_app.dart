@@ -10,9 +10,11 @@ import 'package:ios_club_app/system_services/download_service.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
+import 'package:macos_ui/macos_ui.dart';
 
 import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
+import 'macos_ui_sidebar.dart';
 import 'net/git_service.dart';
 import 'system_services/check_update_manager.dart';
 import 'under_maintenance_screen.dart';
@@ -40,10 +42,16 @@ class _MainAppState extends State<MainApp> {
       });
     }
 
-    SharedPreferences.getInstance().then((prefs) {
-      setState(() {
-        _currentIndex = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
-        Get.toNamed(_routeMap[_currentIndex] ?? '/');
+    // 延迟执行导航，确保GetMaterialApp已经初始化
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SharedPreferences.getInstance().then((prefs) {
+        setState(() {
+          _currentIndex = prefs.getInt(PrefsKeys.PAGE_DATA) ?? 0;
+          // 只有在不是默认首页时才导航
+          if (_currentIndex != 0) {
+            Get.toNamed(_routeMap[_currentIndex] ?? '/');
+          }
+        });
       });
     });
   }
@@ -195,15 +203,16 @@ class _MainAppState extends State<MainApp> {
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
+    
+    // 检测是否为 macOS 平台
+    final isMacOS = !kIsWeb && Platform.isMacOS;
 
-    return isTablet
-        ? Scaffold(
-            body: SafeArea(
-                child: Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DesktopSidebar(
+    return (isTablet || isMacOS) 
+        ? isMacOS
+          ? MacosApp(
+              theme: MacosThemeData(),
+              home: MacosWindow(
+                sidebar: macosUISidebar(
                   items: _destinations,
                   selectedIndex: _currentIndex,
                   onItemSelected: (int index) {
@@ -213,12 +222,31 @@ class _MainAppState extends State<MainApp> {
                     Get.toNamed(_routeMap[index] ?? '/');
                   },
                 ),
-                Expanded(
-                  child: _app(isTablet),
-                ),
-              ],
-            )),
-          )
+                child: _app(isTablet || isMacOS),
+              ),
+            )
+          : Scaffold(
+              body: SafeArea(
+                  child: Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DesktopSidebar(
+                    items: _destinations,
+                    selectedIndex: _currentIndex,
+                    onItemSelected: (int index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                      Get.toNamed(_routeMap[index] ?? '/');
+                    },
+                  ),
+                  Expanded(
+                    child: _app(isTablet || isMacOS),
+                  ),
+                ],
+              )),
+            )
         : Scaffold(
             body: SafeArea(child: _app(isTablet)),
             bottomNavigationBar: BottomNavigation(
