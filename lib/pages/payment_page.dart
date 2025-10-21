@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
-import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 import '../stores/payment_store.dart';
 import '../services/turnover_analyzer.dart';
 import '../widgets/club_app_bar.dart';
+import '../widgets/platform_dialog.dart';
 
 class PaymentPage extends StatelessWidget {
   final PaymentStore controller = Get.put(PaymentStore());
@@ -229,14 +228,26 @@ class PaymentPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
+              CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                borderRadius: BorderRadius.circular(8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                child: const Text(
+                  '绑定饭卡卡号',
+                  style: TextStyle(
+                    color: CupertinoColors.white,
+                    fontSize: 16,
+                  ),
+                ),
                 onPressed: () {
                   // 显示设置对话框让用户输入卡号
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _showSettingDialog(Get.context!);
                   });
                 },
-                child: const Text('绑定饭卡卡号'),
               ),
             ],
           ),
@@ -281,61 +292,27 @@ class PaymentPage extends StatelessWidget {
   }
 
   Future<void> _showSettingDialog(BuildContext context) async {
-    final TextEditingController textController =
-        TextEditingController(text: controller.num.value);
-
-    // 对于这种自定义输入框的对话框，我们保留原来的 Material 风格
-    await showDialog(
-      context: context,
-      builder: (contextDialog) => StatefulBuilder(
-        builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('设置饭卡卡号'),
-          content: TextField(
-            controller: textController,
-            decoration: InputDecoration(
-              hintText: '请输入饭卡卡号',
-              filled: true,
-              border: InputBorder.none,
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue, width: 1),
-              ),
-              prefixIcon: Icon(
-                Icons.numbers,
-              ),
-            ),
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d{0,19}')),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(contextDialog),
-              child: const Text('取消'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final cardNumber = textController.text.trim();
-                if (cardNumber.isEmpty) {
-                  showClubSnackBar(
-                    contextDialog,
-                    const Text('请输入饭卡卡号'),
-                  );
-                  return;
-                }
-                await controller.setPayment(cardNumber);
-                if (contextDialog.mounted) {
-                  Navigator.pop(contextDialog);
-                }
-              },
-              child: const Text('确定'),
-            ),
-          ],
-        ),
-      ),
+    final result = await PlatformDialog.showInputDialog(
+      context,
+      title: '设置饭卡卡号',
+      hintText: '请输入饭卡卡号',
     );
+
+    if (result != null) {
+      if (result.isEmpty) {
+        if (context.mounted) {
+          PlatformDialog.showConfirmDialog(
+            context,
+            title: '提示',
+            content: '请输入饭卡卡号',
+            confirmText: '确定',
+            cancelText: '',
+          );
+        }
+        return;
+      }
+      
+      await controller.setPayment(result);
+    }
   }
 }

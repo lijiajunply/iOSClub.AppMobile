@@ -210,6 +210,9 @@ class _MainAppState extends State<MainApp> {
     return (isTablet || isMacOS)
         ? isMacOS
             ? MacosWindow(
+                titleBar: TitleBar(
+
+                ),
                 sidebar: macosUISidebar(
                   items: _destinations,
                   selectedIndex: _currentIndex,

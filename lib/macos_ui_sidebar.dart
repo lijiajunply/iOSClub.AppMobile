@@ -17,8 +17,9 @@ Sidebar macosUISidebar({
   final searchFieldController = TextEditingController();
 
   return Sidebar(
-    minWidth: width,
-    maxWidth: width,
+    snapToStartBuffer: width * 0.05,
+    minWidth: width * 0.9,
+    maxWidth: width * 1.1,
     top: MacosSearchField(
       placeholder: '搜索',
       controller: searchFieldController,
@@ -84,7 +85,10 @@ Sidebar macosUISidebar({
         onClick: () {
           Get.toNamed('/Profile');
         },
-        leading: MacosIcon(CupertinoIcons.profile_circled),
+        leading: MacosIcon(
+          CupertinoIcons.profile_circled,
+          size: 28,
+        ),
         title: FutureBuilder(
             future: _getUsername(),
             builder: (context, snapshot) {

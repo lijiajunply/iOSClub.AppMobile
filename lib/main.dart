@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:display_mode/display_mode.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -109,14 +108,6 @@ void initApp() {
           home: MainApp(),
         )));
     return;
-  }
-
-  if (!kIsWeb && Platform.isIOS) {
-    runApp(const CupertinoApp(
-      title: 'iOS Club App',
-      debugShowCheckedModeBanner: false,
-      home: MainApp(),
-    ));
   }
 
   runApp(MaterialApp(
