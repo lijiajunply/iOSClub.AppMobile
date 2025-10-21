@@ -162,7 +162,6 @@ void requestPermissions() async {
       Permission.requestInstallPackages,
     ]);
   }
-
   await permissions.request();
 }
 
