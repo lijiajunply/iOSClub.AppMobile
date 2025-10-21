@@ -160,9 +160,10 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
             child: Obx(() {
               // 使用 Obx 监听 ScheduleStore 中的变化
               final todayCourses = scheduleStore.getTodayCourses();
-              changeScheduleItems(todayCourses);
+              // 创建临时列表而不是直接修改状态
+              final tempScheduleItems = _generateScheduleItems(todayCourses);
 
-              return scheduleItems.isEmpty
+              return tempScheduleItems.isEmpty
                   ? Padding(
                   padding: EdgeInsets.all(16.0),
                   child: EmptyWidget(
@@ -171,13 +172,52 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                       icon: Icons.school,
                       subtitle: '好好休息会儿吧，学一天累死个人'))
                   : Column(
-                children: scheduleItems.map(_buildScheduleItem).toList(),
+                children: tempScheduleItems.map(_buildScheduleItem).toList(),
               );
             }),
           ),
         ),
       ],
     );
+  }
+
+  List<ScheduleItem> _generateScheduleItems(List<CourseModel> courses) {
+    final weekdayName = ['日', '一', '二', '三', '四', '五', '六', '日'];
+    final items = <ScheduleItem>[];
+
+    for (var course in courses) {
+      var startTime = "";
+      var endTime = "";
+      if (course.room.substring(0, 2) == "草堂") {
+        startTime = TimeService.CanTangTime[course.startUnit];
+        endTime = TimeService.CanTangTime[course.endUnit];
+      } else if (course.room.substring(0, 2) == "雁塔") {
+        final now = DateTime.now();
+        if (now.month >= 5 && now.month <= 10) {
+          startTime = TimeService.YanTaXia[course.startUnit];
+          endTime = TimeService.YanTaXia[course.endUnit];
+        } else {
+          startTime = TimeService.YanTaDong[course.startUnit];
+          endTime = TimeService.YanTaDong[course.endUnit];
+        }
+      } else {
+        startTime = TimeService.CanTangTime[course.startUnit];
+        endTime = TimeService.CanTangTime[course.endUnit];
+      }
+
+      items.add(ScheduleItem(
+          title: course.courseName,
+          time:
+          '第${course.startUnit}节 ~ 第${course
+              .endUnit}节 | $startTime~$endTime',
+          location: course.room,
+          teacher: course.teachers.join(','),
+          description: '${course.weekIndexes.first}-${course.weekIndexes
+              .last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}节 ~ 第${course
+              .endUnit}节',
+      ));
+    }
+    return items;
   }
 
   Widget _buildScheduleItem(ScheduleItem item) {
