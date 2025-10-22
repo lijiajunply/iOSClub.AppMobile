@@ -4,7 +4,7 @@ import 'package:ios_club_app/pages/electricity_page.dart';
 import 'package:ios_club_app/pages/payment_page.dart';
 import 'package:ios_club_app/pages/program_page.dart';
 
-import 'pages/about_page.dart';
+import 'pages/setting_page.dart';
 import 'pages/home_page.dart';
 import 'pages/link_page.dart';
 import 'pages/member_page.dart';
@@ -38,7 +38,7 @@ class AppRouter {
         ),
         GetPage(
           name: '/About',
-          page: () => const AboutPage(),
+          page: () => const SettingPage(),
         ),
         GetPage(
           name: '/ScheduleSetting',
