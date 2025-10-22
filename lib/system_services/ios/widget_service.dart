@@ -30,7 +30,7 @@ class IOSWidgetService {
     // 刷新小组件
     await HomeWidget.updateWidget(
       name: appWidgetProviderClass,
-      iOSName: 'TodayCoursesWidgetProvider',
+      iosName: 'TodayCoursesWidget',
       qualifiedAndroidName:
           'com.example.ios_club_app.TodayCoursesWidgetProvider',
     );
