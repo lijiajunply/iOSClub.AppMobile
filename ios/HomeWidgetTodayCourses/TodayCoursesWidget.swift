@@ -188,7 +188,7 @@ struct TodayCoursesWidget_Previews: PreviewProvider {
             entry: CourseEntry(
                 date: Date(),
                 title: "今日课表",
-                dateString: "第12周 周三 10时 30分",
+                dateString: "第12周 周三",
                 courses: [
                     Course(title: "高等数学", time: "第1-2节 08:00-09:30", location: "教学楼A101", teacher: "张教授"),
                     Course(title: "大学英语", time: "第3-4节 10:00-11:30", location: "教学楼B205", teacher: "李老师"),

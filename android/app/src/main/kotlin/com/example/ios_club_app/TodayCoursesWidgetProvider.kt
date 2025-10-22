@@ -27,7 +27,23 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         
-        // 移除了课程项点击事件处理
+        // 处理小部件更新事件
+        if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val widgetData = HomeWidgetPlugin.getData(context)
+            
+            // 解析课程数据
+            val coursesJson = widgetData.getString("flutter.courses", null) ?: "[]"
+            
+            // 获取所有小部件ID
+            val appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+            if (appWidgetIds != null) {
+                for (appWidgetId in appWidgetIds) {
+                    // 通知数据变更
+                    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_courses_list)
+                }
+            }
+        }
     }
 
     private fun updateAppWidget(
@@ -83,11 +99,8 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
         }
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
-        // 只有在列表可见时才通知数据改变
-        if (widgetData.getString("flutter.courses", null) != null && 
-            widgetData.getString("flutter.courses", null) != "[]") {
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_courses_list)
-        }
+        // 总是通知数据改变，以确保列表更新
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_courses_list)
     }
 
     private fun getCurrentDate(): String {

@@ -46,7 +46,7 @@ class BackgroundService {
     );
 
     await AndroidAlarmManager.periodic(
-      const Duration(minutes: 30),
+      const Duration(minutes: 5),
       _widgetAlarmId,
       TaskExecutor.updateTodayWidget,
       wakeup: false, // 小组件更新不需要唤醒设备

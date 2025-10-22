@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import es.antonborri.home_widget.HomeWidgetPlugin
 import org.json.JSONArray
 
 class CourseListRemoteViewsFactory(
@@ -21,7 +22,10 @@ class CourseListRemoteViewsFactory(
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
-        // 当数据集改变时重新解析数据
+        // 当数据集改变时重新从共享数据中获取最新的数据
+        val widgetData = HomeWidgetPlugin.getData(context)
+        val coursesJson = widgetData.getString("flutter.courses", null) ?: "[]"
+        parseCourses(coursesJson)
     }
 
     override fun onDestroy() {
