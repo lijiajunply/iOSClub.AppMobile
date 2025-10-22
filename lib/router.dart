@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:ios_club_app/pages/helper_page.dart';
 import 'package:ios_club_app/pages/net_page.dart';
 import 'package:ios_club_app/pages/electricity_page.dart';
 import 'package:ios_club_app/pages/payment_page.dart';
@@ -68,5 +69,9 @@ class AppRouter {
           name: '/Net',
           page: () => const NetPage(),
         ),
+        GetPage(
+            name: '/Helper',
+            page: () => HelperPage()
+        )
       ];
 }

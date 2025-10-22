@@ -475,6 +475,10 @@ class _ProfilePageState extends State<ProfilePage> {
               });
               _enterLoginMode();
             }),
+      ProfileButtonItem(
+          icon: Icons.help_outline,
+          title: '帮助',
+          route: '/Helper'),
     ];
   }
 
