@@ -66,7 +66,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   mockito: ^5.5.1
   build_runner: ^2.9.0
-
+  flutter_launcher_icons: ^0.14.4
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -92,6 +92,14 @@ flutter:
     - family: IconFont
       fonts:
         - asset: assets/iconfont/iconfont.ttf
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  macos:
+    generate: true
+  image_path: "assets/icon.png"  # 提供 1024x1024 原始图标
+  min_sdk_android: 21
 
 flutter_native_splash:
   color: "#FFFFFF"
