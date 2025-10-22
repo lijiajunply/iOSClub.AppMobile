@@ -22,6 +22,9 @@ void backgroundTask() async {
 
 /// iOS后台服务管理类
 class IOSBackgroundService {
+  static Timer? _timer;
+  static const int _updateInterval = 3600; // 1小时更新一次，单位秒
+
   /// 初始化后台服务
   static Future<void> initializeService() async {
     // iOS平台不需要特殊的初始化
@@ -33,12 +36,41 @@ class IOSBackgroundService {
     // iOS平台使用不同的后台执行机制
     // 在iOS上，我们依赖系统提供的后台执行时间
     debugPrint('iOS Background Service 已启动');
+    
+    // 启动定时更新
+    _startPeriodicUpdate();
   }
 
   /// 停止服务
   static Future<void> stopService() async {
     // iOS平台不需要特殊的停止操作
     debugPrint('iOS Background Service 已停止');
+    
+    // 停止定时更新
+    _stopPeriodicUpdate();
+  }
+
+  /// 启动定时更新
+  static void _startPeriodicUpdate() {
+    _stopPeriodicUpdate(); // 先停止现有的定时器
+    
+    // 创建新的定时器，定期更新数据
+    _timer = Timer.periodic(
+      const Duration(seconds: _updateInterval),
+      (timer) async {
+        debugPrint('执行定时数据更新任务');
+        await TaskExecutor.performPeriodicUpdate();
+      },
+    );
+    
+    debugPrint('定时数据更新已启动，间隔: $_updateInterval 秒');
+  }
+
+  /// 停止定时更新
+  static void _stopPeriodicUpdate() {
+    _timer?.cancel();
+    _timer = null;
+    debugPrint('定时数据更新已停止');
   }
 
   /// 手动触发课程提醒检查
@@ -49,6 +81,11 @@ class IOSBackgroundService {
   /// 手动触发小组件更新
   static Future<void> updateWidget() async {
     await TaskExecutor.updateTodayWidget();
+  }
+  
+  /// 手动触发定时更新任务
+  static Future<void> performPeriodicUpdate() async {
+    await TaskExecutor.performPeriodicUpdate();
   }
 }
 
@@ -134,6 +171,24 @@ class TaskExecutor {
       }
     } catch (e) {
       debugPrint('更新小组件失败: $e');
+    }
+  }
+  
+  /// 执行定期更新任务
+  @pragma('vm:entry-point')
+  static Future<void> performPeriodicUpdate() async {
+    try {
+      debugPrint('开始执行定期数据更新任务');
+      
+      // 更新今日课程小组件
+      await updateTodayWidget();
+      
+      // 可以在这里添加其他需要定期更新的任务
+      // 例如：更新用户数据、检查通知等
+      
+      debugPrint('定期数据更新任务完成');
+    } catch (e) {
+      debugPrint('定期数据更新任务失败: $e');
     }
   }
 
@@ -244,5 +299,10 @@ class CourseReminderService {
   static Future<bool> isReminderEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(PrefsKeys.IS_REMIND) ?? false;
+  }
+  
+  /// 手动执行定期更新任务
+  static Future<void> performPeriodicUpdate() async {
+    await IOSBackgroundService.performPeriodicUpdate();
   }
 }
