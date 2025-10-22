@@ -12,8 +12,8 @@ import 'package:android_intent_plus/android_intent.dart';
 
 import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/net/git_service.dart';
-import 'package:ios_club_app/system_services/notification_service.dart';
-import 'package:ios_club_app/system_services/download_service.dart';
+import 'package:ios_club_app/system_services/universal_notification_service.dart';
+import 'package:ios_club_app/system_services/android/download_service.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
@@ -61,9 +61,7 @@ class AboutPage extends StatelessWidget {
                   const HomePageSetting(),
                   if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                     const HapticFeedbackSetting(), // 添加触觉反馈设置
-                  if (!kIsWeb &&
-                      (Platform.isWindows ||
-                          Platform.isLinux))
+                  if (!kIsWeb && (Platform.isWindows || Platform.isLinux))
                     const FontFamilySetting(), // 添加字体设置
                 ]),
                 const SizedBox(height: 24),
@@ -821,7 +819,7 @@ class _RemindSettingState extends State<RemindSetting> {
                       onChanged: (bool value) async {
                         await settingsStore.setIsRemind(value);
                         if (value && context.mounted) {
-                          await NotificationService.set(context);
+                          await UniversalNotificationService.set(context);
                         }
                       },
                     ))

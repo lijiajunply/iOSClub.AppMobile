@@ -4,9 +4,10 @@ import 'package:display_mode/display_mode.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ios_club_app/system_services/background_service.dart';
+import 'package:ios_club_app/system_services/android/background_service.dart';
 import 'package:ios_club_app/stores/init.dart';
 import 'package:ios_club_app/system_services/check_update_manager.dart';
+import 'package:ios_club_app/system_services/ios/background_service.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tray_manager/tray_manager.dart';
@@ -51,6 +52,10 @@ void main() async {
         await FlutterDisplayMode.setHighRefreshRate();
         await BackgroundService.initializeService();
         await BackgroundService.startService();
+      } else if (Platform.isIOS) {
+        // iOS平台初始化
+        await IOSBackgroundService.initializeService();
+        await IOSBackgroundService.startService();
       }
     }
   }
