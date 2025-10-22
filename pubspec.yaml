@@ -100,7 +100,7 @@ flutter_native_splash:
   ios: true
   color_dark: "#121212"
   image_dark: assets/icon.png
-  web: false
+  web: true
 
 msix_config:
   display_name: iOS Club App

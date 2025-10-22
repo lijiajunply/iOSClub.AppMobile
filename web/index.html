@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!DOCTYPE html><html><head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -46,6 +44,8 @@
       renderer: "canvaskit"
     };
   </script>
+  
+  
   
   <style id="splash-screen-style">
     html {
@@ -104,6 +104,12 @@
       bottom: 0;
       right: 0;
     }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+          }
+    }
   </style>
   <script id="splash-screen-script">
     function removeSplashFromWeb() {
@@ -120,7 +126,8 @@
       <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
   </picture>
   
+  
   <script src="flutter_bootstrap.js" async=""></script>
 
-</body>
-</html>
+
+</body></html>
