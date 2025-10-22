@@ -199,12 +199,11 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
       items.add(ScheduleItem(
         title: course.courseName,
-        time:
-            '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
+        time: '第${course.startUnit}-${course.endUnit}节 $startTime-$endTime',
         location: course.room,
         teacher: course.teachers.join(','),
         description:
-            '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}节 ~ 第${course.endUnit}节',
+            '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}-${course.endUnit}节',
       ));
     }
     return items;
