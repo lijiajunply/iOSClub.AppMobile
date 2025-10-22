@@ -82,86 +82,132 @@ class _ProfilePageState extends State<ProfilePage> {
       _isLoading = true;
     });
 
-    var result = false;
+    bool eduLoginSuccess = true;
+    bool clubLoginSuccess = true;
 
     // 登录教务系统账号
     if (!_isOnlyLoginMember) {
-      for (var i = 0; i < 3; i++) {
-        result = await EduService.loginFromData(
-          _usernameController.text,
-          _passwordController.text,
-        );
-        if (result) break;
-        await Future.delayed(const Duration(seconds: 1));
-        if (mounted) {
-          showClubSnackBar(
-            context,
-            const Text('正在重试'),
-          );
-        }
-      }
-
-      if (!result) {
-        if (mounted) {
-          showClubSnackBar(
-            context,
-            const Text('登录失败，请检查用户名和密码'),
-          );
-        }
-
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+      eduLoginSuccess = await _loginToEduSystem();
     }
 
     // 登录社团账号
     if (_isOnlyLoginMember || _isLoginMember) {
-      if ((_nameController.text.isEmpty && _isOnlyLoginMember) &&
-          (_isLoginMember && _usernameController.text.isEmpty) &&
-          mounted) {
+      clubLoginSuccess = await _loginToClub();
+    }
+
+    // 检查登录结果
+    if (!eduLoginSuccess || !clubLoginSuccess) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // 保存登录信息
+    await _saveLoginInfo();
+
+    // 更新UI状态
+    setState(() {
+      _isLoading = false;
+      _isOnlyLoginMember = false;
+      _showLoginForm = false;
+    });
+
+    // 清空输入框
+    _usernameController.clear();
+    _passwordController.clear();
+    if (_isLoginMember) {
+      _nameController.clear();
+    }
+  }
+
+  /// 登录教务系统
+  Future<bool> _loginToEduSystem() async {
+    bool result = false;
+    for (var i = 0; i < 3; i++) {
+      result = await EduService.loginFromData(
+        _usernameController.text,
+        _passwordController.text,
+      );
+      if (result) break;
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        showClubSnackBar(
+          context,
+          const Text('正在重试'),
+        );
+      }
+    }
+
+    if (!result && mounted) {
+      showClubSnackBar(
+        context,
+        const Text('登录失败，请检查用户名和密码'),
+      );
+    }
+
+    return result;
+  }
+
+  /// 登录社团账号
+  Future<bool> _loginToClub() async {
+    // 验证输入
+    if (_isOnlyLoginMember && _usernameController.text.isEmpty) {
+      if (mounted) {
         showClubSnackBar(
           context,
           const Text('登录社团账号时姓名不能为空'),
         );
-      } else {
-        if (_isOnlyLoginMember) {
-          result = await ClubService.loginMember(
-            _usernameController.text,
-            _passwordController.text,
-          );
-        } else if (_isLoginMember) {
-          result = await ClubService.loginMember(
-            _nameController.text,
-            _usernameController.text,
-          );
-        }
       }
+      return false;
     }
 
-    if (!result) {
+    if (_isLoginMember && _nameController.text.isEmpty) {
       if (mounted) {
         showClubSnackBar(
           context,
-          const Text('社团账号登陆失败'),
+          const Text('登录社团账号时姓名不能为空'),
         );
       }
-
-      if (_isOnlyLoginMember == true) {
-        _isOnlyLoginMember = false;
-      }
-      if (_isLoginMember == true) {
-        _isLoginMember = false;
-      }
+      return false;
     }
 
-    final prefs = await SharedPreferences.getInstance();
+    bool result = false;
     if (_isOnlyLoginMember) {
+      // 仅登录社团账号：用户名(姓名)和密码(学号)
+      result = await ClubService.loginMember(
+        _usernameController.text,
+        _passwordController.text,
+      );
+    } else if (_isLoginMember) {
+      // 同时登录两个账号：姓名和学号
+      result = await ClubService.loginMember(
+        _nameController.text,
+        _usernameController.text,
+      );
+    }
+
+    if (!result && mounted) {
+      showClubSnackBar(
+        context,
+        const Text('社团账号登陆失败'),
+      );
+    }
+
+    return result;
+  }
+
+  /// 保存登录信息
+  Future<void> _saveLoginInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    if (_isOnlyLoginMember) {
+      // 仅登录社团账号
       await prefs.setString(PrefsKeys.CLUB_NAME, _usernameController.text);
       await prefs.setString(PrefsKeys.CLUB_ID, _passwordController.text);
       userStore.setLoginMember();
-    } else {
+    } else if (!_isOnlyLoginMember && !_isLoginMember) {
+      // 仅登录教务系统
       await prefs.setString(PrefsKeys.USERNAME, _usernameController.text);
       await prefs.setString(PrefsKeys.PASSWORD, _passwordController.text);
       final userDataString = prefs.getString(PrefsKeys.USER_DATA);
@@ -170,25 +216,11 @@ class _ProfilePageState extends State<ProfilePage> {
         userStore.setUserData(UserData.fromJson(userData));
       }
     }
-
+    
+    // 同时登录两个账号的情况
     if (_isLoginMember) {
       await prefs.setString(PrefsKeys.CLUB_NAME, _nameController.text);
       await prefs.setString(PrefsKeys.CLUB_ID, _passwordController.text);
-      userStore.setLoginMember();
-    }
-
-    // 移除 isUpdateToClub 相关设置
-    setState(() {
-      _isLoading = false;
-      _isOnlyLoginMember = false;
-      _showLoginForm = false; // 隐藏登录表单
-    });
-
-    _usernameController.clear();
-    _passwordController.clear();
-
-    if (_isLoginMember) {
-      _nameController.clear();
       userStore.setLoginMember();
     }
   }

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:ios_club_app/models/semester_model.dart';
 import 'package:ios_club_app/PageModels/course_color_manager.dart';
 import 'package:ios_club_app/net/edu_service.dart';
+import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -102,8 +103,8 @@ class _ScorePageState extends State<ScorePage>
 
   Future<List<ScoreList>?> _tryGetCachedData() async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('all_score_data');
-    final lastFetchTime = prefs.getInt('last_Score_time');
+    final jsonString = prefs.getString(PrefsKeys.ALL_SCORE_DATA);
+    final lastFetchTime = prefs.getInt(PrefsKeys.LAST_SCORE_TIME);
     final now = DateTime.now().millisecondsSinceEpoch;
 
     if (lastFetchTime != null &&
@@ -179,9 +180,7 @@ class _ScorePageState extends State<ScorePage>
       if (mounted) {
         showClubSnackBar(context, Text('获取数据失败: ${e.toString()}'));
       }
-      if (kDebugMode) {
-        print('Error fetching data: $e');
-      }
+      debugPrint('Error fetching data: $e');
     } finally {
       _isFool = false;
     }
