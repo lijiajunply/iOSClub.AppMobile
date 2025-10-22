@@ -26,7 +26,7 @@ struct Provider: TimelineProvider {
     func getSnapshot(in context: Context, completion: @escaping (CourseEntry) -> Void) {
         let data = UserDefaults.init(suiteName: widgetGroupId)
         
-        let title = data?.string(forKey: "flutter.title") ?? "今日课表"
+        let title = "今日课表"
         let dateStr = data?.string(forKey: "flutter.date") ?? ""
         
         var courses: [Course] = []

@@ -21,7 +21,6 @@ class IOSWidgetService {
     final a = ['日', '一', '二', '三', '四', '五', '六', '日'];
 
     // 更新小组件
-    await HomeWidget.saveWidgetData<String>('flutter.title', '今日课表');
     await HomeWidget.saveWidgetData<String>('flutter.date',
         '第$weekNow周 周${a[now.weekday]}');
     await HomeWidget.saveWidgetData<String>(
