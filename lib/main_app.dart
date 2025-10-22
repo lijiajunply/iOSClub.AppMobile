@@ -14,7 +14,7 @@ import 'package:macos_ui/macos_ui.dart';
 
 import 'bottom_navigation.dart';
 import 'modern_sidebar.dart';
-import 'macos_ui_sidebar.dart';
+import 'macOS/macos_ui_sidebar.dart';
 import 'net/git_service.dart';
 import 'system_services/check_update_manager.dart';
 import 'under_maintenance_screen.dart';
@@ -210,9 +210,6 @@ class _MainAppState extends State<MainApp> {
     return (isTablet || isMacOS)
         ? isMacOS
             ? MacosWindow(
-                titleBar: TitleBar(
-
-                ),
                 sidebar: macosUISidebar(
                   items: _destinations,
                   selectedIndex: _currentIndex,

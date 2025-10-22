@@ -57,6 +57,7 @@ dependencies:
   display_mode: ^0.0.2
   encrypt: ^5.0.3
   macos_ui: ^2.2.2
+  macos_window_utils: ^1.9.0
 
 dev_dependencies:
   flutter_test:

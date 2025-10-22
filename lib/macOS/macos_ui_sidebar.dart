@@ -6,7 +6,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'modern_sidebar.dart';
+import '../modern_sidebar.dart';
 
 Sidebar macosUISidebar({
   required List<SidebarDestination> items,
