@@ -93,7 +93,7 @@ flutter:
       fonts:
         - asset: assets/iconfont/iconfont.ttf
 
-flutter_icons:
+flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
   macos:
