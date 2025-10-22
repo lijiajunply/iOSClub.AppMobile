@@ -50,7 +50,13 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('iOS Club App'),
+        title: const Text(
+          '帮助',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
         bottom: PreferredSize(
@@ -58,17 +64,6 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
           child: TabBar(
             controller: _tabController,
             tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-            indicator: const UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2),
-            ),
-            labelStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
           ),
         ),
       ),
@@ -96,8 +91,8 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
           Text(
             '主要功能模块',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           _buildFeatureItem(
@@ -162,8 +157,8 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
           Text(
             '使用说明',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           _buildInstructionItem(
@@ -200,8 +195,8 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
           Text(
             '注意事项',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           _buildNoteItem('部分功能需要连接校园网才能正常使用。'),
@@ -222,8 +217,8 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
           Text(
             '平台适配',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           Text(
@@ -238,23 +233,24 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
             'macOS',
             'Linux',
           ].map((platform) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 12),
-                  child: Icon(CupertinoIcons.checkmark_circle, size: 18),
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(right: 12),
+                      child: Icon(CupertinoIcons.checkmark_circle, size: 18),
+                    ),
+                    Text(platform,
+                        style: Theme.of(context).textTheme.bodyMedium),
+                  ],
                 ),
-                Text(platform, style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-          )),
+              )),
           const SizedBox(height: 16),
           Text(
             '不同平台界面略有差异，但核心功能保持一致。',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey,
-            ),
+                  color: Colors.grey,
+                ),
           ),
         ],
       ),
@@ -270,16 +266,16 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(height: 6),
           Text(
             description,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey,
-              height: 1.5,
-            ),
+                  color: Colors.grey,
+                  height: 1.5,
+                ),
           ),
         ],
       ),
@@ -307,8 +303,8 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
             ],
@@ -319,9 +315,9 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
             child: Text(
               description,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey,
-                height: 1.5,
-              ),
+                    color: Colors.grey,
+                    height: 1.5,
+                  ),
             ),
           ),
         ],
@@ -348,8 +344,8 @@ class _HelperPageState extends State<HelperPage> with TickerProviderStateMixin {
             child: Text(
               text,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                height: 1.5,
-              ),
+                    height: 1.5,
+                  ),
             ),
           ),
         ],
