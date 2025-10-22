@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:ios_club_app/net/edu_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ios_club_app/pageModels/course_color_manager.dart';
@@ -82,8 +81,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         IconButton(
             onPressed: () async {
               showClubSnackBar(context, Text('正在进行更新，请稍后'));
-              await EduService.getCourse(isRefresh: true);
-              scheduleStore.refreshCourses();
+              await scheduleStore.refreshCourses();
               if (context.mounted) {
                 showClubSnackBar(context, Text('更新完成'));
               }

@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:ios_club_app/controllers/program_controller.dart';
+import 'package:ios_club_app/stores/course_store.dart';
+import 'package:ios_club_app/stores/schedule_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/models/user_data.dart';
 import 'prefs_keys.dart';
@@ -67,6 +70,21 @@ class UserStore extends GetxController {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(PrefsKeys.USER_DATA);
+    await prefs.remove(PrefsKeys.COURSE_LAST_FETCH_TIME);
+    await prefs.remove(PrefsKeys.EXAM_DATA);
+    await prefs.remove(PrefsKeys.INFO_DATA);
+    await prefs.remove(PrefsKeys.COURSE_DATA);
+    await prefs.remove(PrefsKeys.USERNAME);
+    await prefs.remove(PrefsKeys.PASSWORD);
+
+    final courseStore = Get.put(CourseStore());
+    courseStore.clearCourseData();
+
+    final scheduleStore = Get.put(ScheduleStore());
+    scheduleStore.clean();
+
+    final programStore = Get.put(ProgramController());
+    programStore.clean();
   }
 
   /// 登出

@@ -82,6 +82,10 @@ class ProgramController extends GetxController {
     pageController.dispose();
     super.onClose();
   }
+
+  void clean() {
+    programs.clear();
+  }
 }
 
 // 创建一个简单的 TickerProvider 实现

@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
 
+import '../net/edu_service.dart';
+
 class ScheduleStore extends GetxController {
   static ScheduleStore get to => Get.find();
 
@@ -42,11 +44,11 @@ class ScheduleStore extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeData();
+    initializeData();
   }
 
   /// 初始化数据
-  Future<void> _initializeData() async {
+  Future<void> initializeData() async {
     try {
       final weekData = await DataService.getWeek();
       _handleWeekData(weekData);
@@ -96,6 +98,7 @@ class ScheduleStore extends GetxController {
   Future<void> refreshCourses() async {
     _isLoading.value = true;
     try {
+      await EduService.getCourse(isRefresh: true);
       await DataService.getAllCourse(); // 确保数据已更新
       await _loadCourses();
     } finally {

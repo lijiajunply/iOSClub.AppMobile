@@ -16,7 +16,16 @@ class DataService {
     if (isNeedIgnore) {
       ig = await getIgnore();
     }
+    
     final prefs = await SharedPreferences.getInstance();
+    // 检查课程数据最后一次刷新时间，如果是一周前则刷新数据
+    final courseLastFetchTime = prefs.getInt(PrefsKeys.COURSE_LAST_FETCH_TIME);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (courseLastFetchTime == null || now - courseLastFetchTime > 1000 * 60 * 60 * 24 * 7) {
+      // 课程数据最后一次刷新时间是一周前，调用刷新接口
+      await EduService.getCourse(isRefresh: true);
+    }
+    
     final String? jsonString = prefs.getString(PrefsKeys.COURSE_DATA);
     final List<CourseModel> list = [];
     if (jsonString != null) {

@@ -9,6 +9,7 @@ class PrefsKeys {
   /// 课程相关
   static const String COURSE_DATA = 'course_data';
   static const String IGNORE_DATA = 'ignore_data';
+  static const String COURSE_LAST_FETCH_TIME = 'course_last_fetch_time';
 
   /// 学期相关
   static const String SEMESTER_DATA = 'semester_data';

@@ -1,10 +1,12 @@
 import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:ios_club_app/models/bus_model.dart';
 import 'package:ios_club_app/services/data_service.dart';
 import 'package:ios_club_app/net/login_service.dart';
+import 'package:ios_club_app/stores/course_store.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/models/score_model.dart';
@@ -68,6 +70,9 @@ class EduService {
       await getExam(userData: cookieData);
       await getInfoCompletion(userData: cookieData);
       await prefs.setInt(PrefsKeys.LAST_FETCH_TIME, now);
+
+      final courseStore = Get.put(CourseStore());
+      courseStore.loadCourses();
       return true;
     }
 
@@ -279,6 +284,8 @@ class EduService {
         await prefs.setString(
             PrefsKeys.COURSE_DATA, jsonEncode(jsonDecode(response.body)));
         await DataService.setIgnore([]);
+        // 更新课程数据刷新时间
+        await prefs.setInt(PrefsKeys.COURSE_LAST_FETCH_TIME, DateTime.now().millisecondsSinceEpoch);
       } else {
         if (!(await login())) return;
         var a = await getUserData();
@@ -291,6 +298,8 @@ class EduService {
           await prefs.setString(
               PrefsKeys.COURSE_DATA, jsonEncode(jsonDecode(response.body)));
           await DataService.setIgnore([]);
+          // 更新课程数据刷新时间
+          await prefs.setInt(PrefsKeys.COURSE_LAST_FETCH_TIME, DateTime.now().millisecondsSinceEpoch);
         }
       }
     } catch (e) {

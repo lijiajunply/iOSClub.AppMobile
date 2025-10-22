@@ -78,4 +78,8 @@ class CourseStore extends GetxController {
       await setIgnoreCourses(_ignoreCourses.toList());
     }
   }
+
+  void clearCourseData() {
+    _courses.clear();
+  }
 }
