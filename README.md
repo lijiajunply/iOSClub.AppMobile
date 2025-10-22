@@ -75,7 +75,11 @@ UPDATE_CHANNEL=gitee
    flutter build web --no-tree-shake-icons --wasm
    ```
 
+4. macOS
 
+   ```bash
+   flutter build macos
+   ```
 
 ## 贡献指南
 
