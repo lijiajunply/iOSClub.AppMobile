@@ -98,6 +98,7 @@ flutter_launcher_icons:
   ios: true
   macos:
     generate: true
+    image_path: "assets/macOS_icon.png"
   image_path: "assets/icon.png"  # 提供 1024x1024 原始图标
   min_sdk_android: 21
 
