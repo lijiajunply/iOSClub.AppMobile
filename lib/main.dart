@@ -46,7 +46,7 @@ void main() async {
       await windowManager.focus();
     });
   } else if (!kIsWeb) {
-    if (Platform.isAndroid){
+    if (Platform.isAndroid) {
       // 只在Android平台调用FlutterDisplayMode
       await FlutterDisplayMode.setHighRefreshRate();
       await BackgroundService.initializeService();
@@ -57,7 +57,7 @@ void main() async {
     }
   }
 
-  if (!kIsWeb && Platform.isMacOS){
+  if (!kIsWeb && Platform.isMacOS) {
     await _configureMacosWindowUtils();
   }
 
@@ -87,28 +87,14 @@ String? _getFontFamily() {
 
 void initApp() {
   if (!kIsWeb && (Platform.isMacOS)) {
-    runApp(PlatformMenuBar(
-        menus: [
-          PlatformMenu(
-            label: 'App',
-            menus: [
-              PlatformMenuItem(
-                label: '退出',
-                onSelected: () async {
-                  await _exitApp();
-                },
-              ),
-            ],
-          ),
-        ],
-        child: MacosApp(
-          title: 'iOS Club App',
-          debugShowCheckedModeBanner: false,
-          theme: MacosThemeData.light(),
-          darkTheme: MacosThemeData.dark(),
-          themeMode: ThemeMode.system,
-          home: MainApp(),
-        )));
+    runApp(MacosApp(
+      title: 'iOS Club App',
+      debugShowCheckedModeBanner: false,
+      theme: MacosThemeData.light(),
+      darkTheme: MacosThemeData.dark(),
+      themeMode: ThemeMode.system,
+      home: MainApp(),
+    ));
     return;
   }
 
@@ -134,16 +120,6 @@ void initApp() {
     ),
     home: !kIsWeb && Platform.isWindows ? const WindowPage() : const MainApp(),
   ));
-}
-
-// 优化的退出方法
-Future<void> _exitApp() async {
-  // 如果是在 macOS 上运行，直接退出应用
-  if (!kIsWeb && Platform.isMacOS) {
-    exit(0);
-  }
-  // 如果是 Windows/Linux 平台，使用 WindowPage 中的逻辑
-  // 注意：这个方法在 Windows/Linux 上可能不会被直接调用
 }
 
 void requestPermissions() async {
