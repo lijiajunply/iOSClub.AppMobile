@@ -4,12 +4,12 @@ import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/schedule_store.dart';
-import 'package:ios_club_app/system_services/universal_notification_service.dart';
 import 'package:ios_club_app/widgets/empty_widget.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/pageModels/course_color_manager.dart';
 
+import 'package:ios_club_app/system_services/notification_service.dart';
 import '../club_card.dart';
 
 class ScheduleWidget extends StatefulWidget {
@@ -143,7 +143,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                                                           .setIsRemind(value);
                                                       if (value &&
                                                           context.mounted) {
-                                                        await UniversalNotificationService
+                                                        await NotificationService
                                                             .set(
                                                             context);
                                                       }

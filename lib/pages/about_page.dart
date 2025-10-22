@@ -12,7 +12,7 @@ import 'package:android_intent_plus/android_intent.dart';
 
 import 'package:ios_club_app/net/edu_service.dart';
 import 'package:ios_club_app/net/git_service.dart';
-import 'package:ios_club_app/system_services/universal_notification_service.dart';
+import 'package:ios_club_app/system_services/notification_service.dart';
 import 'package:ios_club_app/system_services/android/download_service.dart';
 import 'package:ios_club_app/stores/user_store.dart';
 import 'package:ios_club_app/widgets/club_app_bar.dart';
@@ -819,7 +819,7 @@ class _RemindSettingState extends State<RemindSetting> {
                       onChanged: (bool value) async {
                         await settingsStore.setIsRemind(value);
                         if (value && context.mounted) {
-                          await UniversalNotificationService.set(context);
+                          await NotificationService.set(context);
                         }
                       },
                     ))

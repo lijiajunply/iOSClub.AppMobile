@@ -195,7 +195,8 @@ class ScheduleStore extends GetxController {
         ..sort((a, b) => a.startUnit.compareTo(b.startUnit));
     }
 
-    _showTomorrow.value = a;
+    // 使用 Future.microtask 延迟更新 _showTomorrow 的值，避免在构建过程中触发重建
+    Future.microtask(() => _showTomorrow.value = a);
 
     return filteredCourses;
   }

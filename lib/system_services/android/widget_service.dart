@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 
 import 'package:ios_club_app/pageModels/schedule_item.dart';
@@ -18,11 +19,12 @@ class WidgetService {
     final weekNow = week['week']!;
 
     // 更新小组件
-    await HomeWidget.saveWidgetData<String>('flutter.title', '今日课表');
     await HomeWidget.saveWidgetData<String>('flutter.date',
         '第$weekNow周 周${a[now.weekday]}');
     await HomeWidget.saveWidgetData<String>(
         'flutter.courses', jsonEncode(todayCourses));
+
+    debugPrint('Android小组件数据更新完成');
 
     // 刷新小组件
     await HomeWidget.updateWidget(

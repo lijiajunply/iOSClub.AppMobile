@@ -56,10 +56,10 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
 
         try {
             // 设置标题和日期
-            val title = widgetData.getString("flutter.title", "今日课表")
             val date = widgetData.getString("flutter.date", getCurrentDate())
+            println("date: $date")
 
-            views.setTextViewText(R.id.widget_title, title)
+            views.setTextViewText(R.id.widget_title, "今日课表")
             views.setTextViewText(R.id.widget_date, date)
 
             // 解析课程数据

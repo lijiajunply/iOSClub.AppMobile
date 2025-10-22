@@ -8,7 +8,8 @@ import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
-import 'package:ios_club_app/system_services/universal_notification_service.dart';
+
+import '../notification_service.dart';
 
 /// iOS后台任务回调函数
 @pragma('vm:entry-point')
@@ -92,7 +93,7 @@ class TaskExecutor {
         );
 
         if (result.$2.isNotEmpty) {
-          await UniversalNotificationService.toList(result.$2);
+          await NotificationService.toList(result.$2);
 
           // 记录提醒时间（使用ISO格式字符串）
           await prefs.setString(

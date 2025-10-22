@@ -45,18 +45,15 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
-  } else if (!kIsWeb && Platform.isMacOS) {
-    // 只在非Web平台调用FlutterDisplayMode
-    if (!kIsWeb) {
-      if (Platform.isAndroid){
-        await FlutterDisplayMode.setHighRefreshRate();
-        await BackgroundService.initializeService();
-        await BackgroundService.startService();
-      } else if (Platform.isIOS) {
-        // iOS平台初始化
-        await IOSBackgroundService.initializeService();
-        await IOSBackgroundService.startService();
-      }
+  } else if (!kIsWeb) {
+    if (Platform.isAndroid){
+      // 只在Android平台调用FlutterDisplayMode
+      await FlutterDisplayMode.setHighRefreshRate();
+      await BackgroundService.initializeService();
+      await BackgroundService.startService();
+    } else if (Platform.isIOS) {
+      await IOSBackgroundService.initializeService();
+      await IOSBackgroundService.startService();
     }
   }
 

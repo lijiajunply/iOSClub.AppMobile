@@ -9,7 +9,7 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/pageModels/schedule_item.dart';
 import 'package:ios_club_app/services/data_service.dart';
-import 'package:ios_club_app/system_services/android/notification_service.dart';
+import 'package:ios_club_app/system_services/notification_service.dart';
 
 /// 后台任务回调函数
 @pragma('vm:entry-point')
@@ -92,12 +92,6 @@ class BackgroundService {
 /// 任务执行器 - 实际的业务逻辑
 @pragma('vm:entry-point')
 class TaskExecutor {
-  /// 执行快速任务（iOS后台用）
-  static Future<void> performQuickTasks() async {
-    // iOS 后台执行时间有限，只执行最重要的任务
-    await checkAndSendCourseReminder();
-  }
-
   /// 检查并发送课程提醒
   static Future<void> checkAndSendCourseReminder() async {
     try {
