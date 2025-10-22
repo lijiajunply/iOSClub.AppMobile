@@ -56,7 +56,8 @@ class AboutPage extends StatelessWidget {
                 _buildSettingsGroup([
                   _buildRefreshTile(context, isDark),
                   const ShowTomorrowSetting(),
-                  if (!kIsWeb) const RemindSetting(),
+                  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+                    const RemindSetting(),
                   const TodoListSetting(),
                   const HomePageSetting(),
                   if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))

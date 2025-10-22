@@ -26,11 +26,11 @@ class UnderMaintenanceScreen extends StatelessWidget {
               ),
               const Spacer(flex: 2),
               ErrorInfo(
-                title: "Under Maintenance!",
+                title: "正在维护！",
                 description:
-                    "We are currently performing scheduled maintenance. Please check back later. Thank you for your patience.",
+                    "我们目前正在进行定期维护。请稍后再查看。感谢您的耐心等待。",
                 // button: you can pass your custom button,
-                btnText: "Retry",
+                btnText: "返回",
                 press: () {},
               ),
             ],
@@ -89,7 +89,7 @@ class ErrorInfo extends StatelessWidget {
                       foregroundColor: Colors.white,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)))),
-                  child: Text(btnText ?? "Retry".toUpperCase()),
+                  child: Text(btnText ?? "返回"),
                 ),
             const SizedBox(height: 16),
           ],
@@ -100,7 +100,7 @@ class ErrorInfo extends StatelessWidget {
 }
 
 const underMaintenanceIllistration =
-    '''<svg width="1080" height="1080" viewBox="0 0 1080 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+    '''<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
 <path d="M524.01 410.31H995.89" stroke="#0E0E0E" stroke-width="3" stroke-miterlimit="10"/>
 <path d="M991.05 381.06H528.85C526.177 381.06 524.01 383.227 524.01 385.9V400.68C524.01 403.353 526.177 405.52 528.85 405.52H991.05C993.723 405.52 995.89 403.353 995.89 400.68V385.9C995.89 383.227 993.723 381.06 991.05 381.06Z" fill="#D3D3D3"/>
 <path d="M991.05 373.62H528.85C526.177 373.62 524.01 375.787 524.01 378.46V393.24C524.01 395.913 526.177 398.08 528.85 398.08H991.05C993.723 398.08 995.89 395.913 995.89 393.24V378.46C995.89 375.787 993.723 373.62 991.05 373.62Z" stroke="#0E0E0E" stroke-width="3" stroke-miterlimit="10"/>

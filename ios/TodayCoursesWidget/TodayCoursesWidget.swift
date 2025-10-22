@@ -168,7 +168,6 @@ struct CourseRowView: View {
     }
 }
 
-@main
 struct TodayCoursesWidget: Widget {
     let kind: String = "TodayCoursesWidget"
     
