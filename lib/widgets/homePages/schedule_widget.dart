@@ -58,29 +58,11 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
     scheduleItems.clear();
     scheduleItems.addAll(a.map((course) {
-      var startTime = "";
-      var endTime = "";
-      if (course.room.substring(0, 2) == "草堂") {
-        startTime = TimeService.CanTangTime[course.startUnit];
-        endTime = TimeService.CanTangTime[course.endUnit];
-      } else if (course.room.substring(0, 2) == "雁塔") {
-        final now = DateTime.now();
-        if (now.month >= 5 && now.month <= 10) {
-          startTime = TimeService.YanTaXia[course.startUnit];
-          endTime = TimeService.YanTaXia[course.endUnit];
-        } else {
-          startTime = TimeService.YanTaDong[course.startUnit];
-          endTime = TimeService.YanTaDong[course.endUnit];
-        }
-      } else {
-        startTime = TimeService.CanTangTime[course.startUnit];
-        endTime = TimeService.CanTangTime[course.endUnit];
-      }
-
+      final time = TimeService.getStartAndEnd(course);
       return ScheduleItem(
         title: course.courseName,
         time:
-            '第${course.startUnit}节 ~ 第${course.endUnit}节 | $startTime~$endTime',
+            '第${course.startUnit}节 ~ 第${course.endUnit}节 | ${time.start}~${time.end}',
         location: course.room,
         teacher: course.teachers.join(','),
         description:
@@ -178,28 +160,11 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
     final items = <ScheduleItem>[];
 
     for (var course in courses) {
-      var startTime = "";
-      var endTime = "";
-      if (course.room.substring(0, 2) == "草堂") {
-        startTime = TimeService.CanTangTime[course.startUnit];
-        endTime = TimeService.CanTangTime[course.endUnit];
-      } else if (course.room.substring(0, 2) == "雁塔") {
-        final now = DateTime.now();
-        if (now.month >= 5 && now.month <= 10) {
-          startTime = TimeService.YanTaXia[course.startUnit];
-          endTime = TimeService.YanTaXia[course.endUnit];
-        } else {
-          startTime = TimeService.YanTaDong[course.startUnit];
-          endTime = TimeService.YanTaDong[course.endUnit];
-        }
-      } else {
-        startTime = TimeService.CanTangTime[course.startUnit];
-        endTime = TimeService.CanTangTime[course.endUnit];
-      }
+      final time = TimeService.getStartAndEnd(course);
 
       items.add(ScheduleItem(
         title: course.courseName,
-        time: '第${course.startUnit}-${course.endUnit}节 $startTime-$endTime',
+        time: '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
         location: course.room,
         teacher: course.teachers.join(','),
         description:

@@ -180,34 +180,11 @@ class TaskExecutor {
 
     for (final course in courses) {
       try {
-        String startTime = "";
-        String endTime = "";
-
-        // 安全的字符串判断
-        final isCaoTang = course.campus == "草堂校区" ||
-            (course.room.length >= 2 && course.room.startsWith("草堂"));
-
-        if (isCaoTang) {
-          // 草堂校区时间
-          startTime = TimeService.CanTangTime[course.startUnit];
-          endTime = TimeService.CanTangTime[course.endUnit];
-        } else {
-          // 雁塔校区时间（根据季节）
-          final now = DateTime.now();
-          final isSummer = now.month >= 5 && now.month <= 10;
-
-          if (isSummer) {
-            startTime = TimeService.YanTaXia[course.startUnit];
-            endTime = TimeService.YanTaXia[course.endUnit];
-          } else {
-            startTime = TimeService.YanTaDong[course.startUnit];
-            endTime = TimeService.YanTaDong[course.endUnit];
-          }
-        }
+        final time = TimeService.getStartAndEnd(course);
 
         items.add(ScheduleItem(
           title: course.courseName,
-          time: '第${course.startUnit}-${course.endUnit}节 $startTime-$endTime',
+          time: '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
           location: course.room,
           teacher: course.teachers.join(','),
         ));

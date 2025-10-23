@@ -79,7 +79,9 @@ class ScheduleStore extends GetxController {
           : courses.where((course) => course.weekIndexes.contains(i)).toList();
     });
     if (courses.isNotEmpty) {
-      _isYanTa.value = !(courses[0].room.substring(0, 2) == "草堂");
+      final firstCourse = courses[0];
+      _isYanTa.value = !(firstCourse.campus == "草堂校区" ||
+          (firstCourse.room.length >= 2 && firstCourse.room.startsWith("草堂")));
     }
     _isLoading.value = false;
   }
@@ -152,20 +154,9 @@ class ScheduleStore extends GetxController {
 
     // 过滤掉已经结束的课程
     filteredCourses = filteredCourses.where((course) {
-      var endTime = "";
-      final isYanTa = course.campus == "雁塔校区" ||
-          (course.room.length >= 2 && course.room.startsWith("雁塔"));
-      if (isYanTa) {
-        if (now.month >= 5 && now.month <= 10) {
-          endTime = TimeService.YanTaXia[course.endUnit];
-        } else {
-          endTime = TimeService.YanTaDong[course.endUnit];
-        }
-      } else {
-        endTime = TimeService.CanTangTime[course.endUnit];
-      }
+      final time = TimeService.getStartAndEnd(course);
 
-      final l = endTime.split(':');
+      final l = time.end.split(':');
       var end = DateTime(
           now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
 

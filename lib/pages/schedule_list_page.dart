@@ -377,7 +377,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
     // 根据当前日期和季节选择时间表
     final now = DateTime.now();
-    final isSummer = now.month >= 5 && now.month <= 10;
+    final isSummer = now.month >= 5 && now.month < 10;
 
     // 确保索引在有效范围内
     if (index + 1 < TimeService.CanTangTime.length) {
@@ -578,7 +578,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ),
               const SizedBox(width: 4),
               Text(
-                '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}节~第${course.endUnit}节',
+                '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}-${course.endUnit}节',
                 style: TextStyle(
                   fontSize: isTablet ? 17 : 15,
                   overflow: TextOverflow.ellipsis,

@@ -167,20 +167,9 @@ class DataService {
     }
 
     filteredCourses = filteredCourses.where((course) {
-      var endTime = "";
-      final isYanTa = course.campus == "雁塔校区" ||
-          (course.room.length >= 2 && course.room.startsWith("雁塔"));
-      if (isYanTa) {
-        if (now.month >= 5 && now.month <= 10) {
-          endTime = TimeService.YanTaXia[course.endUnit];
-        } else {
-          endTime = TimeService.YanTaDong[course.endUnit];
-        }
-      } else {
-        endTime = TimeService.CanTangTime[course.endUnit];
-      }
+      final time = TimeService.getStartAndEnd(course);
 
-      final l = endTime.split(':');
+      final l = time.end.split(':');
       var end = DateTime(
           now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
 
@@ -322,22 +311,8 @@ class DataService {
       dayCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
 
       for (var courseToday in dayCourses) {
-        var startTime = "";
-        var endTime = "";
-        if (courseToday.campus == "草堂校区") {
-          startTime = TimeService.CanTangTime[courseToday.startUnit];
-          endTime = TimeService.CanTangTime[courseToday.endUnit];
-        } else {
-          final now = DateTime.now();
-          if (now.month >= 5 && now.month <= 10) {
-            startTime = TimeService.YanTaXia[courseToday.startUnit];
-            endTime = TimeService.YanTaXia[courseToday.endUnit];
-          } else {
-            startTime = TimeService.YanTaDong[courseToday.startUnit];
-            endTime = TimeService.YanTaDong[courseToday.endUnit];
-          }
-        }
-        var l = startTime.split(':');
+        final time = TimeService.getStartAndEnd(courseToday);
+        var l = time.start.split(':');
 
         var start = DateTime(
             now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
@@ -346,7 +321,7 @@ class DataService {
 
         if (timeList.isNotEmpty && timeList.last.startTime == start) continue;
 
-        l = endTime.split(':');
+        l = time.end.split(':');
         var end = DateTime(
             now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
 
