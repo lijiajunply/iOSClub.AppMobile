@@ -164,7 +164,8 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
       items.add(ScheduleItem(
         title: course.courseName,
-        time: '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
+        time:
+            '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
         location: course.room,
         teacher: course.teachers.join(','),
         description:
@@ -176,8 +177,10 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
 
   Widget _buildScheduleItem(ScheduleItem item) {
     return Material(
+      borderRadius: BorderRadius.circular(20),
       color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(20),
         onTap: () {
           // 对于这种简单的信息展示对话框，我们保留原来的 Material 风格
           showDialog(
