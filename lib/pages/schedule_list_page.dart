@@ -373,33 +373,32 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
 
   Widget _buildTimeCellForPeriod(int period) {
     final index = period - 1;
-    String timeText = "";
+    String startTime = "";
+    String endTime = "";
 
     // 根据当前日期和季节选择时间表
     final now = DateTime.now();
     final isSummer = now.month >= 5 && now.month < 10;
 
     // 确保索引在有效范围内
-    if (index + 1 < TimeService.CanTangTime.length) {
+    if (index + 1 < TimeService.CanTangTimeStart.length) {
       // 默认使用草堂时间
-      String startTime = TimeService.CanTangTime[index + 1];
+      startTime = TimeService.CanTangTimeStart[index + 1];
+      endTime = TimeService.CanTangTimeEnd[index + 1];
 
       // 根据季节选择雁塔时间
       if (scheduleStore.isYanTa) {
         if (isSummer) {
-          if (index * 2 + 1 < TimeService.YanTaXia.length) {
-            startTime = TimeService.YanTaXia[index + 1];
+          if (index * 2 + 1 < TimeService.YanTaXiaStart.length) {
+            startTime = TimeService.YanTaXiaStart[index + 1];
+            endTime = TimeService.YanTaXiaEnd[index + 1];
           }
         } else {
-          if (index * 2 + 1 < TimeService.YanTaDong.length) {
-            startTime = TimeService.YanTaDong[index + 1];
+          if (index * 2 + 1 < TimeService.YanTaDongStart.length) {
+            startTime = TimeService.YanTaDongStart[index + 1];
+            endTime = TimeService.YanTaDongEnd[index + 1];
           }
         }
-      }
-
-      // 只有当时间不为空时才显示
-      if (startTime.isNotEmpty) {
-        timeText = startTime;
       }
     }
 
@@ -412,7 +411,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               fontSize: 12,
             )),
         Text(
-          timeText,
+          startTime,
+          style: const TextStyle(
+            fontWeight: FontWeight.normal,
+            fontSize: 8,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          endTime,
           style: const TextStyle(
             fontWeight: FontWeight.normal,
             fontSize: 8,
