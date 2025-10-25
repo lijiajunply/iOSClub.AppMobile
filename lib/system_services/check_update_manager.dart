@@ -37,14 +37,16 @@ class CheckUpdateManager {
   static bool shouldCheckForUpdates() {
     // 在Web平台上总是不检查更新（使用Docker自更新）
     // 在iOS、MacOS、Windows平台中不更新（使用各平台的App Store）
-    if (kIsWeb || Platform.isIOS || Platform.isMacOS || Platform.isWindows) return false;
-    
+    if (kIsWeb || Platform.isIOS || Platform.isMacOS || Platform.isWindows) {
+      return false;
+    }
+
     // 首先检查系统环境变量
     final envUpdateChannel = Platform.environment['UPDATE_CHANNEL'];
     if (envUpdateChannel == 'appstore') {
       return false;
     }
-    
+
     // 然后检查.env文件中的配置
     // 添加对 dotenv 是否已初始化的检查
     try {
@@ -56,7 +58,7 @@ class CheckUpdateManager {
       // 如果 dotenv 未初始化则忽略
       debugPrint("DotEnv 未初始化: $e");
     }
-    
+
     // 默认情况下检查更新
     return true;
   }

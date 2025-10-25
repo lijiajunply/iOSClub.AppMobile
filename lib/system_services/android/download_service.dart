@@ -146,7 +146,8 @@ class DownloadProgress {
 }
 
 class UpdateManager {
-  static Future<void> showUpdateWithProgress(BuildContext context, String version) async {
+  static Future<void> showUpdateWithProgress(
+      BuildContext context, String version) async {
     final ValueNotifier<DownloadProgress> progressNotifier = ValueNotifier(
       DownloadProgress(
         progress: 0.0,

@@ -37,7 +37,7 @@ class WidgetService {
 
   @pragma('vm:entry-point')
   static Future<void> updateTodayAndTomorrowCourses(
-  Map<String, List<ScheduleItem>> courses) async {
+      Map<String, List<ScheduleItem>> courses) async {
     final now = DateTime.now();
     final tomorrow = now.add(const Duration(days: 1));
 
