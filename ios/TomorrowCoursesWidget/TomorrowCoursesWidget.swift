@@ -21,23 +21,23 @@ struct Provider: TimelineProvider {
 
     func getSnapshot(in context: Context, completion: @escaping (CourseEntry) -> Void) {
         let data = UserDefaults.init(suiteName: "group.com.example.iosClubApp.widget")
-        
+
         let title = "近日课表"
         let todayStr = data?.string(forKey: "flutter.tomorrow.date") ?? ""
         let tomorrowStr = data?.string(forKey: "flutter.tomorrow.tomorrowDate") ?? ""
-        
+
         var todayCourses: [Course] = []
         if let coursesData = data?.string(forKey: "flutter.tomorrow.courses"),
-           let coursesJson = try? JSONSerialization.jsonObject(with: coursesData.data(using: .utf8)!) as? [[String: Any]] {
+        let coursesJson = try? JSONSerialization.jsonObject(with: coursesData.data(using: .utf8)!) as? [[String: Any]] {
             todayCourses = coursesJson.compactMap { Course.fromJson($0) }
         }
-        
+
         var tomorrowCourses: [Course] = []
         if let coursesData = data?.string(forKey: "flutter.tomorrow.tomorrowCourses"),
-           let coursesJson = try? JSONSerialization.jsonObject(with: coursesData.data(using: .utf8)!) as? [[String: Any]] {
+        let coursesJson = try? JSONSerialization.jsonObject(with: coursesData.data(using: .utf8)!) as? [[String: Any]] {
             tomorrowCourses = coursesJson.compactMap { Course.fromJson($0) }
         }
-        
+
         let entry = CourseEntry(date: Date(), title: title, todayDateString: todayStr, tomorrowDateString: tomorrowStr, todayCourses: todayCourses, tomorrowCourses: tomorrowCourses)
         completion(entry)
     }
@@ -56,15 +56,15 @@ struct Course: Identifiable {
     let time: String
     let location: String
     let teacher: String
-    
+
     static func fromJson(_ json: [String: Any]) -> Course? {
         guard let title = json["title"] as? String,
-              let time = json["time"] as? String,
-              let location = json["location"] as? String,
-              let teacher = json["teacher"] as? String else {
+        let time = json["time"] as? String,
+        let location = json["location"] as? String,
+        let teacher = json["teacher"] as? String else {
             return nil
         }
-        
+
         return Course(title: title, time: time, location: location, teacher: teacher)
     }
 }
@@ -76,7 +76,7 @@ struct CourseEntry: TimelineEntry {
     let tomorrowDateString: String
     let todayCourses: [Course]
     let tomorrowCourses: [Course]
-    
+
     init(date: Date, title: String, todayDateString: String = "", tomorrowDateString: String = "", todayCourses: [Course] = [], tomorrowCourses: [Course] = []) {
         self.date = date
         self.title = title
@@ -87,132 +87,185 @@ struct CourseEntry: TimelineEntry {
     }
 }
 
-struct TomorrowCoursesWidgetEntryView : View {
+func extractDateInfo(from dateString: String) -> (day: String, weekday: String) {
+    let components = dateString.split(separator: " ")
+    var day = "27"
+    var weekday = "星期一"
+
+    if components.count >= 1 {
+        let dateComponent = String(components[0])
+        if let range = dateComponent.range(of: "\\d+", options: .regularExpression) {
+            day = String(dateComponent[range])
+        }
+    }
+
+    if components.count >= 2 {
+        weekday = String(components[1])
+    }
+
+    return (day, weekday)
+}
+
+struct TomorrowCoursesWidgetEntryView: View {
+    @Environment(\.colorScheme) var colorScheme
     var entry: Provider.Entry
-    
+
+    let accentColor = Color(red: 0.7, green: 0.4, blue: 0.9)
+    @State private var selectedTab = 0
+
+    var body: some View {
+        ZStack {
+            VStack(alignment: .leading, spacing: 10) {
+                // TabView：滑动标签页
+                TabView(selection: $selectedTab) {
+                    // 今天
+                    CoursesPanelView(
+                        title: "今天",
+                        courses: entry.todayCourses,
+                        accentColor: accentColor,
+                        colorScheme: colorScheme
+                    )
+                    .tag(0)
+
+                    // 明天
+                    CoursesPanelView(
+                        title: "明天",
+                        courses: entry.tomorrowCourses,
+                        accentColor: accentColor,
+                        colorScheme: colorScheme
+                    )
+                    .tag(1)
+                }
+#if os(macOS)
+                .frame(height: 180)
+#else
+                .tabViewStyle(.page(indexDisplayMode: .always))
+                .frame(height: 180)
+#endif
+            }
+            .padding(12)
+        }
+    }
+}
+
+struct CoursesPanelView: View {
+    let title: String
+    let courses: [Course]
+    let accentColor: Color
+    let colorScheme: ColorScheme
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Header
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(entry.title)
-                        .font(.headline)
-                        .fontWeight(.bold)
-                    
-                    if !entry.todayDateString.isEmpty {
-                        Text(entry.todayDateString)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                Spacer()
-            }
-            
-            // Divider
-            Rectangle()
-                .fill(Color.gray.opacity(0.5))
-                .frame(height: 1)
-            
-            // Course lists
-            ScrollView(.vertical, showsIndicators: false) {
-                // Today courses
-                if !entry.todayCourses.isEmpty {
-                    Text("今天")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .padding(.top, 4)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(entry.todayCourses) { course in
-                            CourseRowView(course: course)
+            // 标题
+            Text(title)
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 10)
+
+            if !courses.isEmpty {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(courses) { course in
+                            CourseRowView(course: course, accentColor: accentColor, colorScheme: colorScheme)
                         }
                     }
-                } else {
-                    EmptyCoursesView(text: "今天无课程")
+                    .padding(.horizontal, 10)
                 }
-                
-                // Tomorrow courses
-                if !entry.tomorrowCourses.isEmpty {
-                    Text("明天")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .padding(.top, 4)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(entry.tomorrowCourses) { course in
-                            CourseRowView(course: course)
-                        }
-                    }
-                } else {
-                    EmptyCoursesView(text: "明天无课程")
-                }
+            } else {
+                EmptyCoursesView(text: "\(title)无课程")
             }
         }
-        .padding()
     }
 }
 
 struct CourseRowView: View {
     let course: Course
-    
+    let accentColor: Color
+    let colorScheme: ColorScheme
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(course.title)
-                .font(.body)
+        HStack(alignment: .top, spacing: 10) {
+            // 左侧紫色竖条
+            RoundedRectangle(cornerRadius: 2)
+            .fill(accentColor)
+            .frame(width: 4)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(course.title)
+                .font(.subheadline)
                 .fontWeight(.semibold)
                 .lineLimit(1)
-            
-            Text(course.time)
+
+                Text(course.time)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(colorScheme == .dark ? Color(red: 0.7, green: 0.7, blue: 0.75) : Color(red: 0.6, green: 0.6, blue: 0.65))
                 .lineLimit(1)
-            
-            HStack {
-                Text(course.location)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+
+                HStack(spacing: 6) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "location.fill")
+                        .font(.caption2)
+                        Text(course.location)
+                        .font(.caption2)
+                    }
+                    .foregroundColor(colorScheme == .dark ? Color(red: 0.7, green: 0.7, blue: 0.75) : Color(red: 0.6, green: 0.6, blue: 0.65))
                     .lineLimit(1)
-                
-                Spacer()
-                
-                Text(course.teacher)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+
+                    Spacer()
+
+                    HStack(spacing: 3) {
+                        Image(systemName: "person.fill")
+                        .font(.caption2)
+                        Text(course.teacher)
+                        .font(.caption2)
+                    }
+                    .foregroundColor(colorScheme == .dark ? Color(red: 0.7, green: 0.7, blue: 0.75) : Color(red: 0.6, green: 0.6, blue: 0.65))
                     .lineLimit(1)
+                }
             }
+
+            Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+            .fill(colorScheme == .dark ? Color(red: 0.15, green: 0.15, blue: 0.17) : Color(red: 0.95, green: 0.95, blue: 0.98))
+        )
     }
 }
 
 struct EmptyCoursesView: View {
     let text: String
-    
+
     var body: some View {
-        VStack(alignment: .center, spacing: 4) {
+        VStack(alignment: .center, spacing: 6) {
             Text(text)
-                .font(.body)
-                .fontWeight(.semibold)
-            
-            Text("享受你的自由时光吧！")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            .font(.subheadline)
+            .fontWeight(.semibold)
+
+            Text("✨ 享受自由时光")
+            .font(.caption)
+            .foregroundColor(.secondary)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .multilineTextAlignment(.center)
-        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+            .fill(Color.secondary.opacity(0.1))
+        )
     }
 }
 
 struct TomorrowCoursesWidget: Widget {
     let kind: String = "TomorrowCoursesWidget"
-    
+
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             TomorrowCoursesWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("今日明日课表")
+        .configurationDisplayName("近日课表")
         .description("查看今天和明天的课程安排")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
