@@ -19,6 +19,9 @@
 		9AF108AB2EA8C05000528EC0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AF108AA2EA8C05000528EC0 /* WidgetKit.framework */; };
 		9AF108AD2EA8C05000528EC0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AF108AC2EA8C05000528EC0 /* SwiftUI.framework */; };
 		9AF108BE2EA8C05100528EC0 /* TodayCoursesWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AF108A92EA8C05000528EC0 /* TodayCoursesWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9AFDEE2E2EAD1D84002B9534 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AF108AA2EA8C05000528EC0 /* WidgetKit.framework */; };
+		9AFDEE2F2EAD1D84002B9534 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AF108AC2EA8C05000528EC0 /* SwiftUI.framework */; };
+		9AFDEE402EAD1D85002B9534 /* TomorrowCoursesWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AFDEE2D2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B1E289E2931D1F9FA7EB116E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 240E4089CC45BFF967F4BE04 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +39,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9AF108A82EA8C05000528EC0;
 			remoteInfo = TodayCoursesWidgetExtension;
+		};
+		9AFDEE3E2EAD1D85002B9534 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AFDEE2C2EAD1D84002B9534;
+			remoteInfo = TomorrowCoursesWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -56,6 +66,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				9AFDEE402EAD1D85002B9534 /* TomorrowCoursesWidgetExtension.appex in Embed Foundation Extensions */,
 				9AF108BE2EA8C05100528EC0 /* TodayCoursesWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -90,6 +101,7 @@
 		9AF108AA2EA8C05000528EC0 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		9AF108AC2EA8C05000528EC0 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		9AF108C72EA8C0DB00528EC0 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		9AFDEE2D2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TomorrowCoursesWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5D2884D6495B5DCB49A3404 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		F942F158044A03B44EE16EDB /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -101,6 +113,13 @@
 				Info.plist,
 			);
 			target = 9AF108A82EA8C05000528EC0 /* TodayCoursesWidgetExtension */;
+		};
+		9AFDEE412EAD1D85002B9534 /* Exceptions for "TomorrowCoursesWidget" folder in "TomorrowCoursesWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9AFDEE2C2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -115,6 +134,18 @@
 			explicitFolders = (
 			);
 			path = TodayCoursesWidget;
+			sourceTree = "<group>";
+		};
+		9AFDEE302EAD1D84002B9534 /* TomorrowCoursesWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9AFDEE412EAD1D85002B9534 /* Exceptions for "TomorrowCoursesWidget" folder in "TomorrowCoursesWidgetExtension" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TomorrowCoursesWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -135,6 +166,15 @@
 			files = (
 				9AF108AD2EA8C05000528EC0 /* SwiftUI.framework in Frameworks */,
 				9AF108AB2EA8C05000528EC0 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AFDEE2A2EAD1D84002B9534 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AFDEE2F2EAD1D84002B9534 /* SwiftUI.framework in Frameworks */,
+				9AFDEE2E2EAD1D84002B9534 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,6 +239,7 @@
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				9AF108AE2EA8C05000528EC0 /* TodayCoursesWidget */,
+				9AFDEE302EAD1D84002B9534 /* TomorrowCoursesWidget */,
 				97C146EF1CF9000F007C117D /* Products */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				7B74890D0562732A48E83708 /* Pods */,
@@ -212,6 +253,7 @@
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				9AF108A92EA8C05000528EC0 /* TodayCoursesWidgetExtension.appex */,
+				9AFDEE2D2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -273,6 +315,7 @@
 			);
 			dependencies = (
 				9AF108BD2EA8C05100528EC0 /* PBXTargetDependency */,
+				9AFDEE3F2EAD1D85002B9534 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -302,6 +345,26 @@
 			productReference = 9AF108A92EA8C05000528EC0 /* TodayCoursesWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		9AFDEE2C2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AFDEE422EAD1D85002B9534 /* Build configuration list for PBXNativeTarget "TomorrowCoursesWidgetExtension" */;
+			buildPhases = (
+				9AFDEE292EAD1D84002B9534 /* Sources */,
+				9AFDEE2A2EAD1D84002B9534 /* Frameworks */,
+				9AFDEE2B2EAD1D84002B9534 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9AFDEE302EAD1D84002B9534 /* TomorrowCoursesWidget */,
+			);
+			name = TomorrowCoursesWidgetExtension;
+			productName = TomorrowCoursesWidgetExtension;
+			productReference = 9AFDEE2D2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -322,6 +385,9 @@
 						LastSwiftMigration = 1100;
 					};
 					9AF108A82EA8C05000528EC0 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					9AFDEE2C2EAD1D84002B9534 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
 				};
@@ -345,6 +411,7 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				9AF108A82EA8C05000528EC0 /* TodayCoursesWidgetExtension */,
+				9AFDEE2C2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -369,6 +436,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9AF108A72EA8C05000528EC0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AFDEE2B2EAD1D84002B9534 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -514,6 +588,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9AFDEE292EAD1D84002B9534 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -526,6 +607,11 @@
 			isa = PBXTargetDependency;
 			target = 9AF108A82EA8C05000528EC0 /* TodayCoursesWidgetExtension */;
 			targetProxy = 9AF108BC2EA8C05100528EC0 /* PBXContainerItemProxy */;
+		};
+		9AFDEE3F2EAD1D85002B9534 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AFDEE2C2EAD1D84002B9534 /* TomorrowCoursesWidgetExtension */;
+			targetProxy = 9AFDEE3E2EAD1D85002B9534 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -955,6 +1041,135 @@
 			};
 			name = Profile;
 		};
+		9AFDEE432EAD1D85002B9534 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TomorrowCoursesWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TomorrowCoursesWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.iosClubApp.TomorrowCoursesWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9AFDEE442EAD1D85002B9534 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TomorrowCoursesWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TomorrowCoursesWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.iosClubApp.TomorrowCoursesWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9AFDEE452EAD1D85002B9534 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TomorrowCoursesWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TomorrowCoursesWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.iosClubApp.TomorrowCoursesWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Profile;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -994,6 +1209,16 @@
 				9AF108C02EA8C05100528EC0 /* Debug */,
 				9AF108C12EA8C05100528EC0 /* Release */,
 				9AF108C22EA8C05100528EC0 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9AFDEE422EAD1D85002B9534 /* Build configuration list for PBXNativeTarget "TomorrowCoursesWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AFDEE432EAD1D85002B9534 /* Debug */,
+				9AFDEE442EAD1D85002B9534 /* Release */,
+				9AFDEE452EAD1D85002B9534 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
