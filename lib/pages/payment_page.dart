@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 
 import '../stores/payment_store.dart';
-import '../services/turnover_analyzer.dart';
+import '../services/payment_analyzer.dart';
 import '../widgets/club_app_bar.dart';
 import '../widgets/platform_dialog.dart';
 
@@ -174,7 +174,7 @@ class PaymentPage extends StatelessWidget {
 
   Widget _buildTransactionItem(PaymentModel record) {
     final isRecharge = record.turnoverType == '充值';
-    final amount = record.tranamt;
+    final amount = record.amount;
     final date = record.datetimeStr;
     final description = record.resume;
 

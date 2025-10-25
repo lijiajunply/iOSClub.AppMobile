@@ -7,7 +7,14 @@ import 'package:ios_club_app/stores/prefs_keys.dart';
 
 import 'package:ios_club_app/models/todo_item.dart';
 
+/// 待办事项服务类
+/// 
+/// 提供本地和云端待办事项的管理功能，包括获取、设置和同步待办事项列表
 class TodoService {
+  /// 获取待办事项列表
+  /// 
+  /// 根据用户设置决定从本地或云端获取待办事项列表
+  /// 如果已更新到俱乐部，则只从俱乐部获取；否则从本地获取并可能合并云端数据
   static Future<List<TodoItem>> getTodoList() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -21,6 +28,11 @@ class TodoService {
     return list;
   }
 
+  /// 保存待办事项列表到本地存储
+  /// 
+  /// 将待办事项列表保存到 SharedPreferences 中，以用户名作为键进行区分
+  /// 
+  /// [list] 需要保存的待办事项列表
   static Future<void> setTodoList(List<TodoItem> list) async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString(PrefsKeys.TODO_DATA);
@@ -37,6 +49,10 @@ class TodoService {
     }
   }
 
+  /// 从本地存储获取待办事项列表
+  /// 
+  /// 从 SharedPreferences 中读取当前用户的待办事项列表
+  /// 同时也会尝试获取云端待办事项列表进行合并
   static Future<List<TodoItem>> getLocalTodoList() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString(PrefsKeys.TODO_DATA);
@@ -61,6 +77,10 @@ class TodoService {
     }
   }
 
+  /// 从俱乐部服务器获取待办事项列表
+  /// 
+  /// 通过 HTTP 请求从俱乐部服务器获取用户的待办事项列表
+  /// 如果认证失败会尝试重新登录并再次请求
   static Future<List<TodoItem>> getClubTodoList() async {
     final prefs = await SharedPreferences.getInstance();
     final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);
@@ -110,6 +130,10 @@ class TodoService {
     return [];
   }
 
+  /// 将俱乐部API返回的JSON数据转换为TodoItem对象
+  /// 
+  /// [json] 从俱乐部API获取的待办事项JSON数据
+  /// 返回转换后的TodoItem对象
   static TodoItem fromJsonClub(Map<String, dynamic> json) {
     final a = TodoItem(
       title: json['title'],
@@ -123,6 +147,10 @@ class TodoService {
     return a;
   }
 
+  /// 将本地待办事项同步到俱乐部服务器
+  /// 
+  /// 将本地存储的待办事项逐一上传到俱乐部服务器
+  /// 如果全部上传成功，则清除本地待办事项数据
   static Future<void> nowToUpdate() async {
     final prefs = await SharedPreferences.getInstance();
     final memberDataString = prefs.getString(PrefsKeys.MEMBER_DATA);

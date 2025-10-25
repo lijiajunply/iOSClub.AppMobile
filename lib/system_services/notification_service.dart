@@ -173,7 +173,7 @@ class NotificationService {
       await NotificationService.instance.initialize();
     }
 
-    final a = await DataService.getCourse();
+    final a = await DataService.getTodayOrTomorrowCourse();
     final now = DateTime.now();
 
     for (var course in a.$2) {

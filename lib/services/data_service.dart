@@ -9,7 +9,14 @@ import 'package:ios_club_app/pageModels/course_time.dart';
 import 'package:ios_club_app/models/semester_model.dart';
 import 'package:ios_club_app/services/time_service.dart';
 
+/// 数据服务类，负责处理应用程序的各种数据操作
+///
+/// 包括课程、成绩、学期、时间等数据的获取和管理
 class DataService {
+  /// 获取所有课程数据
+  ///
+  /// [isNeedIgnore] 是否需要忽略某些课程，默认为true
+  /// 返回课程模型列表
   static Future<List<CourseModel>> getAllCourse(
       {bool isNeedIgnore = true}) async {
     List<String> ig = [];
@@ -40,6 +47,9 @@ class DataService {
     return list;
   }
 
+  /// 获取所有课程名称
+  ///
+  /// 返回不重复的课程名称列表
   static Future<List<String>> getCourseName() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString(PrefsKeys.COURSE_DATA);
@@ -56,11 +66,17 @@ class DataService {
     return list;
   }
 
+  /// 设置需要忽略的课程列表
+  ///
+  /// [list] 需要忽略的课程名称列表
   static Future<void> setIgnore(List<String> list) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(PrefsKeys.IGNORE_DATA, jsonEncode({"data": list}));
   }
 
+  /// 获取被忽略的课程列表
+  ///
+  /// 返回被忽略的课程名称列表
   static Future<List<String>> getIgnore() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString(PrefsKeys.IGNORE_DATA);
@@ -75,6 +91,10 @@ class DataService {
     return list;
   }
 
+  /// 计算当前周数和总周数
+  ///
+  /// 根据学期开始时间和结束时间计算当前是第几周以及学期总周数
+  /// 返回包含当前周数(week)和最大周数(maxWeek)的Map
   static Future<Map<String, int>> getWeek() async {
     final time = await getTime();
     if (time["startTime"] == null) {
@@ -112,6 +132,10 @@ class DataService {
     return {'week': week, 'maxWeek': maxWeek};
   }
 
+  /// 根据指定周数获取课程
+  ///
+  /// [week] 指定的周数，如果为0则计算当前周数
+  /// 返回指定周数的课程列表
   static Future<List<CourseModel>> getCourseByWeek({int week = 0}) async {
     final allCourse = await getAllCourse();
     if (week == 0) {
@@ -127,7 +151,12 @@ class DataService {
         .toList();
   }
 
-  static Future<(bool, List<CourseModel>)> getCourse(
+  /// 获取当天或第二天的课程
+  ///
+  /// [isTomorrow] 是否获取第二天的课程，默认为false（获取当天课程）
+  ///
+  /// 返回一个元组，第一个元素表示是否是明天的课程，第二个元素是课程列表
+  static Future<(bool, List<CourseModel>)> getTodayOrTomorrowCourse(
       {bool isTomorrow = false}) async {
     final allCourse = await getAllCourse();
     final time = await getTime();
@@ -181,6 +210,70 @@ class DataService {
     return (false, filteredCourses);
   }
 
+  /// 获取今天和明天的课程
+  ///
+  /// 返回一个Map，包含今天和明天的课程列表
+  static Future<Map<String, List<CourseModel>>> getTodayAndTomorrowCourses() async {
+    final allCourse = await getAllCourse();
+    final time = await getTime();
+    var now = DateTime.now();
+    
+    if (time["startTime"] == null) {
+      return {
+        'today': List<CourseModel>.unmodifiable([]),
+        'tomorrow': List<CourseModel>.unmodifiable([])
+      };
+    }
+    
+    // 计算当前周数
+    var weekNow = now.difference(DateTime.parse(time["startTime"]!)).inDays ~/ 7 + 1;
+    
+    // 获取今天的课程
+    var todayCourses = allCourse.where((course) {
+      return course.weekIndexes.contains(weekNow) &&
+          course.weekday == now.weekday;
+    }).toList();
+    
+    // 过滤掉已经结束的课程
+    todayCourses = todayCourses.where((course) {
+      final time = TimeService.getStartAndEnd(course);
+      final l = time.end.split(':');
+      var end = DateTime(
+          now.year, now.month, now.day, int.parse(l[0]), int.parse(l[1]), 0);
+      return now.isBefore(end);
+    }).toList();
+    
+    // 按开始节次排序
+    todayCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+    
+    // 计算明天日期和周数
+    var weekTomorrow = weekNow;
+    var tomorrowWeekday = now.weekday + 1;
+    
+    // 处理跨周情况
+    if (now.weekday == 7) { // 如果今天是周日
+      weekTomorrow++;
+      tomorrowWeekday = 1; // 明天是周一
+    }
+    
+    // 获取明天的课程
+    var tomorrowCourses = allCourse.where((course) {
+      return course.weekIndexes.contains(weekTomorrow) &&
+          course.weekday == tomorrowWeekday;
+    }).toList();
+    
+    // 按开始节次排序
+    tomorrowCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+    
+    return {
+      'today': todayCourses,
+      'tomorrow': tomorrowCourses
+    };
+  }
+
+  /// 获取成绩数据
+  ///
+  /// 返回按学期分组的成绩列表
   static Future<List<ScoreList>> getScore() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString('all_score_data');
@@ -200,6 +293,10 @@ class DataService {
     return list;
   }
 
+  /// 获取学期信息
+  ///
+  /// [isRefresh] 是否强制刷新数据，默认为false
+  /// 返回学期模型列表
   static Future<List<SemesterModel>> getSemester(
       {bool isRefresh = false}) async {
     final prefs = await SharedPreferences.getInstance();
@@ -233,6 +330,10 @@ class DataService {
     return list;
   }
 
+  /// 获取时间信息
+  ///
+  /// 包括学期开始时间、结束时间等
+  /// 返回包含时间信息的Map
   static Future<Map<String, String>> getTime() async {
     final prefs = await SharedPreferences.getInstance();
     String? jsonString = prefs.getString(PrefsKeys.TIME_DATA);
@@ -258,6 +359,10 @@ class DataService {
     return list;
   }
 
+  /// 获取信息列表
+  ///
+  /// 从缓存或网络获取通知公告等信息
+  /// 返回信息模型列表
   static Future<List<InfoModel>> getInfoList() async {
     List<InfoModel> list = [];
     final prefs = await SharedPreferences.getInstance();
@@ -293,6 +398,9 @@ class DataService {
     }
   }
 
+  /// 获取所有课程时间安排
+  ///
+  /// 返回本周剩余天数的课程时间安排列表
   static Future<List<CourseTime>> getAllTime() async {
     final allCourse = await getAllCourse();
     final weekData = await getWeek();

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:ios_club_app/system_services/tile_service.dart';
-import 'package:ios_club_app/services/turnover_analyzer.dart';
+import 'package:ios_club_app/services/payment_analyzer.dart';
 
 class PaymentStore extends GetxController {
   // 响应式状态变量
@@ -23,14 +23,14 @@ class PaymentStore extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      num.value = await TurnoverAnalyzer.getPayment();
+      num.value = await PaymentAnalyzer.getPayment();
 
       if (num.value.isEmpty) {
         errorMessage.value = '请先绑定饭卡';
         return;
       }
 
-      final recordsResult = await TurnoverAnalyzer.fetchData(num.value);
+      final recordsResult = await PaymentAnalyzer.fetchData(num.value);
       final newTiles = await TileService.getTiles();
 
       records.assignAll(recordsResult.payments);
@@ -43,7 +43,7 @@ class PaymentStore extends GetxController {
   }
 
   Future<void> setPayment(String cardNumber) async {
-    await TurnoverAnalyzer.setPayment(cardNumber);
+    await PaymentAnalyzer.setPayment(cardNumber);
     await loadData();
   }
 

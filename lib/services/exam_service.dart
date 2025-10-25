@@ -8,7 +8,13 @@ import 'package:ios_club_app/models/exam_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 
+/// 考试服务类，负责处理考试相关信息的获取和管理
+/// 包括从服务器获取考试数据、缓存管理、数据解析等功能
 class ExamService {
+  /// 获取考试信息
+  ///
+  /// [isRefresh] 是否强制刷新数据，默认为false
+  /// 返回有效的考试项目列表
   static Future<List<ExamItem>> getExam({bool isRefresh = false}) async {
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
@@ -33,6 +39,12 @@ class ExamService {
     return [];
   }
 
+  /// 检查缓存是否有效
+  ///
+  /// [prefs] SharedPreferences实例
+  /// [now] 当前时间
+  /// [isRefresh] 是否强制刷新
+  /// 返回一个元组，第一个元素表示是否需要刷新数据，第二个元素是缓存的JSON字符串
   static (bool needRefresh, String jsonString) _checkCache(
       SharedPreferences prefs, DateTime now, bool isRefresh) {
     final String jsonString = prefs.getString(PrefsKeys.EXAM_DATA) ?? '';
@@ -47,6 +59,11 @@ class ExamService {
     return (isRefresh || !isCached, jsonString);
   }
 
+  /// 从服务器获取考试数据
+  ///
+  /// [cookieData] 用户认证信息
+  /// [now] 当前时间
+  /// 返回一个元组，第一个元素表示是否成功，第二个元素是JSON响应字符串
   static Future<(bool isSuccess, String jsonString)> _fetchExamData(
       UserData cookieData, DateTime now) async {
     try {
@@ -74,10 +91,19 @@ class ExamService {
     }
   }
 
+  /// 使用新登录信息重试请求
+  ///
+  /// 当初次请求失败时，尝试重新登录并再次发送请求
+  /// [oldCookie] 原始用户认证信息
+  /// [url] 请求地址
+  /// [headers] 请求头
+  /// 返回一个元组，第一个元素表示是否成功，第二个元素是JSON响应字符串
   static Future<(bool isSuccess, String jsonString)> _retryWithNewLogin(
       UserData oldCookie, Uri url, Map<String, String> headers) async {
+    // 尝试重新登录
     if (!(await EduService.login())) return (false, '');
 
+    // 获取新的用户认证信息
     final newCookie = await EduService.getUserData();
     if (newCookie == null) return (false, '');
 
@@ -101,12 +127,22 @@ class ExamService {
     }
   }
 
+  /// 更新缓存数据
+  ///
+  /// [prefs] SharedPreferences实例
+  /// [jsonString] 要缓存的JSON字符串
+  /// [now] 当前时间
   static Future<void> _updateCache(
       SharedPreferences prefs, String jsonString, DateTime now) async {
     await prefs.setString(PrefsKeys.EXAM_DATA, jsonString);
     await prefs.setInt(PrefsKeys.EXAM_TIME, now.microsecondsSinceEpoch);
   }
 
+  /// 解析考试项目
+  ///
+  /// [jsonString] JSON格式的考试数据字符串
+  /// [now] 当前时间
+  /// 返回有效的考试项目列表
   static List<ExamItem> _parseExamItems(String jsonString, DateTime now) {
     final List<ExamItem> list = [];
     if (jsonString.isEmpty) return list;
@@ -119,6 +155,7 @@ class ExamService {
 
         try {
           final endTime = _parseExamTime(item.examTime, now);
+          // 只添加未过期的考试
           if (endTime != null && !now.isAfter(endTime)) {
             list.add(item);
           }
@@ -135,6 +172,11 @@ class ExamService {
     return list;
   }
 
+  /// 解析考试时间字符串
+  ///
+  /// [timeStr] 时间字符串，格式如："12-25 14:00~16:00"
+  /// [now] 当前时间
+  /// 返回解析后的考试结束时间，如果解析失败返回null
   static DateTime? _parseExamTime(String timeStr, DateTime now) {
     try {
       final timeSplit = timeStr.split(' ');

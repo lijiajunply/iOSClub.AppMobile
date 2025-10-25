@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ios_club_app/services/time_service.dart';
-import 'package:ios_club_app/system_services/android/widget_service.dart';
+import 'package:ios_club_app/system_services/widget_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/stores/prefs_keys.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -48,7 +48,7 @@ class BackgroundService {
     await AndroidAlarmManager.periodic(
       const Duration(minutes: 5),
       _widgetAlarmId,
-      TaskExecutor.updateTodayWidget,
+      TaskExecutor.updateWidget,
       wakeup: false, // 小组件更新不需要唤醒设备
       exact: true,
       rescheduleOnReboot: true,
@@ -57,7 +57,7 @@ class BackgroundService {
     // 立即执行一次任务以测试功能
     Future.delayed(const Duration(seconds: 1), () {
       backgroundTask();
-      TaskExecutor.updateTodayWidget();
+      TaskExecutor.updateWidget();
     });
 
     debugPrint('周期性任务已注册');
@@ -84,7 +84,7 @@ class BackgroundService {
     await AndroidAlarmManager.oneShot(
       const Duration(seconds: 1),
       _widgetAlarmId,
-      TaskExecutor.updateTodayWidget,
+      TaskExecutor.updateWidget,
     );
   }
 }
@@ -122,7 +122,7 @@ class TaskExecutor {
 
       // 获取课程数据并发送提醒
       try {
-        final result = await DataService.getCourse().timeout(
+        final result = await DataService.getTodayOrTomorrowCourse().timeout(
           const Duration(seconds: 30),
           onTimeout: () {
             throw TimeoutException('获取课程数据超时');
@@ -147,11 +147,22 @@ class TaskExecutor {
     }
   }
 
+  @pragma('vm:entry-point')
+  static Future<void> updateWidget() async {
+    try {
+      await updateTodayWidget();
+      await updateTodayAndTomorrowWidget();
+    } catch (e) {
+      debugPrint('更新小组件失败: $e');
+    }
+  }
+
   /// 更新今日课程小组件
   @pragma('vm:entry-point')
   static Future<void> updateTodayWidget() async {
     try {
-      final (isShowingTomorrow, courses) = await DataService.getCourse(
+      final (isShowingTomorrow, courses) =
+          await DataService.getTodayOrTomorrowCourse(
         isTomorrow: false,
       ).timeout(
         const Duration(seconds: 20),
@@ -174,6 +185,35 @@ class TaskExecutor {
     }
   }
 
+  /// 更新近日课程小组件
+  @pragma('vm:entry-point')
+  static Future<void> updateTodayAndTomorrowWidget() async {
+    try {
+      final courses = await DataService.getTodayAndTomorrowCourses().timeout(
+        const Duration(seconds: 20),
+        onTimeout: () {
+          throw TimeoutException('获取今日课程超时');
+        },
+      );
+
+      if (courses.isNotEmpty) {
+        Map<String, List<ScheduleItem>> scheduleItems = {};
+        scheduleItems['today'] = _convertToScheduleItems(courses['today']!);
+        scheduleItems['tomorrow'] =
+            _convertToScheduleItems(courses['tomorrow']!);
+        await WidgetService.updateTodayAndTomorrowCourses(scheduleItems);
+        debugPrint('小组件更新成功: ${DateTime.now().toIso8601String()}');
+      } else {
+        // 没有课程也要更新小组件显示"今日无课"
+        await WidgetService.updateTodayAndTomorrowCourses(
+            {'today': [], 'tomorrow': []});
+        debugPrint('今日无课，小组件已更新');
+      }
+    } catch (e) {
+      debugPrint('更新小组件失败: $e');
+    }
+  }
+
   /// 转换课程数据为小组件显示格式
   static List<ScheduleItem> _convertToScheduleItems(List<CourseModel> courses) {
     final List<ScheduleItem> items = [];
@@ -184,7 +224,8 @@ class TaskExecutor {
 
         items.add(ScheduleItem(
           title: course.courseName,
-          time: '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
+          time:
+              '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
           location: course.room,
           teacher: course.teachers.join(','),
         ));

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ios_club_app/services/turnover_analyzer.dart';
+import 'package:ios_club_app/services/payment_analyzer.dart';
 
 void main() {
   group('PaymentModel', () {
@@ -8,13 +8,13 @@ void main() {
         turnoverType: '消费',
         datetimeStr: '2023-01-01 12:00:00',
         resume: '食堂午餐',
-        tranamt: 15.50,
+        amount: 15.50,
       );
 
       expect(payment.turnoverType, '消费');
       expect(payment.datetimeStr, '2023-01-01 12:00:00');
       expect(payment.resume, '食堂午餐');
-      expect(payment.tranamt, 15.50);
+      expect(payment.amount, 15.50);
     });
 
     test('should create instance from JSON', () {
@@ -30,7 +30,7 @@ void main() {
       expect(payment.turnoverType, '充值');
       expect(payment.datetimeStr, '2023-01-01 10:00:00');
       expect(payment.resume, '支付宝充值');
-      expect(payment.tranamt, 100.0);
+      expect(payment.amount, 100.0);
     });
 
     test('should format toString correctly', () {
@@ -38,7 +38,7 @@ void main() {
         turnoverType: '消费',
         datetimeStr: '2023-01-01 12:00:00',
         resume: '食堂午餐  ',
-        tranamt: 15.50,
+        amount: 15.50,
       );
 
       expect(
@@ -55,7 +55,7 @@ void main() {
           turnoverType: '消费',
           datetimeStr: '2023-01-01 12:00:00',
           resume: '食堂午餐',
-          tranamt: 15.50,
+          amount: 15.50,
         )
       ];
       final paymentData = PaymentData(payments, 100.0);

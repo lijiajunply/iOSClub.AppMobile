@@ -22,9 +22,7 @@ class CheckUpdateManager {
       await dotenv.load(fileName: ".env");
     } catch (e) {
       // 如果.env文件不存在，则忽略错误
-      if (kDebugMode) {
-        print("未找到.env文件: $e");
-      }
+      debugPrint("未找到.env文件: $e");
     }
   }
 
@@ -56,9 +54,7 @@ class CheckUpdateManager {
       }
     } catch (e) {
       // 如果 dotenv 未初始化则忽略
-      if (kDebugMode) {
-        print("DotEnv 未初始化: $e");
-      }
+      debugPrint("DotEnv 未初始化: $e");
     }
     
     // 默认情况下检查更新
