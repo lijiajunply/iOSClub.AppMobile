@@ -9,6 +9,7 @@ import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetPlugin
 import org.json.JSONArray
 import java.util.*
+import android.net.Uri
 
 class TomorrowCoursesWidgetProvider : AppWidgetProvider() {
 
@@ -40,11 +41,16 @@ class TomorrowCoursesWidgetProvider : AppWidgetProvider() {
             // 获取所有小部件ID
             val appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
             if (appWidgetIds != null) {
-                for (appWidgetId in appWidgetIds) {
-                    // 通知数据变更
-                    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.today_courses_list)
-                    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.tomorrow_courses_list)
-                }
+                // 检查数据是否真正发生变化
+                val widgetData = HomeWidgetPlugin.getData(context)
+                val currentTodayCourses = widgetData.getString("flutter.tomorrow.courses", null) ?: "[]"
+                val currentTomorrowCourses = widgetData.getString("flutter.tomorrow.tomorrowCourses", null) ?: "[]"
+                
+                    for (appWidgetId in appWidgetIds) {
+                        // 通知数据变更
+                        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.today_courses_list)
+                        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.tomorrow_courses_list)
+                    }
             }
         }
     }
@@ -74,35 +80,14 @@ class TomorrowCoursesWidgetProvider : AppWidgetProvider() {
             val tomorrowCoursesJson = widgetData.getString("flutter.tomorrow.tomorrowCourses", null) ?: "[]"
             val tomorrowCourses = parseCourses(tomorrowCoursesJson)
 
-            // 设置今日课程列表
-            if (todayCourses.isEmpty()) {
-                views.setViewVisibility(R.id.today_courses_list, android.view.View.GONE)
-                views.setViewVisibility(R.id.today_empty_view, android.view.View.VISIBLE)
-            } else {
-                views.setViewVisibility(R.id.today_empty_view, android.view.View.GONE)
-                views.setViewVisibility(R.id.today_courses_list, android.view.View.VISIBLE)
+            println("Today courses JSON: $todayCoursesJson")
+            println("Tomorrow courses JSON: $tomorrowCoursesJson")
 
-                val todayIntent = Intent(context, TodayAndTomorrowCourseListRemoteViewsService::class.java)
-                todayIntent.putExtra("courses", todayCoursesJson)
-                todayIntent.putExtra("type", "today")
-                todayIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                views.setRemoteAdapter(R.id.today_courses_list, todayIntent)
-            }
+            // 设置今日课程列表
+            updateCourseList(views, context, todayCourses, todayCoursesJson, "today", R.id.today_courses_list, R.id.today_empty_view, appWidgetId)
 
             // 设置明日课程列表
-            if (tomorrowCourses.isEmpty()) {
-                views.setViewVisibility(R.id.tomorrow_courses_list, android.view.View.GONE)
-                views.setViewVisibility(R.id.tomorrow_empty_view, android.view.View.VISIBLE)
-            } else {
-                views.setViewVisibility(R.id.tomorrow_empty_view, android.view.View.GONE)
-                views.setViewVisibility(R.id.tomorrow_courses_list, android.view.View.VISIBLE)
-
-                val tomorrowIntent = Intent(context, TodayAndTomorrowCourseListRemoteViewsService::class.java)
-                tomorrowIntent.putExtra("courses", tomorrowCoursesJson)
-                tomorrowIntent.putExtra("type", "tomorrow")
-                tomorrowIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                views.setRemoteAdapter(R.id.tomorrow_courses_list, tomorrowIntent)
-            }
+            updateCourseList(views, context, tomorrowCourses, tomorrowCoursesJson, "tomorrow", R.id.tomorrow_courses_list, R.id.tomorrow_empty_view, appWidgetId)
 
             // 设置点击打开应用
             val pendingIntent = PendingIntent.getActivity(
@@ -124,6 +109,33 @@ class TomorrowCoursesWidgetProvider : AppWidgetProvider() {
 
         // 更新小组件
         appWidgetManager.updateAppWidget(appWidgetId, views)
+    }
+
+    // 通用的课程列表更新方法，消除重复代码
+    private fun updateCourseList(
+        views: RemoteViews,
+        context: Context,
+        courses: List<Course>,
+        coursesJson: String,
+        type: String,
+        listViewId: Int,
+        emptyViewId: Int,
+        appWidgetId: Int
+    ) {
+        if (courses.isEmpty()) {
+            views.setViewVisibility(listViewId, android.view.View.GONE)
+            views.setViewVisibility(emptyViewId, android.view.View.VISIBLE)
+        } else {
+            views.setViewVisibility(emptyViewId, android.view.View.GONE)
+            views.setViewVisibility(listViewId, android.view.View.VISIBLE)
+
+            val intent = Intent(context, TodayAndTomorrowCourseListRemoteViewsService::class.java)
+            // 不再传递 coursesJson，让 Factory 自己根据 type 获取对应数据
+            intent.putExtra("type", type)
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            intent.data = Uri.parse("widget://tomorrow_courses?type=" + type + "&appWidgetId=" + appWidgetId)
+            views.setRemoteAdapter(listViewId, intent)
+        }
     }
 
     private fun getCurrentDate(): String {

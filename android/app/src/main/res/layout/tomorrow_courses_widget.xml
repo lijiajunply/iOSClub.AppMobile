@@ -78,7 +78,8 @@
                 android:layout_height="wrap_content"
                 android:text="明日课程"
                 android:textColor="@color/widget_section_text_light"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
             
                 <TextView
                     android:id="@+id/tomorrow_date_text"

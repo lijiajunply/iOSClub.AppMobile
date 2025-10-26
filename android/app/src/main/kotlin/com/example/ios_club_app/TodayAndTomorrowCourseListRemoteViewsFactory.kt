@@ -17,18 +17,15 @@ class TodayAndTomorrowCourseListRemoteViewsFactory(
 
     init {
         type = intent.getStringExtra("type") ?: "today"
-        val coursesJson = intent.getStringExtra("courses") ?: "[]"
-        parseCourses(coursesJson)
+        println("TodayAndTomorrowCourseListRemoteViewsFactory - type: $type")
+        // 不在init中加载数据，避免与onDataSetChanged重复加载
     }
 
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
-        // 当数据集改变时重新从共享数据中获取最新的数据
-        val widgetData = HomeWidgetPlugin.getData(context)
-        val dataKey = if (type == "today") "flutter.tomorrow.courses" else "flutter.tomorrow.tomorrowCourses"
-        val coursesJson = widgetData.getString(dataKey, null) ?: "[]"
-        parseCourses(coursesJson)
+        println("onDataSetChanged - Loaded data for $type")
+        loadData()
     }
 
     override fun onDestroy() {
@@ -58,6 +55,14 @@ class TodayAndTomorrowCourseListRemoteViewsFactory(
     override fun getItemId(position: Int): Long = position.toLong()
 
     override fun hasStableIds(): Boolean = true
+    
+    private fun loadData() {
+        val widgetData = HomeWidgetPlugin.getData(context)
+        val dataKey = if (type == "today") "flutter.tomorrow.courses" else "flutter.tomorrow.tomorrowCourses"
+        val coursesJson = widgetData.getString(dataKey, null) ?: "[]"
+        
+        parseCourses(coursesJson)
+    }
 
     private fun parseCourses(jsonString: String) {
         courses.clear()
@@ -72,6 +77,7 @@ class TodayAndTomorrowCourseListRemoteViewsFactory(
                     teacher = courseObj.optString("teacher", "")
                 ))
             }
+            println("Parsed ${courses.size} courses for type: $type")
         } catch (e: Exception) {
             e.printStackTrace()
         }
