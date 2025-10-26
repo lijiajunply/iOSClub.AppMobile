@@ -1,3 +1,5 @@
+// ignore_for_file: unintended_html_in_doc_comment
+
 import 'dart:convert' show jsonDecode, jsonEncode;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -17,7 +19,7 @@ class EduService {
   /// 刷新所有数据
   /// 该方法会执行登录、获取学期信息、时间信息、课程信息、考试信息和完成情况等操作
   ///
-  /// @return Future<bool> 返回是否刷新成功
+  /// `@return` Future&lt;bool&gt; 返回是否刷新成功
   static Future<bool> refresh() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -49,7 +51,7 @@ class EduService {
   ///
   /// @param username 用户名
   /// @param password 密码
-  /// @return Future<bool> 返回是否登录成功
+  /// @return `Future&lt;bool&gt;` 返回是否登录成功
   static Future<bool> loginFromData(String username, String password) async {
     if (username.isEmpty || password.isEmpty) {
       return false;

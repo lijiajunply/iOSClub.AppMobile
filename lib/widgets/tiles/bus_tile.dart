@@ -96,7 +96,7 @@ class BusTile extends StatelessWidget {
                   else
                     const Text(
                       '今天没有班次',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey,
                       ),

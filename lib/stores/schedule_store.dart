@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/services/data_service.dart';
@@ -58,7 +59,7 @@ class ScheduleStore extends GetxController {
       // 不再需要监听SettingsStore，因为我们直接使用它的值
     } catch (e) {
       // 错误处理
-      print('初始化课表数据出错: $e');
+      debugPrint('初始化课表数据出错: $e');
     }
   }
 

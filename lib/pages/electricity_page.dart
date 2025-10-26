@@ -228,7 +228,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Container(
+      child: SizedBox(
         width: chartWidth,
         height: 200,
         child: BarChart(
