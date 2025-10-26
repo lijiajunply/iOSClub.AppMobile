@@ -49,7 +49,7 @@ class CourseListRemoteViewsFactory(
             val color = CourseColorManager.generateSoftColor(course.title)
             views.setTextViewTextSize(R.id.course_title, android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
             // 设置分隔线颜色
-            views.setBackgroundColor(R.id.course_divider, color)
+            views.setInt(R.id.course_divider, "setBackgroundColor", color)
             
             // 移除了点击事件处理
         }
