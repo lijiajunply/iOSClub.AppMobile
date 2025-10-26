@@ -7,6 +7,8 @@
     <color name="widget_divider_light">#2C2C2E</color>
     <color name="widget_empty_text_primary_light">#FFFFFF</color>
     <color name="widget_empty_text_secondary_light">#98989A</color>
+    <color name="widget_section_text_light">#FFFFFF</color>
+    <color name="widget_empty_text_light">#98989A</color>
     
     <!-- Course item colors -->
     <color name="course_item_background_light">#2C2C2E</color>

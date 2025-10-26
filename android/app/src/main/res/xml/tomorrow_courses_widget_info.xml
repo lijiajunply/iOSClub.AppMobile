@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="300dp"
-    android:minHeight="380dp"
-    android:updatePeriodMillis="0" <!-- 不使用自动更新，通过代码手动更新 -->
+    android:minWidth="200dp"
+    android:minHeight="100dp"
+    android:updatePeriodMillis="86400000"
     android:initialLayout="@layout/tomorrow_courses_widget"
     android:previewImage="@mipmap/ic_launcher"
-    android:resizeMode="vertical"
-    android:widgetCategory="home_screen" />
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:label="近日课程" />
