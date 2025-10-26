@@ -2,6 +2,7 @@ package com.example.ios_club_app
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import es.antonborri.home_widget.HomeWidgetPlugin
@@ -44,6 +45,12 @@ class CourseListRemoteViewsFactory(
             views.setTextViewText(R.id.course_location, course.location)
             views.setTextViewText(R.id.course_teacher, course.teacher)
             
+            // 根据课程名称生成颜色并设置给分隔线
+            val color = CourseColorManager.generateSoftColor(course.title)
+            views.setTextViewTextSize(R.id.course_title, android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
+            // 设置分隔线颜色
+            views.setBackgroundColor(R.id.course_divider, color)
+            
             // 移除了点击事件处理
         }
 
@@ -57,7 +64,6 @@ class CourseListRemoteViewsFactory(
     override fun getItemId(position: Int): Long = position.toLong()
 
     override fun hasStableIds(): Boolean = true
-
     private fun parseCourses(jsonString: String) {
         courses.clear()
         try {
