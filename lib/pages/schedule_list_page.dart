@@ -465,12 +465,12 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       // 根据季节选择雁塔时间
       if (scheduleStore.isYanTa) {
         if (isSummer) {
-          if (index * 2 + 1 < TimeService.YanTaXiaStart.length) {
+          if (index + 1 < TimeService.YanTaXiaStart.length) {
             startTime = TimeService.YanTaXiaStart[index + 1];
             endTime = TimeService.YanTaXiaEnd[index + 1];
           }
         } else {
-          if (index * 2 + 1 < TimeService.YanTaDongStart.length) {
+          if (index + 1 < TimeService.YanTaDongStart.length) {
             startTime = TimeService.YanTaDongStart[index + 1];
             endTime = TimeService.YanTaDongEnd[index + 1];
           }

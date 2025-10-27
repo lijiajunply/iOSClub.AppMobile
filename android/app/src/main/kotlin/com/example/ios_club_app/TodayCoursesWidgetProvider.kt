@@ -55,12 +55,7 @@ class TodayCoursesWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.today_courses_widget)
 
         try {
-            // 设置标题和日期
-            val date = widgetData.getString("flutter.date", getCurrentDate())
-            println("date: $date")
-
             views.setTextViewText(R.id.widget_title, "今日课表")
-            views.setTextViewText(R.id.widget_date, date)
 
             // 解析课程数据
             val coursesJson = widgetData.getString("flutter.courses", null) ?: "[]"

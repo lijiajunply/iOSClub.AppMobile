@@ -146,7 +146,7 @@ class TaskExecutor {
         items.add(ScheduleItem(
           title: course.courseName,
           time:
-          '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.start}',
+          '第${course.startUnit}-${course.endUnit}节 ${time.start}-${time.end}',
           location: course.room,
           teacher: course.teachers.join(','),
         ));

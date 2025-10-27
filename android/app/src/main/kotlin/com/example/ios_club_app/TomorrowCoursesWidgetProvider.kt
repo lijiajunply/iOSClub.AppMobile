@@ -65,11 +65,9 @@ class TomorrowCoursesWidgetProvider : AppWidgetProvider() {
 
         try {
             // 设置标题和日期
-            val date = widgetData.getString("flutter.tomorrow.date", getCurrentDate())
             val tomorrowDate = widgetData.getString("flutter.tomorrow.tomorrowDate", "")
 
             views.setTextViewText(R.id.widget_title, "近日课表")
-            views.setTextViewText(R.id.widget_date, date)
             views.setTextViewText(R.id.tomorrow_date_text, tomorrowDate)
 
             // 解析今日课程数据
@@ -96,8 +94,6 @@ class TomorrowCoursesWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.widget_title, pendingIntent)
-            views.setOnClickPendingIntent(R.id.widget_date, pendingIntent)
-
         } catch (e: Exception) {
             e.printStackTrace()
             // 发生错误时显示默认状态

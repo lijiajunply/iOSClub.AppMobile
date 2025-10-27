@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:text="高等数学"
                 android:textColor="@color/course_title_text_light"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:maxLines="2"
                 android:ellipsize="end"
