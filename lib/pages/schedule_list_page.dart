@@ -215,25 +215,31 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   fontSize: 18,
                                 ),
                               ),
-                              InkWell(
-                                  onTap: () {
-                                    jumpToPage(scheduleStore.currentWeek);
-                                  },
-                                  child: Padding(
-                                      padding: const EdgeInsets.only(top: 4),
-                                      child: Obx(() {
-                                        return Text(
-                                          scheduleStore.currentPage ==
-                                                  scheduleStore.currentWeek
-                                              ? weekText
-                                              : scheduleStore.currentPage <= 0
-                                                  ? '全部课表 $weekText'
-                                                  : '第${scheduleStore.currentPage}周 $weekText',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        );
-                                      })))
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: InkWell(
+                                      onTap: () {
+                                        jumpToPage(scheduleStore.currentWeek);
+                                      },
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Obx(
+                                        () {
+                                          return Text(
+                                            scheduleStore.currentPage ==
+                                                    scheduleStore.currentWeek
+                                                ? weekText
+                                                : scheduleStore.currentPage <= 0
+                                                    ? '全部课表 $weekText'
+                                                    : '第${scheduleStore.currentPage}周 $weekText',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                          );
+                                        },
+                                      ))),
                             ],
                           )
                         ]),
@@ -327,6 +333,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       i1 == weekday && scheduleStore.currentWeek - i == 0
                           ? FontWeight.bold
                           : FontWeight.normal,
+                  fontSize: 13,
                 ))
           ]),
         ),
@@ -548,9 +555,9 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             SizedBox(height: isTablet ? 10 : 18),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.location_on,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 4),
                 Text(
