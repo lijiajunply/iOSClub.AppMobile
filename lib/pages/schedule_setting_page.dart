@@ -91,10 +91,12 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final isDesktop =
         !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
 
-    super.build(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       appBar: ClubAppBar(
         title: ('课程设置'),
@@ -211,18 +213,34 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
             padding: const EdgeInsets.all(16.0),
             sliver: SliverToBoxAdapter(
               child: ClubCard(
-                child: ListTile(
-                  title: const Text('显示课表网格线'),
-                  trailing: CupertinoSwitch(
-                    value: settingsStore.showCourseGrid,
-                    onChanged: (value) {
-                      setState(() {
-                        settingsStore.setShowCourseGrid(value);
-                      });
-                    },
-                  ),
-                ),
-              ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.grid,
+                        size: 20,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.5)
+                            : CupertinoColors.tertiaryLabel,
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          '显示课表网格线',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      CupertinoSwitch(
+                        value: settingsStore.showCourseGrid,
+                        onChanged: (value) {
+                          setState(() {
+                            settingsStore.setShowCourseGrid(value);
+                          });
+                        },
+                      ),
+                    ],
+                  )),
             ),
           ),
           SliverPersistentHeader(

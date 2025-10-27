@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
 import 'package:android_intent_plus/android_intent.dart';
 
@@ -101,6 +102,35 @@ class SettingPage extends StatelessWidget {
                     if (userStore.isLogin) _buildLogoutTile(context, isDark),
                     if (userStore.isLoginMember)
                       _buildLogoutMemberTile(context, isDark),
+                    Obx(() {
+                      SettingsStore settingsStore = SettingsStore.to;
+                      return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          child: Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.grid,
+                                size: 20,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.5)
+                                    : CupertinoColors.tertiaryLabel,
+                              ),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  '显示课表网格线',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              CupertinoSwitch(
+                                value: settingsStore.showCourseGrid,
+                                onChanged: (value) {
+                                  settingsStore.setShowCourseGrid(value);
+                                },
+                              ),
+                            ],
+                          ));
+                    })
                   ]);
                 }),
                 const SizedBox(height: 32),
