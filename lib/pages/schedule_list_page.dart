@@ -11,7 +11,9 @@ import 'package:ios_club_app/pageModels/course_color_manager.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/schedule_store.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/widgets/club_modal_bottom_sheet.dart';
+import 'package:ios_club_app/widgets/dashed_separator.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 
 class ScheduleListPage extends StatefulWidget {
@@ -28,6 +30,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   bool isYanTa = false;
 
   final ScheduleStore scheduleStore = ScheduleStore.to;
+  final SettingsStore settingsStore = SettingsStore.to;
 
   void jumpToPage(int page) {
     scheduleStore.jumpToPage(page);
@@ -292,11 +295,28 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     if (i == 0) {
       for (int i1 = 0; i1 < 7; i1++) {
         weekDays.add(Expanded(
-            child: Center(
-          child: Text(
-            a[i1],
+          child: Stack(
+            children: [
+              // 添加网格线
+              if (settingsStore.showCourseGrid)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: DashedSeparator(
+                      axis: Axis.horizontal,
+                      thickness: 0.5,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                  ),
+                ),
+              Center(
+                child: Text(
+                  a[i1],
+                ),
+              ),
+            ],
           ),
-        )));
+        ));
       }
       return SizedBox(
         height: 50,
@@ -317,25 +337,58 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     for (int i1 = 0; i1 < 7; i1++) {
       weekDays.add(
         Expanded(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            Text(
-              a[i1],
-              style: TextStyle(
-                fontWeight: i1 == weekday && scheduleStore.currentWeek - i == 0
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-              ),
-            ),
-            Text(DateFormat('M/d').format(w.add(Duration(days: i1))),
-                style: TextStyle(
-                  fontWeight:
+          child: Stack(
+            children: [
+              // 添加网格线
+              if (settingsStore.showCourseGrid)
+                Positioned.fill(
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: DashedSeparator(
+                          axis: Axis.horizontal,
+                          thickness: 0.5,
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: DashedSeparator(
+                          axis: Axis.vertical,
+                          thickness: 0.5,
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              SizedBox(width: double.infinity,child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    a[i1],
+                    style: TextStyle(
+                      fontWeight:
                       i1 == weekday && scheduleStore.currentWeek - i == 0
                           ? FontWeight.bold
                           : FontWeight.normal,
-                  fontSize: 13,
-                ))
-          ]),
+                    ),
+                  ),
+                  Text(
+                    DateFormat('M/d').format(w.add(Duration(days: i1))),
+                    style: TextStyle(
+                      fontWeight:
+                      i1 == weekday && scheduleStore.currentWeek - i == 0
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      fontSize: 13,
+                    ),
+                  )
+                ],
+              ),),
+            ],
+          ),
         ),
       );
     }
@@ -370,8 +423,24 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         (index) => SizedBox(
           height: scheduleStore.height,
           width: 50,
-          child: Center(
-            child: _buildTimeCellForPeriod(index + 1),
+          child: Stack(
+            children: [
+              // 添加网格线
+              if (settingsStore.showCourseGrid)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: DashedSeparator(
+                      axis: Axis.horizontal,
+                      thickness: 0.5,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                  ),
+                ),
+              Center(
+                child: _buildTimeCellForPeriod(index + 1),
+              ),
+            ],
           ),
         ),
       ),
@@ -441,6 +510,33 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     return Expanded(
       child: Stack(
         children: [
+          // 添加网格线
+          if (settingsStore.showCourseGrid) ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: DashedSeparator(
+                axis: Axis.vertical,
+                thickness: 0.5,
+                color: Theme.of(context).dividerColor,
+              ),
+            ),
+            ...List.generate(
+              12,
+              (index) => Positioned(
+                top: (index + 1) * scheduleStore.height,
+                left: 0,
+                right: 0,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: DashedSeparator(
+                    axis: Axis.horizontal,
+                    thickness: 0.5,
+                    color: Theme.of(context).dividerColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
           Column(
             children: List.generate(
               12,
@@ -466,16 +562,16 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         left: 0,
         right: 0,
         height: (course.endUnit - course.startUnit + 1) * scheduleStore.height,
-        child: InkWell(
-          onTap: () async {
-            await _showModalBottomSheet(course);
-          },
-          child: Card(
-            margin: const EdgeInsets.all(2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+        child: Container(
+          margin: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
             color: CourseColorManager.generateSoftColor(course.courseName),
+          ),
+          child: InkWell(
+            onTap: () async {
+              await _showModalBottomSheet(course);
+            },
             child: Padding(
               padding: EdgeInsets.all(isTablet ? 8 : 4),
               child: SingleChildScrollView(
@@ -523,11 +619,28 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   }) {
     return SizedBox(
       width: 50,
-      child: Center(
-          child: Text(
-        text,
-        style: style,
-      )),
+      child: Stack(
+        children: [
+          // 添加网格线
+          if (settingsStore.showCourseGrid)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: DashedSeparator(
+                  axis: Axis.horizontal,
+                  thickness: 0.5,
+                  color: Theme.of(context).dividerColor,
+                ),
+              ),
+            ),
+          Center(
+            child: Text(
+              text,
+              style: style,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

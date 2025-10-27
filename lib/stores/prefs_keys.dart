@@ -69,4 +69,7 @@ class PrefsKeys {
   
   /// 字体设置相关
   static const String FONT_FAMILY = 'font_family';
+  
+  /// 课表网格线显示相关
+  static const String SHOW_COURSE_GRID = 'show_course_grid';
 }

@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:android_intent_plus/android_intent.dart';
@@ -13,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/page_header_delegate.dart';
+import 'package:ios_club_app/stores/settings_store.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
   const ScheduleSettingPage({super.key});
@@ -24,6 +26,7 @@ class ScheduleSettingPage extends StatefulWidget {
 class _ScheduleSettingPageState extends State<ScheduleSettingPage>
     with AutomaticKeepAliveClientMixin {
   final CourseStore courseStore = CourseStore.to;
+  final SettingsStore settingsStore = SettingsStore.to;
   List<String> totalList = [];
   List<String> ignoreList = [];
   late List<CourseIgnore> _ignores = [];
@@ -68,8 +71,8 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       final ignores = courseNames
           .map((i) => CourseIgnore(
                 title: i,
-                isCompleted:
-                    courseStore.ignoreCourses.isNotEmpty && courseStore.ignoreCourses.any((x) => x == i),
+                isCompleted: courseStore.ignoreCourses.isNotEmpty &&
+                    courseStore.ignoreCourses.any((x) => x == i),
               ))
           .toList();
 
@@ -199,6 +202,32 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
           SliverPersistentHeader(
             pinned: true,
             delegate: PageHeaderDelegate(
+              title: '课表显示设置',
+              minHeight: 66,
+              maxHeight: 80,
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16.0),
+            sliver: SliverToBoxAdapter(
+              child: ClubCard(
+                child: ListTile(
+                  title: const Text('显示课表网格线'),
+                  trailing: CupertinoSwitch(
+                    value: settingsStore.showCourseGrid,
+                    onChanged: (value) {
+                      setState(() {
+                        settingsStore.setShowCourseGrid(value);
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: PageHeaderDelegate(
               title: '忽略课程',
               minHeight: 66,
               maxHeight: 80,
@@ -233,7 +262,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       } else {
         ignoreList.remove(ignore.title);
       }
-      
+
       // 使用CourseStore更新忽略的课程
       courseStore.setIgnoreCourses(ignoreList);
       return DataService.setIgnore(ignoreList);
@@ -307,7 +336,8 @@ class CourseIgnoreItem extends StatelessWidget {
   final CourseIgnore ignore;
   final Function(CourseIgnore, bool) onChanged;
 
-  const CourseIgnoreItem({super.key,
+  const CourseIgnoreItem({
+    super.key,
     required this.ignore,
     required this.onChanged,
   });

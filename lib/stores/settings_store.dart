@@ -26,6 +26,9 @@ class SettingsStore extends GetxController {
 
   // 字体设置
   final _fontFamily = ''.obs;
+  
+  // 课表网格线显示设置
+  final _showCourseGrid = false.obs;
 
   bool get isRemind => _isRemind.value;
 
@@ -42,6 +45,8 @@ class SettingsStore extends GetxController {
   bool get updateIgnored => _updateIgnored.value;
 
   String get fontFamily => _fontFamily.value;
+  
+  bool get showCourseGrid => _showCourseGrid.value;
 
   @override
   void onInit() {
@@ -62,6 +67,7 @@ class SettingsStore extends GetxController {
         prefs.getBool(PrefsKeys.ENABLE_HAPTIC_FEEDBACK) ?? false;
     _updateIgnored.value = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
     _fontFamily.value = prefs.getString(PrefsKeys.FONT_FAMILY) ?? '';
+    _showCourseGrid.value = prefs.getBool(PrefsKeys.SHOW_COURSE_GRID) ?? false;
   }
 
   /// 设置课程通知开关
@@ -118,5 +124,12 @@ class SettingsStore extends GetxController {
     _fontFamily.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(PrefsKeys.FONT_FAMILY, value);
+  }
+  
+  /// 设置是否显示课表网格线
+  Future<void> setShowCourseGrid(bool value) async {
+    _showCourseGrid.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(PrefsKeys.SHOW_COURSE_GRID, value);
   }
 }
