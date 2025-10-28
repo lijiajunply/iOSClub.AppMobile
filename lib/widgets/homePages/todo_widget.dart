@@ -36,12 +36,9 @@ class _TodoWidgetState extends State<TodoWidget> {
     List<TodoItem> list = [];
     list = await TodoService.getLocalTodoList();
 
-    /*if (isUpdateToClub) {
-      list = await TodoService.getClubTodoList();
-      setState(() {
-        _todos.addAll(list);
-      });
-    }*/
+    // if (isUpdateToClub) {
+    //   list.addAll(await TodoService.getClubTodoList());
+    // }
 
     return list;
   }
