@@ -42,7 +42,7 @@ class _TodoListSettingState extends State<TodoListSetting> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '将待办事务保存至社团官网',
+                    '该服务已暂停', // '将待办事务保存至社团官网',
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark

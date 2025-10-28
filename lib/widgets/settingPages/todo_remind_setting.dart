@@ -32,12 +32,12 @@ class _TodoRemindSettingState extends State<TodoRemindSetting> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '待办事项提醒',
+                    '待办事务提醒',
                     style: TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '在待办事项截止前进行提醒',
+                    '在待办事务截止前进行提醒',
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark

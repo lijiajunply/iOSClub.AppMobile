@@ -77,8 +77,8 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(const AndroidNotificationChannel(
           'ios_club_app_todo_reminders',
-          '待办事项提醒',
-          description: '待办事项截止前提醒',
+          '待办事务提醒',
+          description: '待办事务截止提醒',
           importance: Importance.max,
         ));
 
@@ -157,6 +157,11 @@ class NotificationService {
       return;
     }
 
+    // 确保时区已初始化
+    if (!isInit) {
+      await initialize();
+    }
+
     // 解析截止日期
     DateTime? deadline;
     try {
@@ -193,14 +198,14 @@ class NotificationService {
     try {
       await notifications.zonedSchedule(
         todo.id.hashCode, // 使用唯一ID作为通知ID
-        '待办事项提醒',
-        '您的待办事项 "${todo.title}" 将于${DateFormat('yyyy-MM-dd HH:mm').format(deadline)}到期',
+        '待办事务提醒',
+        '您的待办事务 ${todo.title} 已到期',
         tzNotificationTime,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'ios_club_app_todo_reminders',
-            '待办事项提醒',
-            channelDescription: '待办事项截止前提醒',
+            '待办事务提醒',
+            channelDescription: '待办事务截止提醒',
             importance: Importance.max,
             priority: Priority.high,
             playSound: true,
@@ -222,6 +227,11 @@ class NotificationService {
   /// 更新待办事项提醒
   Future<void> updateTodoNotification(
       TodoItem todo, bool todoRemindEnabled) async {
+    // 确保时区已初始化
+    if (!isInit) {
+      await initialize();
+    }
+    
     // 先取消之前的通知
     await notifications.cancel(todo.id.hashCode);
     // 再根据新状态决定是否重新安排通知
@@ -240,7 +250,7 @@ class NotificationService {
           builder: (context) {
             return AlertDialog(
                 title: Text('请允许使用闹钟'),
-                content: Text('您需要允许使用闹钟才能使用课程通知功能'),
+                content: Text('您需要允许使用闹钟才能使用通知功能'),
                 actions: [
                   TextButton(
                     onPressed: () {
