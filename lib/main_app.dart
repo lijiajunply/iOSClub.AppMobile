@@ -167,7 +167,7 @@ class _MainAppState extends State<MainApp> {
     6: '/Payment',
   };
 
-  GetMaterialApp _app(bool isTablet) => GetMaterialApp(
+  Widget _app(bool isTablet) => GetMaterialApp(
       title: 'iOS Club App',
       debugShowCheckedModeBanner: false,
       defaultTransition: (kIsWeb)

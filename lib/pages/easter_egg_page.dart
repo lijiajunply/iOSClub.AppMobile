@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ios_club_app/widgets/club_app_bar.dart';
 
 class EasterEggPage extends StatelessWidget {
   const EasterEggPage({super.key});
@@ -6,9 +8,8 @@ class EasterEggPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🎉 彩蛋'),
-        centerTitle: true,
+      appBar: ClubAppBar(
+        title: '🎉 彩蛋',
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -41,12 +42,11 @@ class EasterEggPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
-              ElevatedButton.icon(
+              CupertinoButton.filled(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('返回'),
+                child: const Text('返回'),
               ),
             ],
           ),

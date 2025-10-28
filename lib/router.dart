@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:ios_club_app/pages/easter_egg_page.dart';
 import 'package:ios_club_app/pages/helper_page.dart';
 import 'package:ios_club_app/pages/net_page.dart';
 import 'package:ios_club_app/pages/electricity_page.dart';
@@ -72,6 +73,10 @@ class AppRouter {
         GetPage(
             name: '/Helper',
             page: () => HelperPage()
-        )
+        ),
+        GetPage(
+          name: '/Egg',
+          page: () => const EasterEggPage(),
+        ),
       ];
 }

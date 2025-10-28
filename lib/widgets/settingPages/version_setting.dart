@@ -10,8 +10,7 @@ import 'package:ios_club_app/system_services/android/download_service.dart';
 import 'package:ios_club_app/widgets/platform_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../../system_services/check_update_manager.dart';
-import 'easter_egg_page.dart';
+import 'package:ios_club_app/system_services/check_update_manager.dart';
 
 class VersionSetting extends StatefulWidget {
   const VersionSetting({super.key});
@@ -59,11 +58,7 @@ class _VersionSettingState extends State<VersionSetting> {
     
     if (tapCount >= 5) {
       // 显示彩蛋页面
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const EasterEggPage(),
-        ),
-      );
+      Get.toNamed('/Egg');
       
       // 重置计数器
       tapCount = 0;
