@@ -17,7 +17,7 @@ class EasterEggPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                Icons.egg_alt,
+                Icons.egg,
                 size: 100,
                 color: Colors.orange,
               ),
