@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 
@@ -10,7 +9,6 @@ import 'package:ios_club_app/stores/settings_store.dart';
 import 'package:ios_club_app/system_services/notification_service.dart';
 import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/empty_widget.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class TodoWidget extends StatefulWidget {
   const TodoWidget({super.key});
@@ -43,81 +41,11 @@ class _TodoWidgetState extends State<TodoWidget> {
   }
 
   Future<void> scheduleTodoNotification(TodoItem todo) async {
-    // 如果提醒功能未启用，直接返回
-    if (!settingsStore.todoRemindEnabled) return;
-
-    // 如果待办事项已完成，取消提醒
-    if (todo.isCompleted) {
-      await NotificationService.instance.notifications.cancel(todo.id.hashCode);
-      return;
-    }
-
-    // 解析截止日期
-    DateTime? deadline;
-    try {
-      deadline = DateFormat('yyyy-MM-dd HH:mm').parse(todo.deadline);
-    } catch (e) {
-      try {
-        deadline = DateFormat('yyyy-MM-dd').parse(todo.deadline);
-      } catch (e) {
-        try {
-          deadline = DateTime.parse(todo.deadline);
-        } catch (e) {
-          // 如果解析失败，不设置提醒
-          return;
-        }
-      }
-    }
-
-    // 如果没有截止日期或已经过期，不设置提醒
-    if (deadline.isBefore(DateTime.now())) {
-      return;
-    }
-
-    // 设置提醒 - 提前1小时提醒
-    final notificationTime = deadline.subtract(const Duration(hours: 1));
-
-    // 如果计算出的提醒时间已经过去，不设置提醒
-    if (notificationTime.isBefore(DateTime.now())) {
-      return;
-    }
-
-    final tzNotificationTime = tz.TZDateTime.from(notificationTime, tz.local);
-
-    try {
-      await NotificationService.instance.notifications.zonedSchedule(
-        todo.id.hashCode, // 使用唯一ID作为通知ID
-        '待办事项提醒',
-        '您的待办事项 "${todo.title}" 将于${DateFormat('yyyy-MM-dd HH:mm').format(deadline)}到期',
-        tzNotificationTime,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'ios_club_app_todo_reminders',
-            '待办事项提醒',
-            channelDescription: '待办事项截止前提醒',
-            importance: Importance.max,
-            priority: Priority.high,
-            playSound: true,
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-            threadIdentifier: 'ios_club_app_todo_reminders',
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      );
-    } catch (e) {
-      debugPrint('Error scheduling todo notification: $e');
-    }
+    await NotificationService.instance.scheduleTodoNotification(todo, settingsStore.todoRemindEnabled);
   }
 
   Future<void> updateTodoNotification(TodoItem todo) async {
-    // 先取消之前的通知
-    await NotificationService.instance.notifications.cancel(todo.id.hashCode);
-    // 再根据新状态决定是否重新安排通知
-    await scheduleTodoNotification(todo);
+    await NotificationService.instance.updateTodoNotification(todo, settingsStore.todoRemindEnabled);
   }
 
   Future<void> _refreshTodos() {

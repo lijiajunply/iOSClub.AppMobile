@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
+import 'package:ios_club_app/system_services/notification_service.dart';
 
 class TodoRemindSetting extends StatefulWidget {
   const TodoRemindSetting({super.key});
@@ -51,6 +52,9 @@ class _TodoRemindSettingState extends State<TodoRemindSetting> {
                   value: settingsStore.todoRemindEnabled,
                   onChanged: (bool value) async {
                     await settingsStore.setTodoRemindEnabled(value);
+                    if (value && context.mounted) {
+                      await NotificationService.set(context);
+                    }
                   },
                 ))
           ],
