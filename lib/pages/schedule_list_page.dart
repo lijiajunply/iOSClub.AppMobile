@@ -569,6 +569,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             color: CourseColorManager.generateSoftColor(course.courseName),
           ),
           child: InkWell(
+            borderRadius: BorderRadius.circular(8),
             onTap: () async {
               await _showModalBottomSheet(course);
             },

@@ -158,24 +158,32 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                   children: [
                     Text(
                       '没有用？试试手动录入',
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     SizedBox(height: 16),
-                    TextField(
+                    CupertinoTextField(
                       controller: TextEditingController(text: 'https$url'),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor:
-                            Theme.of(context).brightness == Brightness.dark
-                                ? Colors.grey[800] // 暗色模式下的背景
-                                : Colors.grey[100], // 亮色模式下的背景,
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.copy,
-                              color: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.grey[300] // 暗色模式下的图标颜色
-                                  : Colors.grey[700] // 亮色模式下的图标颜色
-                              ),
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[800] : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      suffix: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.copy,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
                           onPressed: () {
                             Clipboard.setData(
                                 ClipboardData(text: 'webcal$url'));
@@ -185,17 +193,12 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                             );
                           },
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
                       ),
                     ),
                     SizedBox(height: 16),
-                    ElevatedButton.icon(
+                    CupertinoButton.filled(
                       onPressed: () => showCalendarGuidanceDialog(context),
-                      label: Text('我不会导入'),
-                      icon: Icon(Icons.help),
+                      child: Text('我不会导入'),
                     )
                   ],
                 ),
