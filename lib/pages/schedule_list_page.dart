@@ -94,7 +94,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             onPressed: () {
               Get.toNamed('/ScheduleSetting');
             },
-            icon: const Icon(Icons.more_vert))
+            icon: const Icon(Icons.settings))
       ],
     );
     final animatedSlide = AnimatedSlide(

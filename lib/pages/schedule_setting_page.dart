@@ -13,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ios_club_app/widgets/club_app_bar.dart';
-import 'package:ios_club_app/widgets/page_header_delegate.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
 
 class ScheduleSettingPage extends StatefulWidget {
@@ -98,64 +97,74 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
-      appBar: ClubAppBar(
-        title: ('课程设置'),
-      ),
-      body: CustomScrollView(
-        cacheExtent: 500,
-        slivers: [
-          if (!isDesktop)
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: PageHeaderDelegate(
-                title: '将课程录入到日历',
-                minHeight: 66,
-                maxHeight: 80,
-                icon: Icon(Icons.open_in_new),
-                onPressed: () async {
-                  if (url == '') {
-                    return;
-                  }
-                  // 尝试启动系统日历
-
-                  if (!kIsWeb && Platform.isAndroid) {
-                    final intent = AndroidIntent(
-                      action: 'android.intent.action.VIEW',
-                      data: 'webcal$url',
-                      type: 'text/calendar',
-                    );
-                    var result = await intent.canResolveActivity();
-                    if (result != null && result) {
-                      await intent.launch();
-                    } else {
-                      // 如果没有找到可以处理该 Intent 的应用，则显示错误消息
-                      if (context.mounted) {
-                        showClubSnackBar(
-                          context,
-                          Text('没有找到日历应用，请手动导入'),
-                        );
-                      }
-                    }
-                    return;
-                  }
-
-                  final Uri uri = Uri.parse('webcal$url');
-
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri);
-                  } else {
-                    throw '无法打开日历应用';
-                  }
-                },
-              ),
-            ),
-          if (!isDesktop)
-            SliverPadding(
-              padding: const EdgeInsets.all(16.0),
-              sliver: SliverToBoxAdapter(
-                child: Column(
+        appBar: ClubAppBar(
+          title: '课程设置',
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isDesktop)
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '将课程录入到日历',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.open_in_new),
+                              onPressed: () async {
+                                if (url == '') {
+                                  return;
+                                }
+                                // 尝试启动系统日历
+
+                                if (!kIsWeb && Platform.isAndroid) {
+                                  final intent = AndroidIntent(
+                                    action: 'android.intent.action.VIEW',
+                                    data: 'webcal$url',
+                                    type: 'text/calendar',
+                                  );
+                                  var result =
+                                      await intent.canResolveActivity();
+                                  if (result != null && result) {
+                                    await intent.launch();
+                                  } else {
+                                    // 如果没有找到可以处理该 Intent 的应用，则显示错误消息
+                                    if (context.mounted) {
+                                      showClubSnackBar(
+                                        context,
+                                        Text('没有找到日历应用，请手动导入'),
+                                      );
+                                    }
+                                  }
+                                  return;
+                                }
+
+                                final Uri uri = Uri.parse('webcal$url');
+
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                } else {
+                                  throw '无法打开日历应用';
+                                }
+                              },
+                            ),
+                          ],
+                        )),
                     Text(
                       '没有用？试试手动录入',
                       style: TextStyle(
@@ -199,80 +208,83 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                     CupertinoButton.filled(
                       onPressed: () => showCalendarGuidanceDialog(context),
                       child: Text('我不会导入'),
-                    )
+                    ),
+                    SizedBox(height: 24),
                   ],
                 ),
-              ),
-            ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: PageHeaderDelegate(
-              title: '课表显示设置',
-              minHeight: 66,
-              maxHeight: 80,
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverToBoxAdapter(
-              child: ClubCard(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.grid,
-                        size: 20,
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.5)
-                            : CupertinoColors.tertiaryLabel,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      '课表显示设置',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          '显示课表网格线',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      CupertinoSwitch(
-                        value: settingsStore.showCourseGrid,
-                        onChanged: (value) {
-                          setState(() {
-                            settingsStore.setShowCourseGrid(value);
-                          });
-                        },
-                      ),
-                    ],
-                  )),
-            ),
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: PageHeaderDelegate(
-              title: '忽略课程',
-              minHeight: 66,
-              maxHeight: 80,
-            ),
-          ),
-          SliverPadding(
-              padding: const EdgeInsets.all(16.0),
-              sliver: SliverToBoxAdapter(
-                child: ClubCard(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: _ignores.length,
-                    itemBuilder: (BuildContext context, int index) =>
-                        CourseIgnoreItem(
-                      ignore: _ignores[index],
-                      onChanged: _handleIgnoreChange,
                     ),
                   ),
-                ),
-              )),
-        ],
-      ),
-    );
+                  ClubCard(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Row(
+                        children: [
+                          Icon(
+                            CupertinoIcons.grid,
+                            size: 20,
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : CupertinoColors.tertiaryLabel,
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              '显示课表网格线',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          CupertinoSwitch(
+                            value: settingsStore.showCourseGrid,
+                            onChanged: (value) {
+                              setState(() {
+                                settingsStore.setShowCourseGrid(value);
+                              });
+                            },
+                          ),
+                        ],
+                      )),
+                  SizedBox(height: 24),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      '忽略课程',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ClubCard(
+                    child: Column(
+                      children: _ignores
+                          .map((ignore) => CourseIgnoreItem(
+                                ignore: ignore,
+                                onChanged: _handleIgnoreChange,
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ));
   }
 
   void _handleIgnoreChange(CourseIgnore ignore, bool value) async {
