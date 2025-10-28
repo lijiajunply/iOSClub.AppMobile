@@ -11,6 +11,7 @@ import 'package:ios_club_app/widgets/platform_dialog.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../system_services/check_update_manager.dart';
+import 'easter_egg_page.dart';
 
 class VersionSetting extends StatefulWidget {
   const VersionSetting({super.key});
@@ -24,6 +25,8 @@ class _VersionSettingState extends State<VersionSetting> {
   late bool isNeedUpdate = false;
   late String version = '';
   late String newVersion = '';
+  int tapCount = 0;
+  DateTime? lastTapTime;
 
   @override
   void initState() {
@@ -42,6 +45,30 @@ class _VersionSettingState extends State<VersionSetting> {
         }
       });
     });
+  }
+
+  void _handleTap() {
+    final now = DateTime.now();
+    if (lastTapTime == null || now.difference(lastTapTime!) > const Duration(seconds: 1)) {
+      // 重置计数器
+      tapCount = 0;
+    }
+    
+    tapCount++;
+    lastTapTime = now;
+    
+    if (tapCount >= 5) {
+      // 显示彩蛋页面
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const EasterEggPage(),
+        ),
+      );
+      
+      // 重置计数器
+      tapCount = 0;
+      lastTapTime = null;
+    }
   }
 
   @override
@@ -86,6 +113,8 @@ class _VersionSettingState extends State<VersionSetting> {
                 ),
               ),
               onTap: () async {
+                _handleTap(); // 处理点击事件
+                
                 if (isNeedUpdate) {
                   final result = await PlatformDialog.showConfirmDialog(
                     context,
