@@ -11,22 +11,6 @@ import 'package:ios_club_app/models/todo_item.dart';
 /// 
 /// 提供本地和云端待办事项的管理功能，包括获取、设置和同步待办事项列表
 class TodoService {
-  /// 获取待办事项列表
-  /// 
-  /// 根据用户设置决定从本地或云端获取待办事项列表
-  /// 如果已更新到俱乐部，则只从俱乐部获取；否则从本地获取并可能合并云端数据
-  static Future<List<TodoItem>> getTodoList() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final isUpdateToClub = prefs.getBool(PrefsKeys.IS_UPDATE_CLUB) ?? false;
-    if (isUpdateToClub) {
-      return await getClubTodoList();
-    }
-    final List<TodoItem> list = [];
-    list.addAll(await getLocalTodoList());
-    //list.addAll(await getClubTodoList());
-    return list;
-  }
 
   /// 保存待办事项列表到本地存储
   /// 
@@ -52,7 +36,6 @@ class TodoService {
   /// 从本地存储获取待办事项列表
   /// 
   /// 从 SharedPreferences 中读取当前用户的待办事项列表
-  /// 同时也会尝试获取云端待办事项列表进行合并
   static Future<List<TodoItem>> getLocalTodoList() async {
     final prefs = await SharedPreferences.getInstance();
     final String? jsonString = prefs.getString(PrefsKeys.TODO_DATA);
@@ -67,7 +50,6 @@ class TodoService {
         for (var i in d) {
           list.add(TodoItem.fromJson(i));
         }
-        list.addAll(await getClubTodoList());
         return list;
       } else {
         return [];

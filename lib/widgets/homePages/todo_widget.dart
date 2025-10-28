@@ -33,8 +33,7 @@ class _TodoWidgetState extends State<TodoWidget> {
     // final prefs = await SharedPreferences.getInstance();
 
     // final isUpdateToClub = prefs.getBool('is_update_club') ?? false;
-    List<TodoItem> list = [];
-    list = await TodoService.getLocalTodoList();
+    List<TodoItem> list = await TodoService.getLocalTodoList();
 
     // if (isUpdateToClub) {
     //   list.addAll(await TodoService.getClubTodoList());
@@ -188,49 +187,46 @@ class _TodoWidgetState extends State<TodoWidget> {
                 );
               } else if (snapshot.hasData) {
                 final todos = snapshot.data!;
-                return todos.isEmpty
-                    ? const ClubCard(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: EmptyWidget(
-                            title: '当前没有待办事务',
-                            icon: Icons.done_all,
-                            subtitle: '点击右上角添加待办事项',
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        // 关键是添加这些属性
-                        shrinkWrap: true,
-                        // 让 ListView 根据内容自适应高度
-                        physics: const NeverScrollableScrollPhysics(),
-                        // 禁用 ListView 自身的滚动
-                        itemCount: todos.length,
-                        itemBuilder: (context, index) {
-                          final todo = todos[index];
-                          DateTime? deadline;
-                          try {
-                            deadline = DateFormat('yyyy-MM-dd HH:mm')
-                                .parse(todo.deadline);
-                          } catch (e) {
-                            try {
-                              deadline =
-                                  DateFormat('yyyy-MM-dd').parse(todo.deadline);
-                            } catch (e) {
+                return ClubCard(
+                    child: todos.isEmpty
+                        ? Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: EmptyWidget(
+                              title: '当前没有待办事务',
+                              icon: Icons.done_all,
+                              subtitle: '点击右上角添加待办事项',
+                            ),
+                          )
+                        : ListView.builder(
+                            // 关键是添加这些属性
+                            shrinkWrap: true,
+                            // 让 ListView 根据内容自适应高度
+                            physics: const NeverScrollableScrollPhysics(),
+                            // 禁用 ListView 自身的滚动
+                            itemCount: todos.length,
+                            itemBuilder: (context, index) {
+                              final todo = todos[index];
+                              DateTime? deadline;
                               try {
-                                deadline = DateTime.parse(todo.deadline);
+                                deadline = DateFormat('yyyy-MM-dd HH:mm')
+                                    .parse(todo.deadline);
                               } catch (e) {
-                                deadline = null;
+                                try {
+                                  deadline = DateFormat('yyyy-MM-dd')
+                                      .parse(todo.deadline);
+                                } catch (e) {
+                                  try {
+                                    deadline = DateTime.parse(todo.deadline);
+                                  } catch (e) {
+                                    deadline = null;
+                                  }
+                                }
                               }
-                            }
-                          }
 
-                          final now = DateTime.now();
-                          final isBefore = deadline?.isBefore(now) ?? false;
+                              final now = DateTime.now();
+                              final isBefore = deadline?.isBefore(now) ?? false;
 
-                          return Column(
-                            children: [
-                              ListTile(
+                              return ListTile(
                                 leading: Checkbox(
                                   value: todo.isCompleted,
                                   onChanged: (value) async {
@@ -308,12 +304,9 @@ class _TodoWidgetState extends State<TodoWidget> {
                                     await _refreshTodos();
                                   }
                                 },
-                              ),
-                              const Divider(),
-                            ],
-                          );
-                        },
-                      );
+                              );
+                            },
+                          ));
               } else {
                 return const ClubCard(
                   child: Padding(
