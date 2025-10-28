@@ -29,6 +29,9 @@ class SettingsStore extends GetxController {
   
   // 课表网格线显示设置
   final _showCourseGrid = false.obs;
+  
+  // 待办事项提醒设置
+  final _todoRemindEnabled = false.obs;
 
   bool get isRemind => _isRemind.value;
 
@@ -47,6 +50,8 @@ class SettingsStore extends GetxController {
   String get fontFamily => _fontFamily.value;
   
   bool get showCourseGrid => _showCourseGrid.value;
+  
+  bool get todoRemindEnabled => _todoRemindEnabled.value;
 
   @override
   void onInit() {
@@ -68,6 +73,7 @@ class SettingsStore extends GetxController {
     _updateIgnored.value = prefs.getBool(PrefsKeys.UPDATE_IGNORED) ?? false;
     _fontFamily.value = prefs.getString(PrefsKeys.FONT_FAMILY) ?? '';
     _showCourseGrid.value = prefs.getBool(PrefsKeys.SHOW_COURSE_GRID) ?? false;
+    _todoRemindEnabled.value = prefs.getBool(PrefsKeys.TODO_REMIND_ENABLED) ?? false;
   }
 
   /// 设置课程通知开关
@@ -131,5 +137,12 @@ class SettingsStore extends GetxController {
     _showCourseGrid.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(PrefsKeys.SHOW_COURSE_GRID, value);
+  }
+  
+  /// 设置是否启用待办事项提醒
+  Future<void> setTodoRemindEnabled(bool value) async {
+    _todoRemindEnabled.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(PrefsKeys.TODO_REMIND_ENABLED, value);
   }
 }

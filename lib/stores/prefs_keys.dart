@@ -72,4 +72,7 @@ class PrefsKeys {
   
   /// 课表网格线显示相关
   static const String SHOW_COURSE_GRID = 'show_course_grid';
+  
+  /// 待办事项提醒相关
+  static const String TODO_REMIND_ENABLED = 'todo_remind_enabled';
 }

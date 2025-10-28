@@ -24,6 +24,7 @@ import '../widgets/settingPages/home_page_setting.dart';
 import '../widgets/settingPages/gradient_icon.dart';
 import '../widgets/settingPages/haptic_feedback_setting.dart';
 import '../widgets/settingPages/font_family_setting.dart';
+import '../widgets/settingPages/todo_remind_setting.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -60,6 +61,7 @@ class SettingPage extends StatelessWidget {
                   if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                     const RemindSetting(),
                   const TodoListSetting(),
+                  const TodoRemindSetting(), // 添加待办提醒设置
                   const HomePageSetting(),
                   if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                     const HapticFeedbackSetting(), // 添加触觉反馈设置

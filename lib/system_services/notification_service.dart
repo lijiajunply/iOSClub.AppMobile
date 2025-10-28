@@ -69,6 +69,16 @@ class NotificationService {
           description: '进行每日课表的课程通知',
           importance: Importance.max,
         ));
+        
+    await notifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(const AndroidNotificationChannel(
+          'ios_club_app_todo_reminders',
+          '待办事项提醒',
+          description: '待办事项截止前提醒',
+          importance: Importance.max,
+        ));
 
     isInit = true;
   }

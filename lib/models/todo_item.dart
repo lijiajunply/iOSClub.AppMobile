@@ -1,4 +1,5 @@
 class TodoItem {
+  String id;
   String title;
   String deadline;
   bool isCompleted;
@@ -9,9 +10,11 @@ class TodoItem {
     required this.title,
     required this.deadline,
     this.isCompleted = false,
-  });
+    String? id,
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'title': title,
         'deadline': deadline,
         'isCompleted': isCompleted,
@@ -21,6 +24,7 @@ class TodoItem {
 
   // 从 Map 创建对象（反序列化）
   factory TodoItem.fromJson(Map<String, dynamic> json) => TodoItem(
+        id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
         title: json['title'],
         deadline: json['deadline'],
         isCompleted: json['isCompleted'] ?? false, // 默认值处理
