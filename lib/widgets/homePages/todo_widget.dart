@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ios_club_app/models/todo_item.dart';
 
@@ -25,9 +24,9 @@ class _TodoWidgetState extends State<TodoWidget> {
   }
 
   Future<void> getTodoList() async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
 
-    final isUpdateToClub = prefs.getBool('is_update_club') ?? false;
+    // final isUpdateToClub = prefs.getBool('is_update_club') ?? false;
     List<TodoItem> list = [];
     _todos.clear();
     list = await TodoService.getLocalTodoList();
@@ -35,12 +34,12 @@ class _TodoWidgetState extends State<TodoWidget> {
       _todos.addAll(list);
     });
 
-    if (isUpdateToClub) {
+    /*if (isUpdateToClub) {
       list = await TodoService.getClubTodoList();
       setState(() {
         _todos.addAll(list);
       });
-    }
+    }*/
   }
 
   @override
@@ -96,9 +95,18 @@ class _TodoWidgetState extends State<TodoWidget> {
                     itemCount: _todos.length,
                     itemBuilder: (context, index) {
                       final todo = _todos[index];
-                      final deadline =
-                          DateFormat('yyyy-MM-dd').parse(todo.deadline);
+                      DateTime? deadline = DateTime.now();
+                      try{
+                        deadline = DateFormat('yyyy-MM-dd').parse(todo.deadline);
+                      }catch (e) {
+                        deadline = DateTime.parse(todo.deadline);
+                      } finally{
+                        deadline = null;
+                      }
+
                       final now = DateTime.now();
+                      final isBefore = deadline?.isBefore(now) ?? false;
+
                       return Column(
                         children: [
                           ListTile(
@@ -120,9 +128,9 @@ class _TodoWidgetState extends State<TodoWidget> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            subtitle: Text('截止日期: ${todo.deadline}',
+                            subtitle: Text('截止日期: ${deadline == null ? '无' : DateFormat('yyyy-MM-dd').format(deadline)}',
                                 style: TextStyle(
-                                  decoration: deadline.isBefore(now)
+                                  decoration: isBefore
                                       ? TextDecoration.lineThrough
                                       : TextDecoration.none,
                                 )),
