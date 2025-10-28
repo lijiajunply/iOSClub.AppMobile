@@ -20,25 +20,21 @@ class TodoWidget extends StatefulWidget {
 }
 
 class _TodoWidgetState extends State<TodoWidget> {
-  final List<TodoItem> _todos = [];
   final SettingsStore settingsStore = Get.find();
+  late Future<List<TodoItem>> _todosFuture;
 
   @override
   void initState() {
     super.initState();
-    getTodoList();
+    _todosFuture = getTodoList();
   }
 
-  Future<void> getTodoList() async {
+  Future<List<TodoItem>> getTodoList() async {
     // final prefs = await SharedPreferences.getInstance();
 
     // final isUpdateToClub = prefs.getBool('is_update_club') ?? false;
     List<TodoItem> list = [];
-    _todos.clear();
     list = await TodoService.getLocalTodoList();
-    setState(() {
-      _todos.addAll(list);
-    });
 
     /*if (isUpdateToClub) {
       list = await TodoService.getClubTodoList();
@@ -46,6 +42,8 @@ class _TodoWidgetState extends State<TodoWidget> {
         _todos.addAll(list);
       });
     }*/
+
+    return list;
   }
 
   Future<void> scheduleTodoNotification(TodoItem todo) async {
@@ -81,7 +79,7 @@ class _TodoWidgetState extends State<TodoWidget> {
     }
 
     // 设置提醒 - 提前1小时提醒
-    final notificationTime = deadline.subtract(Duration(hours: 1));
+    final notificationTime = deadline.subtract(const Duration(hours: 1));
 
     // 如果计算出的提醒时间已经过去，不设置提醒
     if (notificationTime.isBefore(DateTime.now())) {
@@ -96,7 +94,7 @@ class _TodoWidgetState extends State<TodoWidget> {
         '待办事项提醒',
         '您的待办事项 "${todo.title}" 将于${DateFormat('yyyy-MM-dd HH:mm').format(deadline)}到期',
         tzNotificationTime,
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'ios_club_app_todo_reminders',
             '待办事项提醒',
@@ -126,6 +124,13 @@ class _TodoWidgetState extends State<TodoWidget> {
     await scheduleTodoNotification(todo);
   }
 
+  Future<void> _refreshTodos() {
+    setState(() {
+      _todosFuture = getTodoList();
+    });
+    return _todosFuture;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -135,11 +140,11 @@ class _TodoWidgetState extends State<TodoWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     '待办事务',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -150,117 +155,183 @@ class _TodoWidgetState extends State<TodoWidget> {
                       TodoItem? newItem = await showAddTodoDialog(context);
 
                       if (newItem != null) {
-                        setState(() {
-                          _todos.add(newItem);
-                        });
-                        await TodoService.setTodoList(_todos);
+                        // 添加新待办到列表
+                        await TodoService.setTodoList([
+                          ...await _todosFuture,
+                          newItem,
+                        ]);
+
                         // 添加新待办时安排提醒
                         await scheduleTodoNotification(newItem);
+
+                        // 刷新列表
+                        await _refreshTodos();
                       }
                     },
                     icon: const Icon(Icons.add))
               ],
             )),
         Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-            child: _todos.isEmpty
-                ? const ClubCard(
-                    child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+          child: FutureBuilder<List<TodoItem>>(
+            future: _todosFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return const ClubCard(
+                  child: Padding(
                     padding: EdgeInsets.all(16.0),
                     child: EmptyWidget(
-                        title: '当前没有待办事务',
-                        icon: Icons.done_all,
-                        subtitle: '点击右上角添加待办事项'),
-                  ))
-                : ListView.builder(
-                    // 关键是添加这些属性
-                    shrinkWrap: true,
-                    // 让 ListView 根据内容自适应高度
-                    physics: const NeverScrollableScrollPhysics(),
-                    // 禁用 ListView 自身的滚动
-                    itemCount: _todos.length,
-                    itemBuilder: (context, index) {
-                      final todo = _todos[index];
-                      DateTime? deadline;
-                      try {
-                        deadline =
-                            DateFormat('yyyy-MM-dd HH:mm').parse(todo.deadline);
-                      } catch (e) {
-                        try {
-                          deadline =
-                              DateFormat('yyyy-MM-dd').parse(todo.deadline);
-                        } catch (e) {
-                          try {
-                            deadline = DateTime.parse(todo.deadline);
-                          } catch (e) {
-                            deadline = null;
-                          }
-                        }
-                      }
-
-                      final now = DateTime.now();
-                      final isBefore = deadline?.isBefore(now) ?? false;
-
-                      return Column(
-                        children: [
-                          ListTile(
-                            leading: Checkbox(
-                              value: todo.isCompleted,
-                              onChanged: (value) {
-                                setState(() {
-                                  todo.isCompleted = value!;
-                                });
-                                TodoService.setTodoList(_todos);
-                                // 更新提醒状态
-                                updateTodoNotification(todo);
-                              },
-                            ),
-                            title: Text(
-                              todo.title,
-                              style: TextStyle(
-                                decoration: todo.isCompleted
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(
-                                '截止日期: ${deadline == null ? '无' : DateFormat('yyyy-MM-dd HH:mm').format(deadline)}',
-                                style: TextStyle(
-                                  decoration: isBefore
-                                      ? TextDecoration.lineThrough
-                                      : TextDecoration.none,
-                                )),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: () async {
-                                setState(() {
-                                  _todos.removeAt(index);
-                                });
-                                // 删除时取消提醒
-                                await NotificationService.instance.notifications
-                                    .cancel(todo.id.hashCode);
-                                await TodoService.setTodoList(_todos);
-                              },
-                            ),
-                            onTap: () async {
-                              var result =
-                                  await showAddTodoDialog(context, todo: todo);
-                              if (result != null) {
-                                setState(() {
-                                  _todos[index] = result;
-                                });
-                                await TodoService.setTodoList(_todos);
-                                // 编辑时更新提醒
-                                await updateTodoNotification(result);
-                              }
-                            },
+                      title: '加载失败',
+                      icon: Icons.error,
+                      subtitle: '无法加载待办事项',
+                    ),
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                final todos = snapshot.data!;
+                return todos.isEmpty
+                    ? const ClubCard(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: EmptyWidget(
+                            title: '当前没有待办事务',
+                            icon: Icons.done_all,
+                            subtitle: '点击右上角添加待办事项',
                           ),
-                          const Divider(),
-                        ],
+                        ),
+                      )
+                    : ListView.builder(
+                        // 关键是添加这些属性
+                        shrinkWrap: true,
+                        // 让 ListView 根据内容自适应高度
+                        physics: const NeverScrollableScrollPhysics(),
+                        // 禁用 ListView 自身的滚动
+                        itemCount: todos.length,
+                        itemBuilder: (context, index) {
+                          final todo = todos[index];
+                          DateTime? deadline;
+                          try {
+                            deadline = DateFormat('yyyy-MM-dd HH:mm')
+                                .parse(todo.deadline);
+                          } catch (e) {
+                            try {
+                              deadline =
+                                  DateFormat('yyyy-MM-dd').parse(todo.deadline);
+                            } catch (e) {
+                              try {
+                                deadline = DateTime.parse(todo.deadline);
+                              } catch (e) {
+                                deadline = null;
+                              }
+                            }
+                          }
+
+                          final now = DateTime.now();
+                          final isBefore = deadline?.isBefore(now) ?? false;
+
+                          return Column(
+                            children: [
+                              ListTile(
+                                leading: Checkbox(
+                                  value: todo.isCompleted,
+                                  onChanged: (value) async {
+                                    final updatedTodo = TodoItem(
+                                      title: todo.title,
+                                      deadline: todo.deadline,
+                                      id: todo.id,
+                                      isCompleted: value!,
+                                    );
+
+                                    // 更新本地存储
+                                    final updatedTodos =
+                                        List<TodoItem>.from(todos);
+                                    updatedTodos[index] = updatedTodo;
+                                    await TodoService.setTodoList(updatedTodos);
+
+                                    // 更新提醒状态
+                                    await updateTodoNotification(updatedTodo);
+
+                                    // 刷新列表
+                                    await _refreshTodos();
+                                  },
+                                ),
+                                title: Text(
+                                  todo.title,
+                                  style: TextStyle(
+                                    decoration: todo.isCompleted
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                    '截止日期: ${deadline == null ? '无' : DateFormat('yyyy-MM-dd HH:mm').format(deadline)}',
+                                    style: TextStyle(
+                                      decoration: isBefore
+                                          ? TextDecoration.lineThrough
+                                          : TextDecoration.none,
+                                    )),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete_outline),
+                                  onPressed: () async {
+                                    // 从列表中移除
+                                    final updatedTodos =
+                                        List<TodoItem>.from(todos)
+                                          ..removeAt(index);
+                                    await TodoService.setTodoList(updatedTodos);
+
+                                    // 删除时取消提醒
+                                    await NotificationService
+                                        .instance.notifications
+                                        .cancel(todo.id.hashCode);
+
+                                    // 刷新列表
+                                    await _refreshTodos();
+                                  },
+                                ),
+                                onTap: () async {
+                                  var result = await showAddTodoDialog(
+                                    context,
+                                    todo: todo,
+                                  );
+
+                                  if (result != null) {
+                                    // 更新待办事项
+                                    final updatedTodos =
+                                        List<TodoItem>.from(todos);
+                                    updatedTodos[index] = result;
+                                    await TodoService.setTodoList(updatedTodos);
+
+                                    // 编辑时更新提醒
+                                    await updateTodoNotification(result);
+
+                                    // 刷新列表
+                                    await _refreshTodos();
+                                  }
+                                },
+                              ),
+                              const Divider(),
+                            ],
+                          );
+                        },
                       );
-                    },
-                  ))
+              } else {
+                return const ClubCard(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: EmptyWidget(
+                      title: '当前没有待办事务',
+                      icon: Icons.done_all,
+                      subtitle: '点击右上角添加待办事项',
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        )
       ],
     );
   }
