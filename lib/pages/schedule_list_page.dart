@@ -360,41 +360,32 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                       ),
                     )
                   : Expanded(
-                      child: Stack(
-                        children: [
-                          // 背景层
-                          Positioned.fill(
-                            child: backgroundDecoration,
-                          ),
-                          // 内容层
-                          PageView.builder(
-                            controller: pageController,
-                            onPageChanged: (index) {
-                              scheduleStore.setCurrentPage(index);
-                            },
-                            itemCount: scheduleStore.allCourses.length,
-                            itemBuilder: (BuildContext context, int i) {
-                              final courses = scheduleStore.allCourses[i];
-                              return Column(
-                                children: [
-                                  _buildWeekHeader(i),
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      // 添加垂直方向的滚动
-                                      scrollDirection: Axis.vertical,
-                                      child: SizedBox(
-                                        // 设置固定高度确保内容可以完整显示
-                                        height: scheduleStore.height *
-                                            12, // 12节课的总高度
-                                        child: _buildScheduleGrid(courses),
-                                      ),
-                                    ),
+                      child: PageView.builder(
+                        controller: pageController,
+                        onPageChanged: (index) {
+                          scheduleStore.setCurrentPage(index);
+                        },
+                        itemCount: scheduleStore.allCourses.length,
+                        itemBuilder: (BuildContext context, int i) {
+                          final courses = scheduleStore.allCourses[i];
+                          return Column(
+                            children: [
+                              _buildWeekHeader(i),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  // 添加垂直方向的滚动
+                                  scrollDirection: Axis.vertical,
+                                  child: SizedBox(
+                                    // 设置固定高度确保内容可以完整显示
+                                    height: scheduleStore.height *
+                                        12, // 12节课的总高度
+                                    child: _buildScheduleGrid(courses),
                                   ),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ))
             ],

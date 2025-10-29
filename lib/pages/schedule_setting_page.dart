@@ -255,49 +255,71 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                           ),
                         ],
                       )),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 24),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      '课表背景设置',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   ClubCard(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '课表背景设置',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildBackgroundOption('无背景', ''),
-                        _buildBackgroundOption('渐变背景1', 'gradient1'),
-                        _buildBackgroundOption('渐变背景2', 'gradient2'),
-                        _buildBackgroundOption('自定义图片', 'custom'),
-                        if (settingsStore.scheduleBackground == 'custom')
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    settingsStore.customBackgroundImage.isEmpty
-                                        ? '未选择图片'
-                                        : settingsStore.customBackgroundImage,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
+                        RadioGroup<String>(
+                          groupValue: settingsStore.scheduleBackground,
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                settingsStore.setScheduleBackground(newValue);
+                              });
+                            }
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildBackgroundOption('无背景', ''),
+                              _buildBackgroundOption('深蓝色渐变', 'gradient1'),
+                              _buildBackgroundOption('粉红色渐变', 'gradient2'),
+                              _buildBackgroundOption('自定义图片', 'custom'),
+                              if (settingsStore.scheduleBackground == 'custom')
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          settingsStore
+                                                  .customBackgroundImage.isEmpty
+                                              ? '未选择图片'
+                                              : settingsStore
+                                                  .customBackgroundImage,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.folder),
+                                        onPressed: _pickCustomBackgroundImage,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.folder),
-                                  onPressed: _pickCustomBackgroundImage,
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -335,39 +357,14 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
   }
 
   Widget _buildBackgroundOption(String title, String value) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              Radio<String>(
-                value: value,
-                groupValue: settingsStore.scheduleBackground,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      settingsStore.setScheduleBackground(newValue);
-                    });
-                  }
-                },
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-        ),
-        onTap: () {
-          setState(() {
-            settingsStore.setScheduleBackground(value);
-          });
-        },
+    return RadioListTile<String>(
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
       ),
+      value: value,
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16),
     );
   }
 
@@ -381,7 +378,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
       if (result != null) {
         String filePath = result.files.single.path ?? result.files.single.name;
         settingsStore.setCustomBackgroundImage(filePath);
-        
+
         if (context.mounted) {
           showClubSnackBar(
             context,
