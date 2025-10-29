@@ -11,6 +11,7 @@ import 'package:ios_club_app/widgets/club_card.dart';
 import 'package:ios_club_app/widgets/show_club_snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
@@ -254,6 +255,52 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
                           ),
                         ],
                       )),
+                  const SizedBox(height: 12),
+                  ClubCard(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '课表背景设置',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildBackgroundOption('无背景', ''),
+                        _buildBackgroundOption('渐变背景1', 'gradient1'),
+                        _buildBackgroundOption('渐变背景2', 'gradient2'),
+                        _buildBackgroundOption('自定义图片', 'custom'),
+                        if (settingsStore.scheduleBackground == 'custom')
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    settingsStore.customBackgroundImage.isEmpty
+                                        ? '未选择图片'
+                                        : settingsStore.customBackgroundImage,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.folder),
+                                  onPressed: _pickCustomBackgroundImage,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 24),
                 ],
               ),
@@ -285,6 +332,72 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
             ],
           ),
         ));
+  }
+
+  Widget _buildBackgroundOption(String title, String value) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Radio<String>(
+                value: value,
+                groupValue: settingsStore.scheduleBackground,
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      settingsStore.setScheduleBackground(newValue);
+                    });
+                  }
+                },
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+        onTap: () {
+          setState(() {
+            settingsStore.setScheduleBackground(value);
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> _pickCustomBackgroundImage() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        withData: false, // 不直接读取数据，只获取路径
+      );
+
+      if (result != null) {
+        String filePath = result.files.single.path ?? result.files.single.name;
+        settingsStore.setCustomBackgroundImage(filePath);
+        
+        if (context.mounted) {
+          showClubSnackBar(
+            context,
+            const Text('背景图片设置成功'),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showClubSnackBar(
+          context,
+          const Text('选择图片失败'),
+        );
+      }
+      debugPrint('选择背景图片失败: $e');
+    }
   }
 
   void _handleIgnoreChange(CourseIgnore ignore, bool value) async {

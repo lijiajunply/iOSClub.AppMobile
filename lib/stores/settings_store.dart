@@ -33,6 +33,10 @@ class SettingsStore extends GetxController {
   // 待办事项提醒设置
   final _todoRemindEnabled = false.obs;
 
+  // 课表背景设置
+  final _scheduleBackground = ''.obs; // 空字符串表示无背景，其他值表示不同背景
+  final _customBackgroundImage = ''.obs; // 自定义背景图片路径
+
   bool get isRemind => _isRemind.value;
 
   int get remindTime => _remindTime.value;
@@ -52,6 +56,10 @@ class SettingsStore extends GetxController {
   bool get showCourseGrid => _showCourseGrid.value;
   
   bool get todoRemindEnabled => _todoRemindEnabled.value;
+
+  String get scheduleBackground => _scheduleBackground.value;
+  
+  String get customBackgroundImage => _customBackgroundImage.value;
 
   @override
   void onInit() {
@@ -74,6 +82,8 @@ class SettingsStore extends GetxController {
     _fontFamily.value = prefs.getString(PrefsKeys.FONT_FAMILY) ?? '';
     _showCourseGrid.value = prefs.getBool(PrefsKeys.SHOW_COURSE_GRID) ?? false;
     _todoRemindEnabled.value = prefs.getBool(PrefsKeys.TODO_REMIND_ENABLED) ?? false;
+    _scheduleBackground.value = prefs.getString(PrefsKeys.SCHEDULE_BACKGROUND) ?? '';
+    _customBackgroundImage.value = prefs.getString(PrefsKeys.CUSTOM_BACKGROUND_IMAGE) ?? '';
   }
 
   /// 设置课程通知开关
@@ -144,5 +154,19 @@ class SettingsStore extends GetxController {
     _todoRemindEnabled.value = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(PrefsKeys.TODO_REMIND_ENABLED, value);
+  }
+  
+  /// 设置课表背景
+  Future<void> setScheduleBackground(String value) async {
+    _scheduleBackground.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(PrefsKeys.SCHEDULE_BACKGROUND, value);
+  }
+  
+  /// 设置自定义背景图片路径
+  Future<void> setCustomBackgroundImage(String value) async {
+    _customBackgroundImage.value = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(PrefsKeys.CUSTOM_BACKGROUND_IMAGE, value);
   }
 }

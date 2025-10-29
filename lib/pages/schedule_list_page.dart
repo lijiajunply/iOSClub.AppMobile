@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, File;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/cupertino.dart';
@@ -71,6 +71,94 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   Widget build(BuildContext context) {
     final isDesktop =
         !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+
+    // 构建背景装饰
+    Widget backgroundDecoration = const SizedBox.shrink();
+    switch (settingsStore.scheduleBackground) {
+      case 'gradient1':
+        backgroundDecoration = Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF667eea),
+                Color(0xFF764ba2),
+              ],
+            ),
+          ),
+        );
+        break;
+      case 'gradient2':
+        backgroundDecoration = Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFf093fb),
+                Color(0xFFf5576c),
+              ],
+            ),
+          ),
+        );
+        break;
+      case 'custom':
+        if (settingsStore.customBackgroundImage.isNotEmpty) {
+          // 检查文件是否存在
+          final file = File(settingsStore.customBackgroundImage);
+          if (file.existsSync()) {
+            backgroundDecoration = Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: FileImage(file),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          } else {
+            // 文件不存在时显示默认背景
+            backgroundDecoration = Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFa8edea),
+                    Color(0xFFfed6e3),
+                  ],
+                ),
+              ),
+            );
+            
+            // 显示提示信息
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showClubSnackBar(
+                context,
+                const Text('自定义背景图片不存在，请重新选择'),
+              );
+            });
+          }
+        } else {
+          // 没有设置自定义图片时显示默认背景
+          backgroundDecoration = Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFa8edea),
+                  Color(0xFFfed6e3),
+                ],
+              ),
+            ),
+          );
+        }
+        break;
+      default:
+        // 无背景，保持默认
+        backgroundDecoration = const SizedBox.shrink();
+    }
 
     final setting = Row(
       children: [
@@ -157,136 +245,163 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         : '当前为第${scheduleStore.currentWeek}周';
 
     return Scaffold(
-        body: Column(
-      children: [
-        Padding(
-            padding: const EdgeInsets.all(8),
-            child: isDesktop
-                ? Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                              child: TextButton(
-                                  onPressed: () => jumpToPage(
-                                      (scheduleStore.currentPage - 1).ceil()),
-                                  child: const Text('上一周'))),
-                          Expanded(
-                              child: Center(
-                            child: Obx(() => Text(
-                                  scheduleStore.currentPage <= 0
-                                      ? '全部课表'
-                                      : '第 ${scheduleStore.currentPage} 周 ${scheduleStore.currentPage == scheduleStore.currentWeek ? "(本周)" : ""}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
+      body: Stack(
+        children: [
+          // 背景层
+          Positioned.fill(
+            child: backgroundDecoration,
+          ),
+          // 内容层
+          Column(
+            children: [
+              Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: isDesktop
+                      ? Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                    child: TextButton(
+                                        onPressed: () => jumpToPage(
+                                            (scheduleStore.currentPage - 1)
+                                                .ceil()),
+                                        child: const Text('上一周'))),
+                                Expanded(
+                                    child: Center(
+                                  child: Obx(() => Text(
+                                        scheduleStore.currentPage <= 0
+                                            ? '全部课表'
+                                            : '第 ${scheduleStore.currentPage} 周 ${scheduleStore.currentPage == scheduleStore.currentWeek ? "(本周)" : ""}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      )),
                                 )),
-                          )),
-                          Expanded(
-                              child: TextButton(
-                                  onPressed: () => jumpToPage(
-                                      (pageController.page! + 1).ceil()),
-                                  child: const Text('下一周'))),
+                                Expanded(
+                                    child: TextButton(
+                                        onPressed: () => jumpToPage(
+                                            (pageController.page! + 1).ceil()),
+                                        child: const Text('下一周'))),
+                              ],
+                            ),
+                            Row(children: [
+                              Expanded(child: const SizedBox()),
+                              Expanded(child: animatedSlide),
+                              Expanded(
+                                  child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [setting],
+                              ))
+                            ])
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 8),
+                              child: Row(children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat('yyyy年M月d日')
+                                          .format(DateTime.now()),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: InkWell(
+                                            onTap: () {
+                                              jumpToPage(
+                                                  scheduleStore.currentWeek);
+                                            },
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                            child: Obx(
+                                              () {
+                                                return Text(
+                                                  scheduleStore.currentPage ==
+                                                          scheduleStore
+                                                              .currentWeek
+                                                      ? weekText
+                                                      : scheduleStore
+                                                                  .currentPage <=
+                                                              0
+                                                          ? '全部课表 $weekText'
+                                                          : '第${scheduleStore.currentPage}周 $weekText',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                  ),
+                                                );
+                                              },
+                                            ))),
+                                  ],
+                                )
+                              ]),
+                            ),
+                            setting
+                          ],
+                        )),
+              if (!isDesktop) animatedSlide,
+              Obx(() => scheduleStore.isLoading
+                  ? const Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : Expanded(
+                      child: Stack(
+                        children: [
+                          // 背景层
+                          Positioned.fill(
+                            child: backgroundDecoration,
+                          ),
+                          // 内容层
+                          PageView.builder(
+                            controller: pageController,
+                            onPageChanged: (index) {
+                              scheduleStore.setCurrentPage(index);
+                            },
+                            itemCount: scheduleStore.allCourses.length,
+                            itemBuilder: (BuildContext context, int i) {
+                              final courses = scheduleStore.allCourses[i];
+                              return Column(
+                                children: [
+                                  _buildWeekHeader(i),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      // 添加垂直方向的滚动
+                                      scrollDirection: Axis.vertical,
+                                      child: SizedBox(
+                                        // 设置固定高度确保内容可以完整显示
+                                        height: scheduleStore.height *
+                                            12, // 12节课的总高度
+                                        child: _buildScheduleGrid(courses),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ],
                       ),
-                      Row(children: [
-                        Expanded(child: const SizedBox()),
-                        Expanded(child: animatedSlide),
-                        Expanded(
-                            child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [setting],
-                        ))
-                      ])
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                        child: Row(children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                DateFormat('yyyy年M月d日').format(DateTime.now()),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: InkWell(
-                                      onTap: () {
-                                        jumpToPage(scheduleStore.currentWeek);
-                                      },
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Obx(
-                                        () {
-                                          return Text(
-                                            scheduleStore.currentPage ==
-                                                    scheduleStore.currentWeek
-                                                ? weekText
-                                                : scheduleStore.currentPage <= 0
-                                                    ? '全部课表 $weekText'
-                                                    : '第${scheduleStore.currentPage}周 $weekText',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            ),
-                                          );
-                                        },
-                                      ))),
-                            ],
-                          )
-                        ]),
-                      ),
-                      setting
-                    ],
-                  )),
-        if (!isDesktop) animatedSlide,
-        Obx(() => scheduleStore.isLoading
-            ? const Expanded(
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            : Expanded(
-                child: PageView.builder(
-                  controller: pageController,
-                  onPageChanged: (index) {
-                    scheduleStore.setCurrentPage(index);
-                  },
-                  itemCount: scheduleStore.allCourses.length,
-                  itemBuilder: (BuildContext context, int i) {
-                    final courses = scheduleStore.allCourses[i];
-                    return Column(
-                      children: [
-                        _buildWeekHeader(i),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            // 添加垂直方向的滚动
-                            scrollDirection: Axis.vertical,
-                            child: SizedBox(
-                              // 设置固定高度确保内容可以完整显示
-                              height: scheduleStore.height * 12, // 12节课的总高度
-                              child: _buildScheduleGrid(courses),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ))
-      ],
-    ));
+                    ))
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildWeekHeader(int i) {
@@ -363,30 +478,33 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     ],
                   ),
                 ),
-              SizedBox(width: double.infinity,child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    a[i1],
-                    style: TextStyle(
-                      fontWeight:
-                      i1 == weekday && scheduleStore.currentWeek - i == 0
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+              SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      a[i1],
+                      style: TextStyle(
+                        fontWeight:
+                            i1 == weekday && scheduleStore.currentWeek - i == 0
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                      ),
                     ),
-                  ),
-                  Text(
-                    DateFormat('M/d').format(w.add(Duration(days: i1))),
-                    style: TextStyle(
-                      fontWeight:
-                      i1 == weekday && scheduleStore.currentWeek - i == 0
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      fontSize: 13,
-                    ),
-                  )
-                ],
-              ),),
+                    Text(
+                      DateFormat('M/d').format(w.add(Duration(days: i1))),
+                      style: TextStyle(
+                        fontWeight:
+                            i1 == weekday && scheduleStore.currentWeek - i == 0
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                        fontSize: 13,
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ],
           ),
         ),
