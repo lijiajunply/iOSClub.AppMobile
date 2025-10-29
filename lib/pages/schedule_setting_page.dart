@@ -93,7 +93,7 @@ class _ScheduleSettingPageState extends State<ScheduleSettingPage>
   Widget build(BuildContext context) {
     super.build(context);
     final isDesktop =
-        !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
+        !kIsWeb && (Platform.isWindows || Platform.isLinux);
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
