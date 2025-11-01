@@ -251,9 +251,12 @@ class DataService {
     var tomorrowWeekday = now.weekday + 1;
     
     // 处理跨周情况
-    if (now.weekday == 7) { // 如果今天是周日
-      weekTomorrow++;
-      tomorrowWeekday = 1; // 明天是周一
+    if (tomorrowWeekday >= 7) { // 如果今天是周六或者周日
+      weekTomorrow++; //周日是一周的第一天
+    }
+
+    if (tomorrowWeekday > 7) { // 如果今天是周日
+      tomorrowWeekday = 1; // 明天为周一
     }
     
     // 获取明天的课程
