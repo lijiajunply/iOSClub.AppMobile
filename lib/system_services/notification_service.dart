@@ -296,7 +296,7 @@ class NotificationService {
     }
   }
 
-  static Future<void> toList(List<CourseModel> a) async {
+  static Future<void> remindList(List<CourseModel> a) async {
     if (!NotificationService.instance.isInit) {
       await NotificationService.instance.initialize();
     }

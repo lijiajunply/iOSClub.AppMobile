@@ -51,7 +51,7 @@ class TaskExecutor {
         );
 
         if (result.$2.isNotEmpty) {
-          await NotificationService.toList(result.$2);
+          await NotificationService.remindList(result.$2);
 
           // 记录提醒时间（使用ISO格式字符串）
           await prefs.setString(
