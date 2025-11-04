@@ -660,90 +660,152 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     );
   }
 
-  List<Widget> _buildConflictAwareCourseCards(int weekDay, List<CourseModel> courses) {
+  List<Widget> _buildConflictAwareCourseCards(
+      int weekDay, List<CourseModel> courses) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     // 获取当天的课程
-    final dayCourses = courses.where((course) => course.weekday == weekDay).toList();
-    
+    final dayCourses =
+        courses.where((course) => course.weekday == weekDay).toList();
+
     // 按开始时间排序
     dayCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
-    
+
     // 处理冲突的课程
     final conflictGroups = _groupConflictingCourses(dayCourses);
-    
+
     // 构建课程卡片
     final widgets = <Widget>[];
     for (final group in conflictGroups) {
       if (group.length == 1) {
         // 没有冲突的课程
-        widgets.add(_buildCourseCard(group.first));
+        widgets.add(_buildCourseCard(group.first, screenWidth));
       } else {
         // 有冲突的课程，需要分开展示
-        widgets.addAll(_buildConflictingCourseCards(group));
+        widgets.addAll(_buildConflictingCourseCards(group, screenWidth));
       }
     }
-    
+
     return widgets;
   }
-  
+
   List<List<CourseModel>> _groupConflictingCourses(List<CourseModel> courses) {
     final groups = <List<CourseModel>>[];
     final used = List<bool>.filled(courses.length, false);
-    
+
     for (int i = 0; i < courses.length; i++) {
       if (used[i]) continue;
-      
+
       final group = <CourseModel>[courses[i]];
       used[i] = true;
-      
+
       for (int j = i + 1; j < courses.length; j++) {
         if (used[j]) continue;
-        
+
         // 检查是否有时间冲突
         if (_hasTimeConflict(courses[i], courses[j])) {
           group.add(courses[j]);
           used[j] = true;
         }
       }
-      
+
       groups.add(group);
     }
-    
+
     return groups;
   }
-  
+
   bool _hasTimeConflict(CourseModel a, CourseModel b) {
     // 检查两个课程是否有时间重叠
     return (a.startUnit <= b.endUnit && a.endUnit >= b.startUnit);
   }
-  
-  List<Widget> _buildConflictingCourseCards(List<CourseModel> conflictingCourses) {
+
+  List<Widget> _buildConflictingCourseCards(
+      List<CourseModel> conflictingCourses, double screenWidth) {
+    if (screenWidth < 600) {
+      return [
+        _buildConflictingCourse(conflictingCourses, screenWidth),
+      ];
+    }
+
     final widgets = <Widget>[];
     final cardCount = conflictingCourses.length;
-    
+
     for (int i = 0; i < cardCount; i++) {
-      widgets.add(_buildConflictingCourseCard(conflictingCourses[i], i, cardCount));
+      widgets.add(_buildConflictingCourseCard(
+          conflictingCourses[i], i, cardCount, screenWidth));
     }
-    
+
     return widgets;
   }
-  
-  Widget _buildConflictingCourseCard(CourseModel course, int index, int totalCount) {
-    final screenWidth = MediaQuery.of(context).size.width;
+
+  Widget _buildConflictingCourse(
+      List<CourseModel> courses, double screenWidth) {
     // 判断是否为平板布局（宽度大于600）
+    final isTablet = screenWidth > 600;
+    var top = 200;
+    var end = 0;
+    for (var course in courses) {
+      if (course.endUnit > end) {
+        end = course.endUnit;
+      }
+      if (course.startUnit < top) {
+        top = course.startUnit;
+      }
+    }
+
+    final course = courses.first;
+
+    return Positioned(
+        top: (top - 1) * scheduleStore.height,
+        left: 0,
+        right: 0,
+        height: (end - top + 1) * scheduleStore.height,
+        child: Container(
+          margin: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: CourseColorManager.generateSoftColor(course.courseName),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () async {
+              await _showModalBottomSheetFromList(courses);
+            },
+            child: Padding(
+              padding: EdgeInsets.all(isTablet ? 8 : 4),
+              child: Center(
+                child: Text('当前时间存在多个冲突课程',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.white70,
+                    )),
+              ),
+            ),
+          ),
+        ));
+  }
+
+  Widget _buildConflictingCourseCard(
+      CourseModel course, int index, int totalCount, double screenWidth) {
     final isTablet = screenWidth > 600;
 
     var width = screenWidth;
-    if (isTablet && (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isWindows)){
-      width = screenWidth - 244;
-    }else if (!kIsWeb && Platform.isMacOS && screenWidth > 500){
+    if (isTablet &&
+        (kIsWeb ||
+            Platform.isAndroid ||
+            Platform.isIOS ||
+            Platform.isWindows)) {
+      width = screenWidth - 300;
+    } else if (!kIsWeb && Platform.isMacOS && screenWidth > 500) {
       width = screenWidth - 250;
-    }else{
+    } else {
       width = screenWidth - 60;
     }
-    
+
     // 计算每个日期列的宽度
     final dayColumnWidth = width / 7;
-    
+
     return Positioned(
         top: (course.startUnit - 1) * scheduleStore.height,
         left: index * (dayColumnWidth / totalCount),
@@ -801,8 +863,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         ));
   }
 
-  Widget _buildCourseCard(CourseModel course) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  Widget _buildCourseCard(CourseModel course, double screenWidth) {
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
     return Positioned(
@@ -975,6 +1036,89 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     }
 
     return showClubModalBottomSheet(context, content);
+  }
+
+  Future<void> _showModalBottomSheetFromList(List<CourseModel> courses) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    final weekdayName = ['日', '一', '二', '三', '四', '五', '六'];
+
+    var content = Container(
+        padding: EdgeInsets.symmetric(
+            vertical: isTablet ? 20 : 16, horizontal: isTablet ? 24 : 16),
+        child: ListView.separated(
+            itemCount: courses.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (context, index) {
+              return const Divider();
+            },
+            itemBuilder: (context, index) {
+              var course = courses[index];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    course.courseName,
+                    style: TextStyle(
+                      fontSize: isTablet ? 22 : 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    Icons.location_on,
+                    course.room,
+                    context,
+                    Colors.grey,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    Icons.person,
+                    course.teachers.join(', '),
+                    context,
+                    Colors.redAccent,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInfoRow(
+                    Icons.calendar_today,
+                    '${CourseModel.formatWeekRanges(course.weekIndexes)}周 '
+                    '每周${weekdayName[course.weekday]} '
+                    '第${course.startUnit}-${course.endUnit}节',
+                    context,
+                    Colors.green,
+                  ),
+                ],
+              );
+            }));
+
+    return showClubModalBottomSheet(context, content);
+  }
+
+  Widget _buildInfoRow(
+      IconData icon, String text, BuildContext context, Color iconColor) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: iconColor,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
