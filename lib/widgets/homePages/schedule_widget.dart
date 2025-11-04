@@ -191,19 +191,19 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                   ));
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: Row(
             children: [
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               Container(
-                width: 4,
-                height: 40,
+                width: 5,
+                height: 52,
                 decoration: BoxDecoration(
                   color: CourseColorManager.generateSoftColor(item.location),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,39 +211,48 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                     Text(
                       item.title,
                       style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Icon(Icons.access_time,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
+                            size: 18, color: Colors.grey[600],),
+                        const SizedBox(width: 6),
                         Text(
                           item.time,
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.grey[600],
+                          ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
                       ],
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Icon(Icons.location_on,
-                            size: 16, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
+                            size: 18, color: Colors.grey[600],),
+                        const SizedBox(width: 6),
                         Text(item.location,
-                            style: TextStyle(color: Colors.grey[600])),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w400,
+                            )),
                       ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 20),
             ],
           ),
         ),
@@ -264,49 +273,55 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
           children: [
             const Icon(
               Icons.location_on,
-              color: Colors.blue,
+              color: Color(0xFF007AFF),
+              size: 18,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 8),
             Text(
               course.location,
               style: TextStyle(
                 fontSize: isTablet ? 17 : 15,
                 overflow: TextOverflow.ellipsis,
+                fontWeight: FontWeight.w500,
               ),
               maxLines: 2,
             ),
           ],
         ),
-        SizedBox(height: isTablet ? 10 : 8),
+        SizedBox(height: isTablet ? 12 : 10),
         Row(children: [
           const Icon(
             Icons.people,
-            color: Colors.redAccent,
+            color: Color(0xFFFF3B30),
+            size: 18,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Text(
             course.teacher,
             style: TextStyle(
               fontSize: isTablet ? 17 : 15,
               overflow: TextOverflow.ellipsis,
+              fontWeight: FontWeight.w500,
             ),
             maxLines: 2,
           )
         ]),
-        SizedBox(height: isTablet ? 10 : 8),
+        SizedBox(height: isTablet ? 12 : 10),
         Row(children: [
           const Icon(
             Icons.calendar_today,
-            color: Colors.green,
+            color: Color(0xFF34C759),
+            size: 18,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Text(
             course.description,
             style: TextStyle(
               fontSize: isTablet ? 17 : 15,
+              fontWeight: FontWeight.w500,
             ),
             overflow: TextOverflow.ellipsis,
-            maxLines: 2,
+            maxLines: 3,
           ),
         ]),
       ],
