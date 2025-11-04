@@ -731,11 +731,23 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
+
+    var width = screenWidth;
+    if (isTablet && (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isWindows)){
+      width = screenWidth - 244;
+    }else if (!kIsWeb && Platform.isMacOS && screenWidth > 500){
+      width = screenWidth - 250;
+    }else{
+      width = screenWidth - 60;
+    }
+    
+    // 计算每个日期列的宽度
+    final dayColumnWidth = width / 7;
     
     return Positioned(
         top: (course.startUnit - 1) * scheduleStore.height,
-        left: index * (1.0 / totalCount),
-        right: (totalCount - index - 1) * (1.0 / totalCount),
+        left: index * (dayColumnWidth / totalCount),
+        right: (totalCount - index - 1) * (dayColumnWidth / totalCount),
         height: (course.endUnit - course.startUnit + 1) * scheduleStore.height,
         child: Container(
           margin: EdgeInsets.all(2),
