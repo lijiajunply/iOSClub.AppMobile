@@ -779,6 +779,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.white70,
+                      fontWeight: FontWeight.bold,
                     )),
               ),
             ),
