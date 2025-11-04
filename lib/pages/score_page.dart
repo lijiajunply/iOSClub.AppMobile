@@ -740,19 +740,36 @@ class _ScorePageState extends State<ScorePage>
   }
 
   Widget _buildScoreMeta(ScoreModel item) {
-    return Row(
+    return Wrap(
+      spacing: 16,
       children: [
-        Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text('${item.credit}学分', style: TextStyle(color: Colors.grey[600])),
-        const SizedBox(width: 16),
-        Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text('成绩 ${item.grade}', style: TextStyle(color: Colors.grey[600])),
-        const SizedBox(width: 16),
-        Icon(Icons.grade, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text('绩点 ${item.gpa}', style: TextStyle(color: Colors.grey[600])),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: 4),
+            Text('${item.credit}学分',
+                style: TextStyle(color: Colors.grey[600]))
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: 4),
+            Text('成绩 ${item.grade}',
+                style: TextStyle(color: Colors.grey[600]))
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.grade, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: 4),
+            Text('绩点 ${item.gpa}',
+                style: TextStyle(color: Colors.grey[600]))
+          ],
+        ),
       ],
     );
   }
