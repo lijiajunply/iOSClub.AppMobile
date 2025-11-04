@@ -199,7 +199,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                 width: 5,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: CourseColorManager.generateSoftColor(item.location),
+                  color: CourseColorManager.generateSoftColor(item),
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
