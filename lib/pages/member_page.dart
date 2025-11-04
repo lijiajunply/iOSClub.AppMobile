@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ios_club_app/net/club_service.dart';
+import 'package:ios_club_app/widgets/club_app_bar.dart';
 import 'package:ios_club_app/widgets/memberPages/member_data_page.dart';
 import 'package:ios_club_app/widgets/memberPages/staff_data_page.dart';
 import 'package:ios_club_app/widgets/platform_dialog.dart';
@@ -16,32 +16,9 @@ class MemberPage extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      appBar: ClubAppBar(title: '社团详情'),
       body: CustomScrollView(
         slivers: [
-          // 苹果风格的导航栏
-          SliverAppBar(
-            expandedHeight: 120,
-            floating: false,
-            pinned: true,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                '社团详情',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17,
-                ),
-              ),
-              centerTitle: true,
-            ),
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                size: 28,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
           // 主内容
           SliverToBoxAdapter(
             child: FutureBuilder(
@@ -51,7 +28,12 @@ class MemberPage extends StatelessWidget {
                   return SizedBox(
                     height: 400,
                     child: Center(
-                      child: CupertinoActivityIndicator(radius: 15),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          isDarkMode ? Colors.white : Colors.blue,
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -63,9 +45,9 @@ class MemberPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            CupertinoIcons.exclamationmark_circle,
+                            Icons.error_outline,
                             size: 60,
-                            color: CupertinoColors.systemRed,
+                            color: isDarkMode ? Colors.redAccent : Colors.red,
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -81,7 +63,7 @@ class MemberPage extends StatelessWidget {
                             '${snapshot.error}',
                             style: TextStyle(
                               fontSize: 15,
-                              color: CupertinoColors.systemGrey,
+                              color: isDarkMode ? Colors.white70 : Colors.black54,
                             ),
                           ),
                         ],
@@ -140,12 +122,14 @@ class MemberPage extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 2),
+            color: isDarkMode 
+                ? const Color(0xFF101010).withValues(alpha: 0.3)
+                : const Color(0xFFA0A0A0).withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -172,14 +156,14 @@ class MemberPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey6,
+              color: isDarkMode ? Colors.white10 : Colors.grey[100],
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               'ID: ${memberData['userId']}',
               style: TextStyle(
                 fontSize: 14,
-                color: CupertinoColors.systemGrey,
+                color: isDarkMode ? Colors.white70 : Colors.black54,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -188,12 +172,7 @@ class MemberPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  CupertinoColors.activeBlue,
-                  CupertinoColors.activeBlue.withValues(alpha: 0.8),
-                ],
-              ),
+              color: Colors.blue,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -215,7 +194,7 @@ class MemberPage extends StatelessWidget {
     final tasks = infoData['tasks'] as List<dynamic>;
     return _buildSection(
       title: '我的任务',
-      icon: CupertinoIcons.checkmark_circle,
+      icon: Icons.check_circle_outline,
       isEmpty: tasks.isEmpty,
       emptyMessage: '您的任务都已经完成了',
       emptySubtitle: '可以好好休息了',
@@ -229,7 +208,7 @@ class MemberPage extends StatelessWidget {
     final projects = infoData['projects'] as List<dynamic>;
     return _buildSection(
       title: '我的项目',
-      icon: CupertinoIcons.folder,
+      icon: Icons.folder_outlined,
       isEmpty: projects.isEmpty,
       emptyMessage: '您的项目都已经完成了',
       emptySubtitle: '可以好好休息了',
@@ -243,7 +222,7 @@ class MemberPage extends StatelessWidget {
     final departments = infoData['departments'] as List<dynamic>;
     return _buildSection(
       title: '社团部门',
-      icon: CupertinoIcons.person_3,
+      icon: Icons.group_outlined,
       items: departments
           .map((d) => {
                 'title': d['name'],
@@ -267,12 +246,14 @@ class MemberPage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 2),
+            color: isDarkMode 
+                ? const Color(0xFF101010).withValues(alpha: 0.3)
+                : const Color(0xFFA0A0A0).withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -285,7 +266,7 @@ class MemberPage extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: CupertinoColors.activeBlue,
+                  color: Colors.blue,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -307,9 +288,9 @@ class MemberPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Icon(
-                      CupertinoIcons.check_mark_circled,
+                      Icons.check_circle,
                       size: 48,
-                      color: CupertinoColors.systemGreen,
+                      color: isDarkMode ? Colors.green : Colors.green,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -326,10 +307,34 @@ class MemberPage extends StatelessWidget {
                         emptySubtitle,
                         style: TextStyle(
                           fontSize: 14,
-                          color: CupertinoColors.systemGrey,
+                          color: isDarkMode ? Colors.white54 : Colors.black54,
                         ),
                       ),
                     ],
+                  ],
+                ),
+              ),
+            )
+          else if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.inbox_outlined,
+                      size: 48,
+                      color: isDarkMode ? Colors.white38 : Colors.black38,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '暂无内容',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -353,7 +358,7 @@ class MemberPage extends StatelessWidget {
           top: BorderSide(
             color: isDarkMode
                 ? Colors.white.withValues(alpha: 0.1)
-                : CupertinoColors.systemGrey6,
+                : const Color(0xFFE5E5E5),
             width: 0.5,
           ),
         ),
@@ -371,13 +376,13 @@ class MemberPage extends StatelessWidget {
           subtitle,
           style: TextStyle(
             fontSize: 14,
-            color: CupertinoColors.systemGrey,
+            color: isDarkMode ? Colors.white70 : Colors.black54,
           ),
         ),
         trailing: Icon(
-          CupertinoIcons.chevron_right,
-          size: 16,
-          color: CupertinoColors.systemGrey3,
+          Icons.chevron_right,
+          size: 20,
+          color: isDarkMode ? Colors.white54 : Colors.black38,
         ),
       ),
     );
@@ -390,17 +395,17 @@ class MemberPage extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            CupertinoColors.activeBlue.withValues(alpha: 0.9),
-            CupertinoColors.activeBlue,
+            Colors.blue.shade700,
+            Colors.blue.shade500,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.activeBlue.withValues(alpha: 0.3),
-            blurRadius: 20,
+            color: Colors.blue.withValues(alpha: 0.3),
+            blurRadius: 30,
             offset: const Offset(0, 4),
           ),
         ],
@@ -412,7 +417,7 @@ class MemberPage extends StatelessWidget {
           Row(
             children: [
               Icon(
-                CupertinoIcons.chart_bar_square,
+                Icons.bar_chart_outlined,
                 color: Colors.white,
                 size: 24,
               ),
@@ -432,25 +437,25 @@ class MemberPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildDataCard(
-                  '当前成员', '${infoData['total']}', CupertinoIcons.person_2,
+                  '当前成员', '${infoData['total']}', Icons.group_outlined,
                   onTap: () {
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (context) => MemberDataPage()),
+                  MaterialPageRoute(builder: (context) => MemberDataPage()),
                 );
               }),
               _buildDataCard(
-                  '部员数量', '${infoData['staffsCount']}', CupertinoIcons.person,
+                  '部员数量', '${infoData['staffsCount']}', Icons.person_outlined,
                   onTap: () {
                 Navigator.push(
                   context,
-                  CupertinoPageRoute(builder: (context) => StaffDataPage()),
+                  MaterialPageRoute(builder: (context) => StaffDataPage()),
                 );
               }),
               _buildDataCard(
                   '项目数量',
                   '${(infoData['projects'] as List<dynamic>).length}',
-                  CupertinoIcons.folder),
+                  Icons.folder_outlined),
             ],
           ),
           const SizedBox(height: 16),
@@ -460,15 +465,15 @@ class MemberPage extends StatelessWidget {
               _buildDataCard(
                   '任务数量',
                   '${(infoData['tasks'] as List<dynamic>).length}',
-                  CupertinoIcons.checkmark_circle),
+                  Icons.check_circle_outline),
               _buildDataCard(
                   '资源数量',
                   '${(infoData['resources'] as List<dynamic>).length}',
-                  CupertinoIcons.cube_box),
+                  Icons.inventory_2_outlined),
               _buildDataCard(
                   '部门数量',
                   '${(infoData['departments'] as List<dynamic>).length}',
-                  CupertinoIcons.building_2_fill),
+                  Icons.business_outlined),
             ],
           ),
         ],
@@ -520,12 +525,14 @@ class MemberPage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 2),
+            color: isDarkMode 
+                ? const Color(0xFF101010).withValues(alpha: 0.3)
+                : const Color(0xFFA0A0A0).withValues(alpha: 0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -537,8 +544,8 @@ class MemberPage extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  CupertinoIcons.cube_box,
-                  color: CupertinoColors.activeBlue,
+                  Icons.inventory_2_outlined,
+                  color: Colors.blue,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -560,9 +567,9 @@ class MemberPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Icon(
-                      CupertinoIcons.tray,
+                      Icons.inventory_outlined,
                       size: 48,
-                      color: CupertinoColors.systemGrey3,
+                      color: isDarkMode ? Colors.white38 : Colors.black38,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -578,7 +585,7 @@ class MemberPage extends StatelessWidget {
                       '去添加一个',
                       style: TextStyle(
                         fontSize: 14,
-                        color: CupertinoColors.systemGrey,
+                        color: isDarkMode ? Colors.white54 : Colors.black54,
                       ),
                     ),
                   ],
@@ -605,7 +612,7 @@ class MemberPage extends StatelessWidget {
           top: BorderSide(
             color: isDarkMode
                 ? Colors.white.withValues(alpha: 0.1)
-                : CupertinoColors.systemGrey6,
+                : const Color(0xFFE5E5E5),
             width: 0.5,
           ),
         ),
@@ -623,13 +630,13 @@ class MemberPage extends StatelessWidget {
           resource['description'],
           style: TextStyle(
             fontSize: 14,
-            color: CupertinoColors.systemGrey,
+            color: isDarkMode ? Colors.white70 : Colors.black54,
           ),
         ),
         trailing: Icon(
-          CupertinoIcons.arrow_up_right_square,
+          Icons.open_in_new_outlined,
           size: 20,
-          color: CupertinoColors.activeBlue,
+          color: Colors.blue,
         ),
         onTap: () {
           // 使用 PlatformDialog 显示跨平台对话框

@@ -199,7 +199,7 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                 width: 5,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: CourseColorManager.generateSoftColor(item),
+                  color: CourseColorManager.generateSoftColor(item.title),
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -282,7 +282,6 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
               style: TextStyle(
                 fontSize: isTablet ? 17 : 15,
                 overflow: TextOverflow.ellipsis,
-                fontWeight: FontWeight.w500,
               ),
               maxLines: 2,
             ),
@@ -301,7 +300,6 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
             style: TextStyle(
               fontSize: isTablet ? 17 : 15,
               overflow: TextOverflow.ellipsis,
-              fontWeight: FontWeight.w500,
             ),
             maxLines: 2,
           )
@@ -318,7 +316,6 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
             course.description,
             style: TextStyle(
               fontSize: isTablet ? 17 : 15,
-              fontWeight: FontWeight.w500,
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 3,

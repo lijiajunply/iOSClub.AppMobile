@@ -981,24 +981,21 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
           SizedBox(height: isTablet ? 16 : 18),
           buildAppleInfoRow(
             Icons.location_on_outlined,
-            '地点',
             course.room,
             isDarkMode,
           ),
           SizedBox(height: isTablet ? 12 : 14),
           buildAppleInfoRow(
             course.teachers.length > 1 ? Icons.people : Icons.person_outline,
-            '讲师',
             course.teachers.join(', '),
             isDarkMode,
           ),
           SizedBox(height: isTablet ? 12 : 14),
           buildAppleInfoRow(
             Icons.calendar_today_outlined,
-            '时间',
             '${CourseModel.formatWeekRanges(course.weekIndexes)}周 '
-                '每周${weekdayName[course.weekday]} '
-                '第${course.startUnit}-${course.endUnit}节',
+            '每周${weekdayName[course.weekday]} '
+            '第${course.startUnit}-${course.endUnit}节',
             isDarkMode,
           ),
         ],
@@ -1078,24 +1075,23 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                         SizedBox(height: isTablet ? 16 : 18),
                         buildAppleInfoRow(
                           Icons.location_on_outlined,
-                          '地点',
                           course.room,
                           isDarkMode,
                         ),
                         SizedBox(height: isTablet ? 12 : 14),
                         buildAppleInfoRow(
-                          course.teachers.length > 1 ? Icons.people : Icons.person_outline,
-                          '讲师',
+                          course.teachers.length > 1
+                              ? Icons.people
+                              : Icons.person_outline,
                           course.teachers.join(', '),
                           isDarkMode,
                         ),
                         SizedBox(height: isTablet ? 12 : 14),
                         buildAppleInfoRow(
                           Icons.calendar_today_outlined,
-                          '时间',
                           '${CourseModel.formatWeekRanges(course.weekIndexes)}周 '
-                              '每周${weekdayName[course.weekday]} '
-                              '第${course.startUnit}-${course.endUnit}节',
+                          '每周${weekdayName[course.weekday]} '
+                          '第${course.startUnit}-${course.endUnit}节',
                           isDarkMode,
                         ),
                       ],
@@ -1124,13 +1120,8 @@ enum CourseStyle {
   fool,
 }
 
-Widget buildAppleInfoRow(
-    IconData icon,
-    String label,
-    String text,
-    bool isDarkMode, {
-      Color? iconColor,
-    }) {
+Widget buildAppleInfoRow(IconData icon, String text, bool isDarkMode,
+    {Color? iconColor, String? label}) {
   // 为不同类型的图标设置颜色
   Color getIconColor() {
     if (iconColor != null) return iconColor;
@@ -1172,17 +1163,21 @@ Widget buildAppleInfoRow(
       // 标签和内容
       Expanded(
         child: Column(
+          mainAxisAlignment: (label == null || label.isNotEmpty)
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
-                letterSpacing: -0.2,
+            if (label != null && label.isNotEmpty)
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                  letterSpacing: -0.2,
+                ),
               ),
-            ),
             const SizedBox(height: 4),
             Text(
               text,
