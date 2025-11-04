@@ -1021,94 +1021,88 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
     final weekdayName = ['日', '一', '二', '三', '四', '五', '六'];
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    var content = Flexible(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: isTablet ? 32 : 28,
-            bottom: isTablet ? 32 : 28,
-            left: isTablet ? 32 : 24,
-            right: isTablet ? 32 : 24,
+    var content = Padding(
+      padding: EdgeInsets.only(
+        bottom: isTablet ? 32 : 20,
+        left: isTablet ? 28 : 16,
+        right: isTablet ? 28 : 16,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '冲突课程',
+            style: TextStyle(
+              fontSize: isTablet ? 24 : 28,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.5,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '冲突课程',
-                style: TextStyle(
-                  fontSize: isTablet ? 24 : 28,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                  color: isDarkMode ? Colors.white : Colors.black,
-                ),
+          SizedBox(height: isTablet ? 24 : 28),
+          ListView.separated(
+            itemCount: courses.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Container(
+                height: 1,
+                color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
               ),
-              SizedBox(height: isTablet ? 24 : 28),
-              ListView.separated(
-                itemCount: courses.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Container(
-                    height: 1,
-                    color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                  ),
-                ),
-                itemBuilder: (context, index) {
-                  var course = courses[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          course.courseName,
-                          style: TextStyle(
-                            fontSize: isTablet ? 18 : 20,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.3,
-                            color: isDarkMode ? Colors.white : Colors.black,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: isTablet ? 16 : 18),
-                        buildAppleInfoRow(
-                          Icons.location_on_outlined,
-                          course.room,
-                          isDarkMode,
-                        ),
-                        SizedBox(height: isTablet ? 12 : 14),
-                        buildAppleInfoRow(
-                          course.teachers.length > 1
-                              ? Icons.people
-                              : Icons.person_outline,
-                          course.teachers.join(', '),
-                          isDarkMode,
-                        ),
-                        SizedBox(height: isTablet ? 12 : 14),
-                        buildAppleInfoRow(
-                          Icons.calendar_today_outlined,
-                          '${CourseModel.formatWeekRanges(course.weekIndexes)}周 '
-                          '每周${weekdayName[course.weekday]} '
-                          '第${course.startUnit}-${course.endUnit}节',
-                          isDarkMode,
-                        ),
-                      ],
+            ),
+            itemBuilder: (context, index) {
+              var course = courses[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.courseName,
+                      style: TextStyle(
+                        fontSize: isTablet ? 18 : 20,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.3,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  );
-                },
-              ),
-            ],
+                    SizedBox(height: isTablet ? 16 : 18),
+                    buildAppleInfoRow(
+                      Icons.location_on_outlined,
+                      course.room,
+                      isDarkMode,
+                    ),
+                    SizedBox(height: isTablet ? 12 : 14),
+                    buildAppleInfoRow(
+                      course.teachers.length > 1
+                          ? Icons.people
+                          : Icons.person_outline,
+                      course.teachers.join(', '),
+                      isDarkMode,
+                    ),
+                    SizedBox(height: isTablet ? 12 : 14),
+                    buildAppleInfoRow(
+                      Icons.calendar_today_outlined,
+                      '${CourseModel.formatWeekRanges(course.weekIndexes)}周 '
+                      '每周${weekdayName[course.weekday]} '
+                      '第${course.startUnit}-${course.endUnit}节',
+                      isDarkMode,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-        ),
+        ],
       ),
     );
 
     return showClubModalBottomSheet(
       context,
       content,
-      isScrollControlled: true,
     );
   }
 }
@@ -1173,7 +1167,6 @@ Widget buildAppleInfoRow(IconData icon, String text, bool isDarkMode,
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
                   color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
                   letterSpacing: -0.2,
                 ),
@@ -1183,10 +1176,7 @@ Widget buildAppleInfoRow(IconData icon, String text, bool isDarkMode,
               text,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w400,
                 color: isDarkMode ? Colors.grey[100] : Colors.grey[700],
-                height: 1.5,
-                letterSpacing: -0.2,
               ),
             ),
           ],
