@@ -53,4 +53,39 @@ class CourseModel {
       campus: json['campus'] ?? '',
     );
   }
+
+  static String formatWeekRanges(List<int> weeks) {
+    if (weeks.isEmpty) return '';
+    if (weeks.length == 1) return weeks.first.toString();
+
+    List<String> ranges = [];
+    int start = weeks.first;
+    int end = weeks.first;
+
+    for (int i = 1; i < weeks.length; i++) {
+      if (weeks[i] == end + 1) {
+        // 连续的周数
+        end = weeks[i];
+      } else {
+        // 不连续，保存当前段
+        if (start == end) {
+          ranges.add(start.toString());
+        } else {
+          ranges.add('$start-$end');
+        }
+        // 开始新的段
+        start = weeks[i];
+        end = weeks[i];
+      }
+    }
+
+    // 添加最后一段
+    if (start == end) {
+      ranges.add(start.toString());
+    } else {
+      ranges.add('$start-$end');
+    }
+
+    return ranges.join(',');
+  }
 }

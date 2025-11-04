@@ -130,7 +130,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                 ),
               ),
             );
-            
+
             // 显示提示信息
             WidgetsBinding.instance.addPostFrameCallback((_) {
               showClubSnackBar(
@@ -377,8 +377,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                                   scrollDirection: Axis.vertical,
                                   child: SizedBox(
                                     // 设置固定高度确保内容可以完整显示
-                                    height: scheduleStore.height *
-                                        12, // 12节课的总高度
+                                    height:
+                                        scheduleStore.height * 12, // 12节课的总高度
                                     child: _buildScheduleGrid(courses),
                                   ),
                                 ),
@@ -654,12 +654,139 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ),
             ),
           ),
-          ...courses
-              .where((course) => course.weekday == weekDay)
-              .map((course) => _buildCourseCard(course)),
+          ..._buildConflictAwareCourseCards(weekDay, courses),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildConflictAwareCourseCards(int weekDay, List<CourseModel> courses) {
+    // 获取当天的课程
+    final dayCourses = courses.where((course) => course.weekday == weekDay).toList();
+    
+    // 按开始时间排序
+    dayCourses.sort((a, b) => a.startUnit.compareTo(b.startUnit));
+    
+    // 处理冲突的课程
+    final conflictGroups = _groupConflictingCourses(dayCourses);
+    
+    // 构建课程卡片
+    final widgets = <Widget>[];
+    for (final group in conflictGroups) {
+      if (group.length == 1) {
+        // 没有冲突的课程
+        widgets.add(_buildCourseCard(group.first));
+      } else {
+        // 有冲突的课程，需要分开展示
+        widgets.addAll(_buildConflictingCourseCards(group));
+      }
+    }
+    
+    return widgets;
+  }
+  
+  List<List<CourseModel>> _groupConflictingCourses(List<CourseModel> courses) {
+    final groups = <List<CourseModel>>[];
+    final used = List<bool>.filled(courses.length, false);
+    
+    for (int i = 0; i < courses.length; i++) {
+      if (used[i]) continue;
+      
+      final group = <CourseModel>[courses[i]];
+      used[i] = true;
+      
+      for (int j = i + 1; j < courses.length; j++) {
+        if (used[j]) continue;
+        
+        // 检查是否有时间冲突
+        if (_hasTimeConflict(courses[i], courses[j])) {
+          group.add(courses[j]);
+          used[j] = true;
+        }
+      }
+      
+      groups.add(group);
+    }
+    
+    return groups;
+  }
+  
+  bool _hasTimeConflict(CourseModel a, CourseModel b) {
+    // 检查两个课程是否有时间重叠
+    return (a.startUnit <= b.endUnit && a.endUnit >= b.startUnit);
+  }
+  
+  List<Widget> _buildConflictingCourseCards(List<CourseModel> conflictingCourses) {
+    final widgets = <Widget>[];
+    final cardCount = conflictingCourses.length;
+    
+    for (int i = 0; i < cardCount; i++) {
+      widgets.add(_buildConflictingCourseCard(conflictingCourses[i], i, cardCount));
+    }
+    
+    return widgets;
+  }
+  
+  Widget _buildConflictingCourseCard(CourseModel course, int index, int totalCount) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 判断是否为平板布局（宽度大于600）
+    final isTablet = screenWidth > 600;
+    
+    return Positioned(
+        top: (course.startUnit - 1) * scheduleStore.height,
+        left: index * (1.0 / totalCount),
+        right: (totalCount - index - 1) * (1.0 / totalCount),
+        height: (course.endUnit - course.startUnit + 1) * scheduleStore.height,
+        child: Container(
+          margin: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: CourseColorManager.generateSoftColor(course.courseName),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () async {
+              await _showModalBottomSheet(course);
+            },
+            child: Padding(
+              padding: EdgeInsets.all(isTablet ? 8 : 4),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.courseName,
+                      style: TextStyle(
+                        fontSize: isTablet ? 12 : 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      maxLines: 3,
+                    ),
+                    Text(
+                      course.room,
+                      style: TextStyle(
+                        fontSize: isTablet ? 10 : 9,
+                        overflow: TextOverflow.ellipsis,
+                        color: Colors.white70,
+                      ),
+                      maxLines: 2,
+                    ),
+                    Text(
+                      course.teachers.join(', '),
+                      style: TextStyle(
+                        fontSize: isTablet ? 10 : 8,
+                        overflow: TextOverflow.ellipsis,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ));
   }
 
   Widget _buildCourseCard(CourseModel course) {
@@ -815,7 +942,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               ),
               const SizedBox(width: 4),
               Text(
-                '${course.weekIndexes.first}-${course.weekIndexes.last}周 每周${weekdayName[course.weekday]} 第${course.startUnit}-${course.endUnit}节',
+                '${CourseModel.formatWeekRanges(course.weekIndexes)}周 每周${weekdayName[course.weekday]} 第${course.startUnit}-${course.endUnit}节',
                 style: TextStyle(
                   fontSize: isTablet ? 17 : 15,
                   overflow: TextOverflow.ellipsis,
