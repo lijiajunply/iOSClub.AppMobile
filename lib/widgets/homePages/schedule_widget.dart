@@ -235,7 +235,6 @@ class _ScheduleWidgetState extends State<ScheduleWidget> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Icon(Icons.location_on,

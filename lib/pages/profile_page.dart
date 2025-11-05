@@ -146,6 +146,12 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
+    if (result) {
+      setState(() {
+        _username = _usernameController.text;
+      });
+    }
+
     return result;
   }
 
@@ -194,13 +200,21 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
+    if (result) {
+      setState(() {
+        _username = _isOnlyLoginMember
+            ? _usernameController.text
+            : _nameController.text;
+      });
+    }
+
     return result;
   }
 
   /// 保存登录信息
   Future<void> _saveLoginInfo() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     if (_isOnlyLoginMember) {
       // 仅登录社团账号
       await prefs.setString(PrefsKeys.CLUB_NAME, _usernameController.text);
@@ -216,7 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
         userStore.setUserData(UserData.fromJson(userData));
       }
     }
-    
+
     // 同时登录两个账号的情况
     if (_isLoginMember) {
       await prefs.setString(PrefsKeys.CLUB_NAME, _nameController.text);
@@ -508,9 +522,7 @@ class _ProfilePageState extends State<ProfilePage> {
               _enterLoginMode();
             }),
       ProfileButtonItem(
-          icon: Icons.help_outline,
-          title: '帮助',
-          route: '/Helper'),
+          icon: Icons.help_outline, title: '帮助', route: '/Helper'),
     ];
   }
 
