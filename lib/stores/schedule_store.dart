@@ -2,15 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'package:ios_club_app/services/data_service.dart';
+import 'package:ios_club_app/stores/course_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
-import 'package:ios_club_app/stores/course_store.dart';
 
 import '../net/edu_service.dart';
 
 class ScheduleStore extends GetxController {
   static ScheduleStore get to => Get.find();
+  List<CourseModel> _allCoursesRemind = [];
 
   // 课程数据
   final _allCourses = <List<CourseModel>>[].obs;
@@ -47,10 +48,10 @@ class ScheduleStore extends GetxController {
   void onInit() {
     super.onInit();
     initializeData();
-    
+
     // 监听CourseStore的忽略课程变化
-    ever(CourseStore.to.ignoreCourses, (_) {
-      _loadCourses();
+    ever(CourseStore.to.ignoreCoursesList, (_) {
+      refreshCourseData();
     });
   }
 
@@ -59,6 +60,7 @@ class ScheduleStore extends GetxController {
     try {
       final weekData = await DataService.getWeek();
       _handleWeekData(weekData);
+      await getRemindCourses();
       await _loadCourses();
       await _loadPreferences();
 
@@ -74,6 +76,29 @@ class ScheduleStore extends GetxController {
     weekNow = weekData['week']!;
     _maxWeek.value = weekData['maxWeek']!;
     _currentPage.value = _currentWeek.value <= 0 ? 0 : _currentWeek.value;
+  }
+
+  Future<void> getRemindCourses() async {
+    _allCoursesRemind = await DataService.getAllCourse(isNeedIgnore: false);
+  }
+
+  Future<void> refreshCourseData() async {
+    List<CourseModel> courses = [];
+    for (var item in _allCoursesRemind){
+      if (CourseStore.to.ignoreCoursesList.isNotEmpty && CourseStore.to.ignoreCoursesList.any((x) => x == item.courseName)) continue;
+      courses.add(item);
+    }
+    _allCourses.value = List.generate(_maxWeek.value + 1, (i) {
+      return i == 0
+          ? courses
+          : courses.where((course) => course.weekIndexes.contains(i)).toList();
+    });
+    if (courses.isNotEmpty) {
+      final firstCourse = courses[0];
+      _isYanTa.value = !(firstCourse.campus == "草堂校区" ||
+          (firstCourse.room.length >= 2 && firstCourse.room.startsWith("草堂")));
+    }
+    _isLoading.value = false;
   }
 
   /// 加载课程数据
@@ -107,7 +132,7 @@ class ScheduleStore extends GetxController {
     _isLoading.value = true;
     try {
       await EduService.getCourse(isRefresh: true);
-      await DataService.getAllCourse(); // 确保数据已更新
+      await getRemindCourses();
       await _loadCourses();
     } finally {
       _isLoading.value = false;
