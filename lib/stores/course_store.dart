@@ -10,8 +10,8 @@ class CourseStore extends GetxController {
   final _courses = <CourseModel>[].obs;
   final _ignoreCourses = <String>[].obs;
 
-  List<CourseModel> get courses => _courses.toList();
-  List<String> get ignoreCourses => _ignoreCourses.toList();
+  RxList<CourseModel> get courses => _courses;
+  RxList<String> get ignoreCourses => _ignoreCourses;
 
   /// 加载所有课程
   Future<void> loadCourses() async {

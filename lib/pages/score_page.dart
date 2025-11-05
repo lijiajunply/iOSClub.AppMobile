@@ -746,7 +746,7 @@ class _ScorePageState extends State<ScorePage>
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
+            Icon(CupertinoIcons.time, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text('${item.credit}学分',
                 style: TextStyle(color: Colors.grey[600]))
@@ -755,7 +755,7 @@ class _ScorePageState extends State<ScorePage>
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+            Icon(CupertinoIcons.location, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text('成绩 ${item.grade}',
                 style: TextStyle(color: Colors.grey[600]))
@@ -764,7 +764,7 @@ class _ScorePageState extends State<ScorePage>
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.grade, size: 16, color: Colors.grey[600]),
+            Icon(CupertinoIcons.star, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text('绩点 ${item.gpa}',
                 style: TextStyle(color: Colors.grey[600]))
@@ -790,31 +790,29 @@ class _ScorePageState extends State<ScorePage>
 
   Widget _buildScoreDetailsContent(ScoreModel score, bool isTablet) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             score.name,
             style: const TextStyle(
-              fontSize: 20,
-              overflow: TextOverflow.ellipsis,
-              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              height: 1.3,
             ),
           ),
-          SizedBox(height: isTablet ? 10 : 18),
+          const SizedBox(height: 20),
           _buildDetailRow(
-              Icons.access_time, Colors.blue, '${score.credit}学分', isTablet),
-          SizedBox(height: isTablet ? 10 : 18),
-          _buildDetailRow(Icons.location_on, Colors.redAccent,
+              CupertinoIcons.time, Colors.blue, '${score.credit} 学分', isTablet),
+          _buildDetailRow(CupertinoIcons.location, Colors.redAccent,
               '成绩 ${score.grade}', isTablet),
-          SizedBox(height: isTablet ? 10 : 18),
           _buildDetailRow(
-              Icons.grade, Colors.green, '绩点 ${score.gpa}', isTablet),
-          SizedBox(height: isTablet ? 10 : 18),
+              CupertinoIcons.star, Colors.green, '绩点 ${score.gpa}', isTablet),
           _buildDetailRow(
-            Icons.details,
-            Colors.green,
+            CupertinoIcons.doc_text,
+            Colors.grey,
             score.gradeDetail,
             isTablet,
             expanded: true,
@@ -831,22 +829,34 @@ class _ScorePageState extends State<ScorePage>
     bool isTablet, {
     bool expanded = false,
   }) {
-    final textWidget = Text(
-      text,
-      style: TextStyle(
-        fontSize: isTablet ? 17 : 15,
-        overflow: expanded ? TextOverflow.ellipsis : null,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(icon, 
+              color: color, 
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+              ),
+              softWrap: true,
+              maxLines: expanded ? 5 : 1,
+              overflow: expanded ? TextOverflow.ellipsis : null,
+            ),
+          ),
+        ],
       ),
-      softWrap: true,
-      maxLines: expanded ? 5 : 1,
-    );
-
-    return Row(
-      children: [
-        Icon(icon, color: color),
-        const SizedBox(width: 6),
-        expanded ? Expanded(child: textWidget) : textWidget,
-      ],
     );
   }
 }

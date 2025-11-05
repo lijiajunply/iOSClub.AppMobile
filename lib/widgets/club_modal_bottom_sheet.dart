@@ -35,10 +35,12 @@ Future<void> showClubModalBottomSheet(BuildContext context, Widget child,
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: child,
-              ),
+              child: isScrollControlled
+                  ? SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: child,
+                    )
+                  : Padding(padding: const EdgeInsets.all(24), child: child),
             ),
           ],
         ),

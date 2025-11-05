@@ -5,6 +5,7 @@ import 'package:ios_club_app/services/data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/services/time_service.dart';
 import 'package:ios_club_app/stores/settings_store.dart';
+import 'package:ios_club_app/stores/course_store.dart';
 
 import '../net/edu_service.dart';
 
@@ -46,6 +47,11 @@ class ScheduleStore extends GetxController {
   void onInit() {
     super.onInit();
     initializeData();
+    
+    // 监听CourseStore的忽略课程变化
+    ever(CourseStore.to.ignoreCourses, (_) {
+      _loadCourses();
+    });
   }
 
   /// 初始化数据
@@ -56,7 +62,6 @@ class ScheduleStore extends GetxController {
       await _loadCourses();
       await _loadPreferences();
 
-      // 不再需要监听SettingsStore，因为我们直接使用它的值
     } catch (e) {
       // 错误处理
       debugPrint('初始化课表数据出错: $e');

@@ -804,6 +804,14 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
       width = screenWidth - 60;
     }
 
+    double addNum = 0.4;
+    if (courseStyle == CourseStyle.normal) {
+      addNum = 0.9;
+    }
+    if (courseStyle == CourseStyle.large) {
+      addNum = 1.3;
+    }
+
     // 计算每个日期列的宽度
     final dayColumnWidth = width / 7;
 
@@ -832,7 +840,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     Text(
                       course.courseName,
                       style: TextStyle(
-                        fontSize: isTablet ? 12 : 10,
+                        fontSize: (isTablet ? 12 : 10) + addNum,
                         fontWeight: FontWeight.bold,
                         color: Colors.white70,
                         overflow: TextOverflow.ellipsis,
@@ -842,7 +850,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     Text(
                       course.room,
                       style: TextStyle(
-                        fontSize: isTablet ? 10 : 9,
+                        fontSize: (isTablet ? 10 : 9) + addNum,
                         overflow: TextOverflow.ellipsis,
                         color: Colors.white70,
                       ),
@@ -851,7 +859,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     Text(
                       course.teachers.join(', '),
                       style: TextStyle(
-                        fontSize: isTablet ? 10 : 8,
+                        fontSize: (isTablet ? 10 : 8) + addNum,
                         overflow: TextOverflow.ellipsis,
                         color: Colors.white70,
                       ),
@@ -867,6 +875,15 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   Widget _buildCourseCard(CourseModel course, double screenWidth) {
     // 判断是否为平板布局（宽度大于600）
     final isTablet = screenWidth > 600;
+
+    double addNum = 0.4;
+    if (courseStyle == CourseStyle.normal) {
+      addNum = 0.9;
+    }
+    if (courseStyle == CourseStyle.large) {
+      addNum = 1.3;
+    }
+
     return Positioned(
         top: (course.startUnit - 1) * scheduleStore.height,
         left: 0,
@@ -892,7 +909,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     Text(
                       course.courseName,
                       style: TextStyle(
-                        fontSize: isTablet ? 12 : 10,
+                        fontSize: (isTablet ? 12 : 10) + addNum,
                         fontWeight: FontWeight.bold,
                         color: Colors.white70,
                         overflow: TextOverflow.ellipsis,
@@ -902,7 +919,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     Text(
                       course.room,
                       style: TextStyle(
-                        fontSize: isTablet ? 10 : 9,
+                        fontSize: (isTablet ? 10 : 9) + addNum,
                         overflow: TextOverflow.ellipsis,
                         color: Colors.white70,
                       ),
@@ -911,7 +928,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
                     Text(
                       course.teachers.join(', '),
                       style: TextStyle(
-                        fontSize: isTablet ? 10 : 8,
+                        fontSize: (isTablet ? 10 : 8) + addNum,
                         overflow: TextOverflow.ellipsis,
                         color: Colors.white70,
                       ),
@@ -1039,6 +1056,13 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               color: isDarkMode ? Colors.white : Colors.black,
             ),
           ),
+          Text(
+            '如果有不需要上的课，可以在课程设置（本页面右上角设置按钮）中进行课程忽略',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+            ),
+          ),
           SizedBox(height: isTablet ? 24 : 28),
           ListView.separated(
             itemCount: courses.length,
@@ -1048,7 +1072,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Container(
                 height: 1,
-                color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
+                color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
               ),
             ),
             itemBuilder: (context, index) {
@@ -1176,7 +1200,6 @@ Widget buildAppleInfoRow(IconData icon, String text, bool isDarkMode,
               text,
               style: TextStyle(
                 fontSize: 16,
-                color: isDarkMode ? Colors.grey[100] : Colors.grey[700],
               ),
             ),
           ],
