@@ -51,12 +51,19 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString(PrefsKeys.USERNAME);
     final iosName = prefs.getString(PrefsKeys.CLUB_NAME);
+    final clubId = prefs.getString(PrefsKeys.CLUB_ID);
 
     if (userStore.isLogin && username != null) {
       _username = username;
     }
     if (userStore.isLoginMember && iosName != null) {
-      _username = iosName;
+      if (username == clubId) {
+        _username = iosName;
+      } else if (username != null) {
+        _username = '$username & $clubId';
+      } else {
+        _username = iosName;
+      }
     }
 
     if (!userStore.isLogin && !userStore.isLoginMember) {
@@ -556,8 +563,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                         Text(
                           userStore.isLogin && userStore.isLoginMember

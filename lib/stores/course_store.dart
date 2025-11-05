@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:ios_club_app/services/data_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ios_club_app/models/course_model.dart';
 import 'prefs_keys.dart';
@@ -57,9 +58,11 @@ class CourseStore extends GetxController {
   }
 
   /// 设置忽略的课程
-  Future<void> setIgnoreCourses(List<String> ignoreList) async {
+  void setIgnoreCourses(List<String> ignoreList) {
     _ignoreCourses.assignAll(ignoreList);
-    
+  }
+
+  Future<void> saveCourseData(List<String> ignoreList) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(PrefsKeys.IGNORE_DATA, jsonEncode({"data": ignoreList}));
   }
@@ -68,7 +71,9 @@ class CourseStore extends GetxController {
   Future<void> addIgnoreCourse(String courseName) async {
     if (!_ignoreCourses.contains(courseName)) {
       _ignoreCourses.add(courseName);
-      await setIgnoreCourses(_ignoreCourses.toList());
+
+      setIgnoreCourses(_ignoreCourses.toList());
+      await saveCourseData(_ignoreCourses.toList());
     }
   }
 
@@ -76,7 +81,9 @@ class CourseStore extends GetxController {
   Future<void> removeIgnoreCourse(String courseName) async {
     if (_ignoreCourses.contains(courseName)) {
       _ignoreCourses.remove(courseName);
-      await setIgnoreCourses(_ignoreCourses.toList());
+
+      setIgnoreCourses(_ignoreCourses.toList());
+      await saveCourseData(_ignoreCourses.toList());
     }
   }
 
