@@ -28,9 +28,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
   CourseStyle courseStyle = CourseStyle.normal;
   bool isStyle = false;
   bool isYanTa = false;
-
-  final ScheduleStore scheduleStore = ScheduleStore.to;
   final SettingsStore settingsStore = SettingsStore.to;
+  final ScheduleStore scheduleStore = ScheduleStore.to;
 
   void jumpToPage(int page) {
     scheduleStore.jumpToPage(page);
@@ -140,19 +139,8 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
             });
           }
         } else {
-          // 没有设置自定义图片时显示默认背景
-          backgroundDecoration = Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFa8edea),
-                  Color(0xFFfed6e3),
-                ],
-              ),
-            ),
-          );
+          // 无自定义背景时显示默认背景
+          backgroundDecoration = const SizedBox.shrink();
         }
         break;
       default:
@@ -501,6 +489,7 @@ class _ScheduleListPageState extends State<ScheduleListPage> {
         ),
       );
     }
+    
     return SizedBox(
       height: 50,
       child: Row(
