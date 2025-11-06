@@ -38,19 +38,6 @@ class WidgetService {
   @pragma('vm:entry-point')
   static Future<void> updateTodayAndTomorrowCourses(
       Map<String, List<ScheduleItem>> courses) async {
-    final now = DateTime.now();
-    final tomorrow = now.add(const Duration(days: 1));
-
-    final week = await DataService.getWeek();
-    const a = ['日', '一', '二', '三', '四', '五', '六', '日'];
-    final weekNow = week['week']!;
-
-    // 更新小组件
-    await HomeWidget.saveWidgetData<String>(
-        'flutter.tomorrow.date', '第$weekNow周 周${a[now.weekday]}');
-    await HomeWidget.saveWidgetData<String>(
-        'flutter.tomorrow.tomorrowDate', '${tomorrow.month}月${tomorrow.day}日');
-
     await HomeWidget.saveWidgetData<String>(
         'flutter.tomorrow.courses', jsonEncode(courses['today']));
     await HomeWidget.saveWidgetData<String>(
