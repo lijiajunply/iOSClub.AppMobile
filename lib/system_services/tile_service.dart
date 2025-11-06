@@ -70,8 +70,11 @@ class TileService {
 
   static Future<void> openInWeChat(String url) async {
     // 尝试打开微信
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    // 转成微信的 URL
+    final encodedUrl = Uri.encodeComponent(url);
+    final wechatUrl = 'weixin://dl/business/?url=$encodedUrl';
+    if (await canLaunchUrl(Uri.parse(wechatUrl))) {
+      await launchUrl(Uri.parse(wechatUrl), mode: LaunchMode.externalApplication);
     } else {
       // 如果无法打开微信，则直接在浏览器中打开
       if (await canLaunchUrl(Uri.parse(url))) {

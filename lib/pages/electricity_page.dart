@@ -335,7 +335,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
                     ListTile(
                       leading: Icon(Icons.monetization_on_outlined),
                       title: Text('电费充值'),
-                      subtitle: Text('跳转至浏览器进行电费充值'),
+                      subtitle: Text('跳转至微信进行电费充值'),
                       onTap: () async {
                         final prefs = await SharedPreferences.getInstance();
                         var url =
