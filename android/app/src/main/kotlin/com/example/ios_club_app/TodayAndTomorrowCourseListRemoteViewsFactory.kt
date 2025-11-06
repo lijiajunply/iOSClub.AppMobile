@@ -46,7 +46,11 @@ class TodayAndTomorrowCourseListRemoteViewsFactory(
 
             // 根据课程名称生成颜色并设置给分隔线
             val color = CourseColorManager.generateSoftColor(course.title)
-            views.setTextViewTextSize(R.id.course_title, android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
+            views.setTextViewTextSize(
+                R.id.course_title,
+                android.util.TypedValue.COMPLEX_UNIT_SP,
+                14f
+            )
             // 设置分隔线颜色
             views.setInt(R.id.course_divider, "setBackgroundColor", color)
         }
@@ -61,12 +65,13 @@ class TodayAndTomorrowCourseListRemoteViewsFactory(
     override fun getItemId(position: Int): Long = position.toLong()
 
     override fun hasStableIds(): Boolean = true
-    
+
     private fun loadData() {
         val widgetData = HomeWidgetPlugin.getData(context)
-        val dataKey = if (type == "today") "flutter.tomorrow.courses" else "flutter.tomorrow.tomorrowCourses"
+        val dataKey =
+            if (type == "today") "flutter.tomorrow.courses" else "flutter.tomorrow.tomorrowCourses"
         val coursesJson = widgetData.getString(dataKey, null) ?: "[]"
-        
+
         parseCourses(coursesJson)
     }
 
@@ -76,14 +81,15 @@ class TodayAndTomorrowCourseListRemoteViewsFactory(
             val jsonArray = JSONArray(jsonString)
             for (i in 0 until jsonArray.length()) {
                 val courseObj = jsonArray.getJSONObject(i)
-                courses.add(TomorrowCoursesWidgetProvider.Course(
-                    title = courseObj.optString("title", ""),
-                    time = courseObj.optString("time", ""),
-                    location = courseObj.optString("location", ""),
-                    teacher = courseObj.optString("teacher", "")
-                ))
+                courses.add(
+                    TomorrowCoursesWidgetProvider.Course(
+                        title = courseObj.optString("title", ""),
+                        time = courseObj.optString("time", ""),
+                        location = courseObj.optString("location", ""),
+                        teacher = courseObj.optString("teacher", "")
+                    )
+                )
             }
-            println("Parsed ${courses.size} courses for type: $type")
         } catch (e: Exception) {
             e.printStackTrace()
         }

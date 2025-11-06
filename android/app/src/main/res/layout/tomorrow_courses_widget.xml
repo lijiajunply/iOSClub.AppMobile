@@ -25,31 +25,31 @@
                 android:id="@+id/today_section_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="今日课程"
                 android:textColor="@color/widget_section_text_light"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="14sp" />
 
             <!-- 今日课程列表 -->
             <ListView
                 android:id="@+id/today_courses_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:divider="@null"
-                android:dividerHeight="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
-                android:layout_marginTop="8dp"/>
+                android:divider="@null"
+                android:dividerHeight="8dp" />
 
             <!-- 今日无课视图 -->
             <TextView
                 android:id="@+id/today_empty_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="16dp"
                 android:text="今日无课"
                 android:textColor="@color/widget_empty_text_light"
                 android:textSize="14sp"
-                android:gravity="center"
-                android:paddingVertical="16dp"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -57,9 +57,9 @@
         <TextView
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@color/widget_divider_light"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="4dp"
+            android:background="@color/widget_divider_light" />
 
         <!-- 明日课程区域 -->
         <LinearLayout
@@ -69,48 +69,35 @@
             android:orientation="vertical"
             android:paddingLeft="8dp">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
+            <TextView
                 android:id="@+id/tomorrow_section_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="明日课程"
                 android:textColor="@color/widget_section_text_light"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-            
-                <TextView
-                    android:id="@+id/tomorrow_date_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12月16日"
-                    android:textColor="@color/widget_date_text_light"
-                    android:textSize="12sp"
-                    android:layout_alignParentRight="true" />
-            </RelativeLayout>
+                android:textSize="14sp" />
 
             <!-- 明日课程列表 -->
             <ListView
                 android:id="@+id/tomorrow_courses_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:divider="@null"
-                android:dividerHeight="8dp"
-                android:layout_marginTop="8dp"/>
+                android:dividerHeight="8dp" />
 
-        <!-- 明日无课视图 -->
-        <TextView
-            android:id="@+id/tomorrow_empty_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="明日无课"
-            android:textColor="@color/widget_empty_text_light"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:paddingVertical="16dp"
-            android:visibility="gone" />
+            <!-- 明日无课视图 -->
+            <TextView
+                android:id="@+id/tomorrow_empty_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="16dp"
+                android:text="明日无课"
+                android:textColor="@color/widget_empty_text_light"
+                android:textSize="14sp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

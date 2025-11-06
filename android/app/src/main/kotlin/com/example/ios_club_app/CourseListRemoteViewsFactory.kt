@@ -44,13 +44,17 @@ class CourseListRemoteViewsFactory(
             views.setTextViewText(R.id.course_time, course.time)
             views.setTextViewText(R.id.course_location, course.location)
             views.setTextViewText(R.id.course_teacher, course.teacher)
-            
+
             // 根据课程名称生成颜色并设置给分隔线
             val color = CourseColorManager.generateSoftColor(course.title)
-            views.setTextViewTextSize(R.id.course_title, android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
+            views.setTextViewTextSize(
+                R.id.course_title,
+                android.util.TypedValue.COMPLEX_UNIT_SP,
+                14f
+            )
             // 设置分隔线颜色
             views.setInt(R.id.course_divider, "setBackgroundColor", color)
-            
+
             // 移除了点击事件处理
         }
 
@@ -70,12 +74,14 @@ class CourseListRemoteViewsFactory(
             val jsonArray = JSONArray(jsonString)
             for (i in 0 until jsonArray.length()) {
                 val courseObj = jsonArray.getJSONObject(i)
-                courses.add(TodayCoursesWidgetProvider.Course(
-                    title = courseObj.optString("title", ""),
-                    time = courseObj.optString("time", ""),
-                    location = courseObj.optString("location", ""),
-                    teacher = courseObj.optString("teacher", "")
-                ))
+                courses.add(
+                    TodayCoursesWidgetProvider.Course(
+                        title = courseObj.optString("title", ""),
+                        time = courseObj.optString("time", ""),
+                        location = courseObj.optString("location", ""),
+                        teacher = courseObj.optString("teacher", "")
+                    )
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
